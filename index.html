@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f5c518">
+<meta name="description" content="City Hub RPG — Fã Site Oficial da comunidade Habbo Hotel Brasil">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="City Hub RPG">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<title id="site-title">City Hub RPG — Fã Site Oficial</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black:#0a0a0f; --dark:#10101a; --card:#16162a; --border:#2a2a4a;
+  --gold:#f5c518; --gold2:#e8a800; --magenta:#e040fb; --magenta2:#c020d8;
+  --white:#f0f0ff; --gray:#888aaa; --green:#00e676; --red:#ff1744; --blue:#40c4ff;
+  --site-bg:#0a0a0f; --site-card:#16162a;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--site-bg);color:var(--white);font-family:'Rajdhani',sans-serif;font-size:16px;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.12) 2px,rgba(0,0,0,0.12) 4px);pointer-events:none;z-index:9999}
+
+/* TOPBAR */
+.topbar{background:linear-gradient(90deg,#000 0%,#1a0020 50%,#000 100%);border-bottom:2px solid var(--magenta);padding:7px 20px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--gray);font-weight:600}
+.topbar span{color:var(--magenta)} .online-count{color:var(--green)}
+.pwa-install-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:4px 10px;border-radius:4px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;cursor:pointer;display:none;text-transform:uppercase}
+
+/* NAVBAR */
+.navbar{background:linear-gradient(180deg,#12001a 0%,#0a0a0f 100%);border-bottom:3px solid var(--gold);padding:0 16px;display:flex;align-items:center;box-shadow:0 4px 30px rgba(245,197,24,0.3);position:sticky;top:0;z-index:200}
+.navbar-logo{padding:8px 16px 8px 0;border-right:2px solid var(--border);margin-right:8px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.navbar-logo img{height:44px;image-rendering:pixelated}
+.navbar-logo .site-name-nav{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;color:var(--gold);line-height:1.1}
+.nav-links{display:flex;align-items:stretch;flex:1;list-style:none;flex-wrap:wrap}
+.nav-links li>a,.nav-links li>button{display:flex;align-items:center;gap:6px;padding:16px 14px;color:var(--white);text-decoration:none;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:.5px;background:none;border:none;cursor:pointer;transition:all .15s;text-transform:uppercase;border-bottom:3px solid transparent;margin-bottom:-3px}
+.nav-links li>a:hover,.nav-links li>button:hover,.nav-links li>a.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(245,197,24,.05)}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:4px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;border:none;transition:all .15s;text-decoration:none;white-space:nowrap}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;box-shadow:0 0 12px rgba(245,197,24,.4)}
+.btn-gold:hover{box-shadow:0 0 22px rgba(245,197,24,.7);transform:translateY(-1px)}
+.btn-magenta{background:linear-gradient(135deg,var(--magenta),var(--magenta2));color:#fff;box-shadow:0 0 12px rgba(224,64,251,.4)}
+.btn-magenta:hover{box-shadow:0 0 22px rgba(224,64,251,.7);transform:translateY(-1px)}
+.btn-outline{background:transparent;border:2px solid var(--gold);color:var(--gold)}
+.btn-outline:hover{background:rgba(245,197,24,.1)}
+.btn-outline-mag{background:transparent;border:2px solid var(--magenta);color:var(--magenta)}
+.btn-sm{padding:6px 12px;font-size:12px} .btn-xs{padding:4px 9px;font-size:11px}
+.btn-danger{background:var(--red);color:#fff} .btn-green{background:var(--green);color:#000}
+.btn-gray{background:var(--border);color:var(--gray)} .btn-block{width:100%;justify-content:center}
+
+/* PAGES */
+.page{display:none;min-height:calc(100vh - 130px)} .page.active{display:block}
+
+/* HERO */
+.hero{position:relative;overflow:hidden;background:linear-gradient(180deg,#0d0012 0%,#1a0030 40%,#0a0a0f 100%);padding:50px 20px;text-align:center;border-bottom:3px solid var(--border)}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(224,64,251,.15) 0%,transparent 70%),radial-gradient(ellipse at 20% 100%,rgba(245,197,24,.1) 0%,transparent 60%)}
+.hero-banner-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.18;pointer-events:none}
+.hero-title{font-family:'Press Start 2P',monospace;font-size:clamp(10px,3vw,18px);color:var(--gold);text-shadow:0 0 20px rgba(245,197,24,.8),3px 3px 0 #000;margin-bottom:8px;position:relative}
+.hero-sub{font-family:'Press Start 2P',monospace;font-size:clamp(7px,2vw,11px);color:var(--magenta);text-shadow:0 0 15px rgba(224,64,251,.8);margin-bottom:18px;position:relative}
+.hero-desc{font-size:17px;color:var(--gray);max-width:580px;margin:0 auto 24px;position:relative;line-height:1.6}
+.hero-actions{position:relative;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.hero-welcome{position:relative;background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:8px;padding:12px 20px;display:inline-block;margin-bottom:18px;font-size:15px;color:var(--gray)}
+
+/* CONTAINER */
+.container{max-width:1200px;margin:0 auto;padding:28px 16px}
+.container-sm{max-width:720px;margin:0 auto;padding:28px 16px}
+.container-md{max-width:960px;margin:0 auto;padding:28px 16px}
+
+/* SECTION TITLE */
+.section-title{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--gold);text-transform:uppercase;letter-spacing:2px;display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.section-title::after{content:'';flex:1;height:2px;background:linear-gradient(90deg,var(--gold) 0%,transparent 100%)}
+
+/* GRIDS */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:18px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+
+/* CARD */
+.card{background:var(--site-card);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.card:hover{border-color:var(--gold);box-shadow:0 0 20px rgba(245,197,24,.1)}
+.card-header{background:linear-gradient(90deg,rgba(245,197,24,.08) 0%,transparent 100%);border-bottom:1px solid var(--border);padding:13px 16px;display:flex;align-items:center;gap:10px}
+.card-body{padding:16px}
+.card-footer{padding:11px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+
+/* POST CARD */
+.post-card{background:var(--site-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:18px;transition:border-color .2s,box-shadow .2s}
+.post-card:hover{border-color:var(--magenta);box-shadow:0 0 18px rgba(224,64,251,.08)}
+.post-img{width:100%;max-height:340px;object-fit:cover;display:block}
+.post-body{padding:16px}
+.post-title{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:8px}
+.post-text{color:var(--gray);line-height:1.65;font-size:15px;margin-bottom:12px;white-space:pre-wrap;word-break:break-word}
+.post-meta{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--gray);padding:10px 16px;border-top:1px solid var(--border);background:rgba(0,0,0,.2);flex-wrap:wrap}
+.post-meta .author{display:flex;align-items:center;gap:8px;color:var(--gold);font-weight:700;cursor:pointer}
+.post-meta .author img{width:30px;height:30px;border-radius:50%;border:2px solid var(--gold);image-rendering:pixelated}
+.post-company-badge{background:linear-gradient(135deg,var(--magenta2),var(--magenta));color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.post-company-badge img{width:18px;height:18px;border-radius:3px;object-fit:cover}
+.post-date{margin-left:auto;font-size:12px}
+.post-actions{display:flex;align-items:center;gap:8px;padding:10px 16px;border-top:1px solid var(--border)}
+.like-btn{display:flex;align-items:center;gap:5px;background:none;border:1px solid var(--border);color:var(--gray);padding:5px 12px;border-radius:20px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;transition:all .15s}
+.like-btn:hover,.like-btn.liked{border-color:var(--red);color:var(--red);background:rgba(255,23,68,.08)}
+
+/* YOUTUBE */
+.yt-preview{position:relative;width:100%;padding-bottom:56.25%;background:#000;overflow:hidden;border-bottom:1px solid var(--border)}
+.yt-preview iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+.yt-thumb-wrap{position:absolute;inset:0;cursor:pointer}
+.yt-thumb-wrap img{width:100%;height:100%;object-fit:cover}
+.yt-play-btn{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.4);transition:background .2s}
+.yt-play-btn:hover{background:rgba(0,0,0,.2)}
+.yt-play-icon{width:64px;height:64px;background:rgba(255,0,0,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.yt-play-icon::after{content:'';border-left:22px solid #fff;border-top:13px solid transparent;border-bottom:13px solid transparent;margin-left:5px}
+
+/* EMPRESA CARD */
+.empresa-card{background:var(--site-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .2s,box-shadow .2s;cursor:pointer}
+.empresa-card:hover{border-color:var(--magenta);box-shadow:0 0 20px rgba(224,64,251,.1)}
+.empresa-banner{width:100%;height:100px;object-fit:cover;display:block}
+.empresa-banner-placeholder{width:100%;height:100px;background:linear-gradient(135deg,#1a0030,#0a1a30);display:flex;align-items:center;justify-content:center;font-size:36px}
+.empresa-logo-wrap{width:56px;height:56px;border:3px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card);flex-shrink:0}
+.empresa-logo-placeholder{width:100%;height:100%;background:linear-gradient(135deg,var(--magenta2),var(--magenta));display:flex;align-items:center;justify-content:center;font-size:28px}
+.empresa-info-row{display:flex;align-items:flex-end;gap:12px;padding:0 16px;margin-bottom:4px;margin-top:-28px}
+.empresa-name{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;color:var(--white)}
+.empresa-body{padding:10px 16px 14px}
+.empresa-desc{color:var(--gray);font-size:13px;line-height:1.55}
+.empresa-footer{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.privacy-public{background:rgba(0,230,118,.15);color:var(--green);border:1px solid var(--green);font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase}
+.privacy-private{background:rgba(255,23,68,.15);color:var(--red);border:1px solid var(--red);font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase}
+
+/* ══════════════════════════════════════════════════════════
+   CARGO MEMBER CARD — avatar Habbo por nick
+══════════════════════════════════════════════════════════ */
+.cargo-section{margin-bottom:24px}
+.cargo-section-title{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:var(--magenta);text-transform:uppercase;letter-spacing:1px;padding:10px 14px;background:rgba(224,64,251,.06);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.cargo-members-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;padding:14px}
+.cargo-member-card{background:#0a0a14;border:1px solid var(--border);border-radius:8px;padding:12px 8px;text-align:center;transition:border-color .2s,box-shadow .2s;cursor:pointer}
+.cargo-member-card:hover{border-color:var(--gold);box-shadow:0 0 14px rgba(245,197,24,.15)}
+.cargo-member-avatar{width:56px;height:72px;image-rendering:pixelated;margin:0 auto 8px;display:block;object-fit:contain}
+.cargo-member-name{font-size:12px;font-weight:700;color:var(--gold);line-height:1.2;margin-bottom:3px;word-break:break-word}
+.cargo-member-role{font-size:10px;color:var(--magenta);text-transform:uppercase;letter-spacing:.5px}
+.cargo-member-actions{display:flex;gap:4px;justify-content:center;margin-top:8px}
+
+/* NICK SEARCH BOX */
+.nick-search-box{background:#0a0a14;border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:12px}
+.nick-search-box .nick-preview{display:flex;align-items:center;gap:12px;padding:10px;background:rgba(245,197,24,.05);border:1px solid var(--border);border-radius:6px;margin-top:10px}
+.nick-search-box .nick-preview img{width:40px;height:52px;image-rendering:pixelated;object-fit:contain}
+.nick-search-box .nick-preview .nick-name{font-weight:700;color:var(--gold);font-size:14px}
+.nick-search-box .nick-preview .nick-motto{font-size:12px;color:var(--gray);margin-top:2px}
+.nick-search-row{display:flex;gap:8px;align-items:flex-end}
+.nick-search-row .form-control{flex:1}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.active{display:flex}
+.modal{background:var(--dark);border:2px solid var(--gold);border-radius:12px;padding:28px;width:100%;max-width:520px;box-shadow:0 0 60px rgba(245,197,24,.25);position:relative;max-height:92vh;overflow-y:auto}
+.modal-wide{max-width:760px}
+.modal-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer;transition:color .15s;z-index:2}
+.modal-close:hover{color:var(--red)}
+.modal-title{font-family:'Orbitron',sans-serif;font-size:17px;font-weight:900;color:var(--gold);margin-bottom:22px;text-align:center}
+
+/* FORM */
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--gray);margin-bottom:6px}
+.form-control{width:100%;background:#0a0a14;border:1px solid var(--border);border-radius:6px;padding:10px 13px;color:var(--white);font-family:'Rajdhani',sans-serif;font-size:15px;transition:border-color .15s}
+.form-control:focus{outline:none;border-color:var(--gold);box-shadow:0 0 10px rgba(245,197,24,.15)}
+textarea.form-control{resize:vertical;min-height:80px}
+select.form-control option{background:#12121f}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.img-upload-area{border:2px dashed var(--border);border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:border-color .15s;background:#050510}
+.img-upload-area:hover{border-color:var(--gold)}
+.img-upload-area input[type=file]{display:none}
+.img-preview{width:100%;max-height:140px;object-fit:cover;border-radius:6px;margin-top:10px;display:none}
+.img-preview.show{display:block}
+.upload-tabs{display:flex;gap:0;margin-bottom:12px;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.upload-tab{flex:1;padding:8px;text-align:center;font-size:13px;font-weight:700;cursor:pointer;background:var(--card);color:var(--gray);transition:all .15s;text-transform:uppercase}
+.upload-tab.active{background:rgba(245,197,24,.1);color:var(--gold)}
+.code-box{background:#050510;border:2px dashed var(--magenta);border-radius:8px;padding:14px;text-align:center;margin:14px 0}
+.code-box .code{font-family:'Press Start 2P',monospace;font-size:13px;color:var(--magenta);letter-spacing:2px;text-shadow:0 0 10px var(--magenta)}
+.code-box .hint{font-size:12px;color:var(--gray);margin-top:8px;line-height:1.5}
+.alert{padding:11px 14px;border-radius:6px;margin-bottom:14px;font-size:13px;font-weight:600}
+.alert-error{background:rgba(255,23,68,.15);border:1px solid var(--red);color:#ff6090}
+.alert-success{background:rgba(0,230,118,.1);border:1px solid var(--green);color:var(--green)}
+.alert-info{background:rgba(64,196,255,.1);border:1px solid var(--blue);color:var(--blue)}
+.divider{height:1px;background:var(--border);margin:18px 0}
+
+/* CARGO LIST (form) */
+.cargo-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.cargo-item{display:flex;align-items:center;justify-content:space-between;background:#0a0a14;border:1px solid var(--border);border-radius:6px;padding:9px 14px;gap:10px}
+.cargo-item .cargo-name{font-weight:700;color:var(--white);font-size:14px}
+.cargo-item .cargo-level{font-size:12px;color:var(--magenta)}
+.cargo-add-row{display:flex;gap:8px;margin-top:10px}
+.cargo-add-row .form-control{flex:1}
+
+/* TAGS & BADGES */
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase}
+.tag-gold{background:rgba(245,197,24,.15);color:var(--gold);border:1px solid var(--gold)}
+.tag-magenta{background:rgba(224,64,251,.15);color:var(--magenta);border:1px solid var(--magenta)}
+.tag-green{background:rgba(0,230,118,.15);color:var(--green);border:1px solid var(--green)}
+.tag-red{background:rgba(255,23,68,.15);color:var(--red);border:1px solid var(--red)}
+.badge-admin{display:inline-block;background:var(--gold);color:#000;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:uppercase}
+.badge-editor{display:inline-block;background:var(--magenta);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:uppercase}
+
+/* ADMIN */
+.admin-nav{display:flex;gap:6px;margin-bottom:22px;flex-wrap:wrap}
+.admin-nav-btn{padding:8px 16px;border:1px solid var(--border);background:var(--card);color:var(--gray);border-radius:6px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;cursor:pointer;text-transform:uppercase;transition:all .15s}
+.admin-nav-btn:hover,.admin-nav-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(245,197,24,.05)}
+.admin-panel{display:none} .admin-panel.active{display:block}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:11px 13px;text-align:left;color:var(--gold);font-family:'Orbitron',sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid var(--border);background:rgba(245,197,24,.04)}
+td{padding:10px 13px;border-bottom:1px solid var(--border);color:var(--white);vertical-align:middle}
+tr:last-child td{border-bottom:none} tr:hover td{background:rgba(255,255,255,.02)}
+
+/* FEED LAYOUT */
+.feed-layout{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start}
+@media(max-width:900px){.feed-layout{grid-template-columns:1fr}}
+.feed-sidebar{position:sticky;top:80px}
+.sidebar-widget{background:var(--site-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px}
+.sidebar-widget-header{background:linear-gradient(90deg,rgba(245,197,24,.08),transparent);border-bottom:1px solid var(--border);padding:12px 16px;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px}
+.sidebar-widget-body{padding:14px}
+
+/* NOTIF */
+.notif-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;color:var(--gray);cursor:pointer}
+.notif-item:last-child{border-bottom:none}
+.notif-item:hover{background:rgba(255,255,255,.02)}
+.notif-item.unread{background:rgba(245,197,24,.04);color:var(--white)}
+.notif-icon{font-size:18px;flex-shrink:0}
+
+/* PERFIL */
+.perfil-banner{width:100%;height:160px;object-fit:cover;background:linear-gradient(135deg,#0d0012,#1a0030);border-radius:8px 8px 0 0;display:block}
+.perfil-avatar-wrap{margin:-50px 0 0 16px;position:relative;z-index:1;display:inline-block}
+.perfil-avatar-wrap img{width:90px;height:90px;image-rendering:pixelated;border:4px solid var(--gold);border-radius:8px;display:block;background:var(--card)}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:30px}
+.stat-card{background:var(--site-card);border:1px solid var(--border);border-radius:8px;padding:18px;text-align:center}
+.stat-num{font-family:'Press Start 2P',monospace;font-size:20px;margin-bottom:6px}
+.stat-label{color:var(--gray);font-size:12px;text-transform:uppercase;letter-spacing:1px}
+
+/* SOLICIT */
+.solicit-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)}
+.solicit-item:last-child{border-bottom:none}
+.solicit-item img{width:40px;height:40px;image-rendering:pixelated;border-radius:6px;border:2px solid var(--border)}
+.solicit-actions{margin-left:auto;display:flex;gap:6px}
+
+/* COLOR PICKERS */
+.color-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.color-row label{flex:1;font-size:13px;font-weight:700;color:var(--gray)}
+.color-row input[type=color]{width:44px;height:32px;border:none;background:none;cursor:pointer;border-radius:4px}
+.color-preview{width:24px;height:24px;border-radius:4px;border:1px solid var(--border)}
+
+/* FOLLOW */
+.follow-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:2px solid var(--magenta);color:var(--magenta);background:transparent;transition:all .15s;font-family:'Rajdhani',sans-serif;text-transform:uppercase}
+.follow-btn.following{background:var(--magenta);color:#fff}
+.follow-btn:hover{background:rgba(224,64,251,.15)}
+.follow-btn.following:hover{background:var(--magenta2)}
+
+/* USER SESSION */
+.user-session{display:flex;align-items:center;gap:8px}
+.user-session img{width:34px;height:34px;image-rendering:pixelated;border:2px solid var(--gold);border-radius:4px;cursor:pointer}
+.user-session .uname{font-weight:700;font-size:13px;color:var(--gold);cursor:pointer}
+.user-session .urole{font-size:11px;color:var(--gray)}
+
+/* TICKER */
+.ticker-wrap{background:rgba(245,197,24,.06);border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);overflow:hidden;padding:5px 0;display:flex;align-items:center}
+.ticker-label{color:var(--gold);font-weight:700;font-size:11px;padding:0 14px;flex-shrink:0;text-transform:uppercase}
+.ticker-track{display:flex;animation:ticker 35s linear infinite;white-space:nowrap}
+.ticker-track:hover{animation-play-state:paused}
+.ticker-item{padding:0 28px;font-size:13px;color:var(--gray)}
+.ticker-item span{color:var(--magenta)}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* PWA OFFLINE BANNER */
+.offline-banner{display:none;background:rgba(255,23,68,.15);border:1px solid var(--red);color:#ff6090;padding:8px 16px;text-align:center;font-size:13px;font-weight:700}
+.offline-banner.show{display:block}
+
+/* SPINNER */
+.spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(245,197,24,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:50px 20px;color:var(--gray)}
+.empty-state .empty-icon{font-size:40px;margin-bottom:12px}
+.empty-state .empty-title{font-family:'Orbitron',sans-serif;font-size:14px;color:var(--white);margin-bottom:8px}
+
+footer{border-top:2px solid var(--border);background:var(--dark);padding:26px 20px;text-align:center;color:var(--gray);font-size:13px;margin-top:40px}
+footer strong{color:var(--gold)} footer .foot-magenta{color:var(--magenta)}
+::-webkit-scrollbar{width:5px} ::-webkit-scrollbar-track{background:var(--dark)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--gold)}
+
+@media(max-width:700px){
+  .nav-links li>a span,.nav-links li>button span{display:none}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  .modal{padding:18px} .form-row{grid-template-columns:1fr}
+  .cargo-members-grid{grid-template-columns:repeat(auto-fill,minmax(90px,1fr))}
+}
+</style>
+</head>
+<body>
+
+<!-- OFFLINE BANNER -->
+<div class="offline-banner" id="offline-banner">⚠️ Você está offline — usando cache local</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div>🌆 <span id="topbar-name">CITY HUB RPG</span> — Fã Site Oficial</div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button class="pwa-install-btn" id="pwa-install-btn" onclick="installPWA()">📲 Instalar App</button>
+    <div class="online-count" id="online-count">● 0 online</div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-logo" onclick="showPage('home',null)">
+    <img id="navbar-logo-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 52'%3E%3Crect width='120' height='52' fill='%230a0a0f'/%3E%3Ctext x='6' y='28' font-family='serif' font-size='20' font-weight='900' fill='white'%3ECity%3C/text%3E%3Ctext x='56' y='28' font-family='serif' font-size='20' font-weight='900' fill='%23f5c518'%3EHub%3C/text%3E%3Ctext x='28' y='46' font-family='serif' font-size='14' font-weight='900' fill='%23e040fb'%3ERPG%3C/text%3E%3C/svg%3E" alt="Logo">
+    <div class="site-name-nav" id="navbar-site-name">City Hub RPG</div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#" class="active" onclick="showPage('home',this)">🏠 <span>Início</span></a></li>
+    <li><a href="#" onclick="showPage('publicacoes',this)">📰 <span>Feed</span></a></li>
+    <li><a href="#" onclick="showPage('empregos',this)">🏢 <span>Empresas</span></a></li>
+    <li id="nav-novo-post" style="display:none"><a href="#" onclick="showPage('novo-post',this)">✏️ <span>Publicar</span></a></li>
+    <li id="nav-admin" style="display:none"><a href="#" onclick="showPage('admin',this)">⚙️ <span>Admin</span></a></li>
+  </ul>
+  <div class="nav-right" id="nav-right">
+    <button class="btn btn-outline btn-sm" onclick="openModal('modal-login')">Entrar</button>
+    <button class="btn btn-gold btn-sm" onclick="openModal('modal-register')">Cadastrar</button>
+  </div>
+</nav>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-label">📡 NEWS</div>
+  <div style="overflow:hidden;flex:1">
+    <div class="ticker-track" id="ticker">
+      <div class="ticker-item">🌆 Bem-vindo ao <span>City Hub RPG</span>!</div>
+      <div class="ticker-item">💼 Novas vagas abertas nas empresas da cidade</div>
+      <div class="ticker-item">📰 Publique notícias e eventos do jogo</div>
+      <div class="ticker-item">🎮 Faça login com seu personagem <span>Habbo</span></div>
+      <div class="ticker-item">⭐ Junte-se à comunidade City Hub</div>
+      <div class="ticker-item">🌆 Bem-vindo ao <span>City Hub RPG</span>!</div>
+      <div class="ticker-item">💼 Novas vagas abertas nas empresas da cidade</div>
+      <div class="ticker-item">📰 Publique notícias e eventos do jogo</div>
+      <div class="ticker-item">🎮 Faça login com seu personagem <span>Habbo</span></div>
+      <div class="ticker-item">⭐ Junte-se à comunidade City Hub</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ HOME ═══ -->
+<div id="page-home" class="page active">
+  <div class="hero" id="hero-section">
+    <img id="hero-banner-img" class="hero-banner-img" src="" style="display:none" alt="">
+    <div class="hero-title" id="hero-title">🌆 CITY HUB RPG</div>
+    <div class="hero-sub" id="hero-sub">Fã Site Oficial — Habbo Hotel BR</div>
+    <div id="hero-welcome-box" class="hero-welcome" style="display:none"></div>
+    <p class="hero-desc" id="hero-desc">O portal oficial da comunidade City Hub RPG. Conecte seu personagem Habbo, encontre empregos e faça parte da melhor cidade do Habbo.</p>
+    <div class="hero-actions">
+      <button class="btn btn-gold" onclick="openModal('modal-register')" id="btn-hero-criar">🎮 Criar Conta</button>
+      <button class="btn btn-magenta" onclick="showPage('empregos',null)">🏢 Ver Empresas</button>
+    </div>
+  </div>
+  <div class="container">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" style="color:var(--gold)" id="stat-members">0</div><div class="stat-label">Membros</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--magenta)" id="stat-posts">0</div><div class="stat-label">Publicações</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--green)" id="stat-empresas">0</div><div class="stat-label">Empresas</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--blue)" id="stat-follows">0</div><div class="stat-label">Seguidores</div></div>
+    </div>
+    <div class="section-title">📰 Últimas Publicações</div>
+    <div id="home-posts"></div>
+    <div class="section-title" style="margin-top:36px">🏢 Empresas em Destaque</div>
+    <div id="home-empresas" class="grid-3"></div>
+  </div>
+</div>
+
+<!-- ═══ FEED ═══ -->
+<div id="page-publicacoes" class="page">
+  <div class="container">
+    <div class="feed-layout">
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+          <div class="section-title" style="margin-bottom:0">📰 Feed</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <select class="form-control" id="filter-empresa-select" style="width:auto;padding:7px 12px;font-size:13px" onchange="renderPosts()">
+              <option value="">Todas as empresas</option>
+            </select>
+            <button class="btn btn-magenta btn-sm" onclick="showPage('novo-post',null)" id="btn-publicar" style="display:none">✏️ Publicar</button>
+          </div>
+        </div>
+        <div id="posts-list"></div>
+      </div>
+      <div class="feed-sidebar">
+        <div class="sidebar-widget">
+          <div class="sidebar-widget-header">🏢 Minhas Empresas</div>
+          <div class="sidebar-widget-body" id="sidebar-minhas-empresas"><div style="color:var(--gray);font-size:13px">Entre para ver suas empresas.</div></div>
+        </div>
+        <div class="sidebar-widget">
+          <div class="sidebar-widget-header">🔔 Notificações</div>
+          <div id="notif-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ EMPRESAS ═══ -->
+<div id="page-empregos" class="page">
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+      <div class="section-title" style="margin-bottom:0">🏢 Empresas</div>
+      <input class="form-control" id="search-empresa" placeholder="🔍 Buscar empresa..." style="max-width:240px;padding:8px 12px" oninput="renderEmpresas()">
+    </div>
+    <div id="empresas-list" class="grid-3"></div>
+  </div>
+</div>
+
+<!-- ═══ EMPRESA PAGE ═══ -->
+<div id="page-empresa" class="page">
+  <div class="container-md" id="empresa-page-content"></div>
+</div>
+
+<!-- ═══ PERFIL ═══ -->
+<div id="page-perfil" class="page">
+  <div class="container-sm" id="perfil-content"></div>
+</div>
+
+<!-- ═══ NOVO POST ═══ -->
+<div id="page-novo-post" class="page">
+  <div class="container-sm">
+    <div class="section-title">✏️ Nova Publicação</div>
+    <div class="card">
+      <div class="card-body">
+        <div id="post-alert"></div>
+        <div class="form-group">
+          <label class="form-label">Empresa</label>
+          <select class="form-control" id="post-empresa"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Título</label>
+          <input type="text" class="form-control" id="post-titulo" placeholder="Título da publicação...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Conteúdo</label>
+          <textarea class="form-control" id="post-conteudo" rows="5" placeholder="Escreva o conteúdo..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Link YouTube (opcional)</label>
+          <input type="text" class="form-control" id="post-youtube" placeholder="https://youtube.com/watch?v=...">
+          <div id="yt-preview-box" style="margin-top:8px"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Imagem (opcional)</label>
+          <div class="upload-tabs">
+            <div class="upload-tab active" id="tab-upload" onclick="switchImgTab('upload')">📁 Upload</div>
+            <div class="upload-tab" id="tab-url" onclick="switchImgTab('url')">🔗 URL</div>
+          </div>
+          <div id="img-upload-panel">
+            <div class="img-upload-area" onclick="document.getElementById('post-img-file').click()">
+              <div style="color:var(--gray);font-size:13px">📁 Clique para escolher imagem (máx. 1.5MB)</div>
+              <input type="file" id="post-img-file" accept="image/*" onchange="handleImgUpload(this,'post-img-preview','post-imagem-b64')">
+              <img id="post-img-preview" class="img-preview">
+            </div>
+          </div>
+          <div id="img-url-panel" style="display:none">
+            <input type="text" class="form-control" id="post-imagem-url" placeholder="https://...">
+          </div>
+          <input type="hidden" id="post-imagem-b64">
+        </div>
+        <button class="btn btn-gold btn-block" onclick="criarPost()">📤 Publicar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ADMIN ═══ -->
+<div id="page-admin" class="page">
+  <div class="container">
+    <div class="section-title">⚙️ Painel Administrativo</div>
+    <div class="admin-nav">
+      <button class="admin-nav-btn active" onclick="showAdminPanel('adm-empresas',this)">🏢 Empresas</button>
+      <button class="admin-nav-btn" onclick="showAdminPanel('adm-posts',this)">📰 Posts</button>
+      <button class="admin-nav-btn" onclick="showAdminPanel('adm-users',this)">👥 Membros</button>
+      <button class="admin-nav-btn" onclick="showAdminPanel('adm-solicit',this)">📩 Solicitações</button>
+      <button class="admin-nav-btn" onclick="showAdminPanel('adm-cache',this)">💾 Cache PWA</button>
+      <button class="admin-nav-btn" onclick="showAdminPanel('adm-site',this)">🎨 Personalizar</button>
+    </div>
+
+    <div id="adm-empresas" class="admin-panel active">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <span style="color:var(--gray);font-size:13px">Gerencie as empresas</span>
+        <button class="btn btn-gold btn-sm" onclick="openModal('modal-nova-empresa')">+ Nova Empresa</button>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Logo</th><th>Nome</th><th>Cargos</th><th>Membros</th><th>Privacidade</th><th>Ações</th></tr></thead>
+        <tbody id="tbody-empresas"></tbody>
+      </table></div>
+    </div>
+
+    <div id="adm-posts" class="admin-panel">
+      <div class="table-wrap"><table>
+        <thead><tr><th>Título</th><th>Autor</th><th>Empresa</th><th>❤️</th><th>Data</th><th>Ações</th></tr></thead>
+        <tbody id="tbody-posts-admin"></tbody>
+      </table></div>
+    </div>
+
+    <div id="adm-users" class="admin-panel">
+      <div class="table-wrap"><table>
+        <thead><tr><th>Avatar</th><th>Habbo</th><th>Empresa(s)</th><th>Role</th><th>Ações</th></tr></thead>
+        <tbody id="tbody-users-admin"></tbody>
+      </table></div>
+    </div>
+
+    <div id="adm-solicit" class="admin-panel">
+      <div id="solicit-global-list"></div>
+    </div>
+
+    <!-- CACHE PWA PANEL -->
+    <div id="adm-cache" class="admin-panel">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">💾 Status do Cache PWA</span></div>
+          <div class="card-body">
+            <div id="cache-status-info" style="color:var(--gray);font-size:14px;line-height:1.8">
+              <div>Service Worker: <span id="sw-status" style="color:var(--gray)">Verificando...</span></div>
+              <div>Cache instalado: <span id="cache-installed" style="color:var(--gray)">—</span></div>
+              <div>Tamanho do cache: <span id="cache-size" style="color:var(--gold)">—</span></div>
+              <div>Modo PWA: <span id="pwa-mode" style="color:var(--gray)">—</span></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
+              <button class="btn btn-outline btn-sm" onclick="checkCacheStatus()">🔄 Atualizar Status</button>
+              <button class="btn btn-danger btn-sm" onclick="clearCache()">🗑️ Limpar Cache</button>
+              <button class="btn btn-gold btn-sm" onclick="forceUpdate()">⬆️ Forçar Update</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">📦 Recursos em Cache</span></div>
+          <div class="card-body">
+            <div id="cache-resources-list" style="font-size:13px;color:var(--gray);max-height:200px;overflow-y:auto">
+              Clique em "Atualizar Status" para ver os recursos.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="adm-site" class="admin-panel">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">🏷️ Identidade</span></div>
+          <div class="card-body">
+            <div class="form-group"><label class="form-label">Nome do Site</label><input type="text" class="form-control" id="cfg-site-name" placeholder="City Hub RPG"></div>
+            <div class="form-group"><label class="form-label">Slogan</label><input type="text" class="form-control" id="cfg-site-slogan" placeholder="Fã Site Oficial"></div>
+            <div class="form-group"><label class="form-label">Mensagem de Boas-vindas</label><textarea class="form-control" id="cfg-welcome-msg" rows="2"></textarea></div>
+            <div class="form-group"><label class="form-label">Descrição do Hero</label><textarea class="form-control" id="cfg-hero-desc" rows="2"></textarea></div>
+            <button class="btn btn-gold btn-sm" onclick="salvarIdentidade()">💾 Salvar</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">🎨 Cores</span></div>
+          <div class="card-body">
+            <div class="color-row"><label>Cor Principal</label><input type="color" id="color-gold" value="#f5c518" oninput="previewColor('--gold',this.value)"><div class="color-preview" id="prev-gold" style="background:#f5c518"></div></div>
+            <div class="color-row"><label>Cor Secundária</label><input type="color" id="color-mag" value="#e040fb" oninput="previewColor('--magenta',this.value)"><div class="color-preview" id="prev-mag" style="background:#e040fb"></div></div>
+            <div class="color-row"><label>Fundo do Site</label><input type="color" id="color-bg" value="#0a0a0f" oninput="previewColor('--site-bg',this.value)"><div class="color-preview" id="prev-bg" style="background:#0a0a0f"></div></div>
+            <div class="color-row"><label>Cor dos Cards</label><input type="color" id="color-card" value="#16162a" oninput="previewColor('--site-card',this.value)"><div class="color-preview" id="prev-card" style="background:#16162a"></div></div>
+            <button class="btn btn-gold btn-sm" onclick="salvarCores()">💾 Aplicar</button>
+            <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="resetCores()">↺ Padrão</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">🖼️ Logo</span></div>
+          <div class="card-body">
+            <div class="img-upload-area" onclick="document.getElementById('logo-file').click()">
+              <div style="color:var(--gray);font-size:13px">📁 Escolher logo</div>
+              <input type="file" id="logo-file" accept="image/*" onchange="handleImgUpload(this,'logo-preview','cfg-logo-b64')">
+              <img id="logo-preview" class="img-preview">
+            </div>
+            <input type="hidden" id="cfg-logo-b64">
+            <button class="btn btn-gold btn-sm" style="margin-top:12px" onclick="salvarLogo()">💾 Salvar Logo</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">🌆 Banner Hero</span></div>
+          <div class="card-body">
+            <div class="img-upload-area" onclick="document.getElementById('banner-file').click()">
+              <div style="color:var(--gray);font-size:13px">📁 Escolher banner</div>
+              <input type="file" id="banner-file" accept="image/*" onchange="handleImgUpload(this,'banner-preview','cfg-banner-b64')">
+              <img id="banner-preview" class="img-preview">
+            </div>
+            <input type="hidden" id="cfg-banner-b64">
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <button class="btn btn-gold btn-sm" onclick="salvarBanner()">💾 Salvar</button>
+              <button class="btn btn-outline btn-sm" onclick="removerBanner()">🗑️ Remover</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <strong id="footer-site-name">City Hub RPG</strong> — Fã Site Oficial <span class="foot-magenta">♦</span> Habbo Hotel Brasil<br>
+  <span style="font-size:11px;margin-top:5px;display:block">Este site não é afiliado à Sulake Oy. Uso permitido sob a Política de Fã Sites Habbo.</span>
+</footer>
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- LOGIN -->
+<div class="modal-overlay" id="modal-login">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-login')">✕</button>
+    <div class="modal-title">🔑 Entrar com Habbo</div>
+    <div id="login-step-1">
+      <div class="alert alert-info">Digite seu nome de personagem Habbo.</div>
+      <div class="form-group"><label class="form-label">Nome no Habbo</label><input type="text" class="form-control" id="login-habbo-name" placeholder="Ex: JulioHubb"></div>
+      <button class="btn btn-gold btn-block" onclick="gerarCodigoLogin()">Gerar Código →</button>
+    </div>
+    <div id="login-step-2" style="display:none">
+      <div class="code-box"><div class="code" id="login-code-display"></div><div class="hint">Cole na sua <strong style="color:var(--magenta)">Missão/Slogan</strong> no Habbo e clique Verificar.</div></div>
+      <div id="login-alert"></div>
+      <button class="btn btn-gold btn-block" style="margin-bottom:8px" onclick="verificarLogin()"><span id="btn-verificar-txt">✅ Verificar Missão</span></button>
+      <button class="btn btn-outline btn-sm btn-block" onclick="resetLoginStep()">← Voltar</button>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div class="modal-overlay" id="modal-register">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-register')">✕</button>
+    <div class="modal-title">🎮 Criar Conta</div>
+    <div id="reg-step-1">
+      <div class="alert alert-info">Verificação pelo personagem Habbo — sem senha!</div>
+      <div class="form-group"><label class="form-label">Nome no Habbo</label><input type="text" class="form-control" id="reg-habbo-name" placeholder="Ex: JulioHubb"></div>
+      <button class="btn btn-gold btn-block" onclick="gerarCodigoReg()">Continuar →</button>
+      <div class="divider"></div>
+      <div style="text-align:center;font-size:13px;color:var(--gray)">Já tem conta? <a href="#" style="color:var(--gold)" onclick="closeModal('modal-register');openModal('modal-login')">Entrar</a></div>
+    </div>
+    <div id="reg-step-2" style="display:none">
+      <div class="code-box"><div class="code" id="reg-code-display"></div><div class="hint">Cole na sua <strong style="color:var(--magenta)">Missão/Slogan</strong> no Habbo.</div></div>
+      <div id="reg-alert"></div>
+      <button class="btn btn-magenta btn-block" style="margin-bottom:8px" onclick="verificarRegistro()"><span id="btn-reg-txt">✅ Verificar e Criar Conta</span></button>
+      <button class="btn btn-outline btn-sm btn-block" onclick="resetRegStep()">← Voltar</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOVA EMPRESA -->
+<div class="modal-overlay" id="modal-nova-empresa">
+  <div class="modal modal-wide">
+    <button class="modal-close" onclick="closeModal('modal-nova-empresa')">✕</button>
+    <div class="modal-title">🏢 Nova Empresa</div>
+    <div id="empresa-alert"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Nome</label><input type="text" class="form-control" id="emp-nome" placeholder="Ex: Polícia Civil"></div>
+      <div class="form-group"><label class="form-label">Emoji</label><input type="text" class="form-control" id="emp-emoji" placeholder="🚔" maxlength="4" value="🏢"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Descrição</label><textarea class="form-control" id="emp-desc" rows="2" placeholder="Descreva a empresa..."></textarea></div>
+    <div class="form-group"><label class="form-label">Privacidade</label>
+      <select class="form-control" id="emp-privacidade">
+        <option value="public">🌍 Pública</option>
+        <option value="private">🔒 Privada (requer aprovação)</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Logo</label>
+      <div class="upload-tabs">
+        <div class="upload-tab active" id="emp-tab-upload" onclick="switchEmpImgTab('upload')">📁 Upload</div>
+        <div class="upload-tab" id="emp-tab-url" onclick="switchEmpImgTab('url')">🔗 URL</div>
+      </div>
+      <div id="emp-img-upload-panel">
+        <div class="img-upload-area" onclick="document.getElementById('emp-logo-file').click()">
+          <div style="color:var(--gray);font-size:13px">📁 Escolher logo</div>
+          <input type="file" id="emp-logo-file" accept="image/*" onchange="handleImgUpload(this,'emp-logo-preview','emp-logo-b64')">
+          <img id="emp-logo-preview" class="img-preview">
+        </div>
+        <input type="hidden" id="emp-logo-b64">
+      </div>
+      <div id="emp-img-url-panel" style="display:none"><input type="text" class="form-control" id="emp-logo-url" placeholder="https://..."></div>
+    </div>
+    <div class="form-group"><label class="form-label">Banner</label>
+      <div class="img-upload-area" onclick="document.getElementById('emp-banner-file').click()">
+        <div style="color:var(--gray);font-size:13px">📁 Escolher banner horizontal</div>
+        <input type="file" id="emp-banner-file" accept="image/*" onchange="handleImgUpload(this,'emp-banner-preview','emp-banner-b64')">
+        <img id="emp-banner-preview" class="img-preview">
+      </div>
+      <input type="hidden" id="emp-banner-b64">
+    </div>
+    <div class="form-group"><label class="form-label">Cargos</label>
+      <div id="new-emp-cargos-list" class="cargo-list"></div>
+      <div class="cargo-add-row">
+        <input type="text" class="form-control" id="new-cargo-nome" placeholder="Nome do cargo">
+        <input type="number" class="form-control" id="new-cargo-nivel" value="1" min="1" max="10" style="width:80px">
+        <button class="btn btn-outline btn-sm" onclick="addCargoToList()">+ Add</button>
+      </div>
+    </div>
+    <button class="btn btn-gold btn-block" onclick="criarEmpresa()">+ Criar Empresa</button>
+  </div>
+</div>
+
+<!-- EDITAR EMPRESA -->
+<div class="modal-overlay" id="modal-edit-empresa">
+  <div class="modal modal-wide">
+    <button class="modal-close" onclick="closeModal('modal-edit-empresa')">✕</button>
+    <div class="modal-title">✏️ Editar Empresa</div>
+    <input type="hidden" id="edit-emp-id">
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Nome</label><input type="text" class="form-control" id="edit-emp-nome"></div>
+      <div class="form-group"><label class="form-label">Emoji</label><input type="text" class="form-control" id="edit-emp-emoji" maxlength="4"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Descrição</label><textarea class="form-control" id="edit-emp-desc" rows="2"></textarea></div>
+    <div class="form-group"><label class="form-label">Privacidade</label>
+      <select class="form-control" id="edit-emp-privacidade">
+        <option value="public">🌍 Pública</option>
+        <option value="private">🔒 Privada</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Logo (trocar)</label>
+      <div class="img-upload-area" onclick="document.getElementById('edit-logo-file').click()">
+        <div style="color:var(--gray);font-size:13px">📁 Nova logo</div>
+        <input type="file" id="edit-logo-file" accept="image/*" onchange="handleImgUpload(this,'edit-logo-prev','edit-emp-logo-b64')">
+        <img id="edit-logo-prev" class="img-preview">
+      </div>
+      <input type="hidden" id="edit-emp-logo-b64">
+    </div>
+    <div class="form-group"><label class="form-label">Banner (trocar)</label>
+      <div class="img-upload-area" onclick="document.getElementById('edit-banner-file').click()">
+        <div style="color:var(--gray);font-size:13px">📁 Novo banner</div>
+        <input type="file" id="edit-banner-file" accept="image/*" onchange="handleImgUpload(this,'edit-banner-prev','edit-emp-banner-b64')">
+        <img id="edit-banner-prev" class="img-preview">
+      </div>
+      <input type="hidden" id="edit-emp-banner-b64">
+    </div>
+    <div class="form-group"><label class="form-label">Cargos</label>
+      <div id="edit-emp-cargos-list" class="cargo-list"></div>
+      <div class="cargo-add-row">
+        <input type="text" class="form-control" id="edit-cargo-nome" placeholder="Novo cargo">
+        <input type="number" class="form-control" id="edit-cargo-nivel" value="1" min="1" max="10" style="width:80px">
+        <button class="btn btn-outline btn-sm" onclick="addCargoToEditList()">+ Add</button>
+      </div>
+    </div>
+    <button class="btn btn-gold btn-block" onclick="salvarEmpresa()">💾 Salvar</button>
+  </div>
+</div>
+
+<!-- MODAL ADICIONAR MEMBRO AO CARGO (busca por nick + preview avatar) -->
+<div class="modal-overlay" id="modal-add-membro-cargo">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-add-membro-cargo')">✕</button>
+    <div class="modal-title">👤 Adicionar ao Cargo</div>
+    <input type="hidden" id="amc-empresa-id">
+    <input type="hidden" id="amc-cargo-nome">
+    <div style="background:rgba(224,64,251,.08);border:1px solid var(--magenta);border-radius:6px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--magenta)">
+      Cargo: <strong id="amc-cargo-display"></strong>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Buscar por Nick Habbo</label>
+      <div class="nick-search-row">
+        <input type="text" class="form-control" id="amc-nick-input" placeholder="Ex: JulioHubb" onkeydown="if(event.key==='Enter')buscarNickHabbo()">
+        <button class="btn btn-magenta btn-sm" onclick="buscarNickHabbo()"><span id="amc-search-txt">🔍 Buscar</span></button>
+      </div>
+    </div>
+    <div id="amc-nick-result" style="display:none" class="nick-search-box">
+      <div class="nick-preview" id="amc-nick-preview"></div>
+    </div>
+    <div id="amc-alert"></div>
+    <button class="btn btn-gold btn-block" id="amc-confirm-btn" style="display:none;margin-top:14px" onclick="confirmarAddMembroCargo()">✅ Confirmar e Adicionar</button>
+  </div>
+</div>
+
+<!-- MODAL ATRIBUIR CARGO (membro já existente) -->
+<div class="modal-overlay" id="modal-atribuir-cargo">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-atribuir-cargo')">✕</button>
+    <div class="modal-title">👔 Atribuir Cargo</div>
+    <div id="ac-preview" style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:10px;background:#0a0a14;border:1px solid var(--border);border-radius:6px"></div>
+    <input type="hidden" id="ac-user-habbo">
+    <input type="hidden" id="ac-empresa-id">
+    <div class="form-group">
+      <label class="form-label">Cargo</label>
+      <select class="form-control" id="ac-cargo-select"></select>
+    </div>
+    <button class="btn btn-gold btn-block" onclick="confirmarAtribuirCargo()">✅ Confirmar</button>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+//  DB & SESSION
+// ════════════════════════════════════════════════════════════
+let db={users:[],posts:[],empresas:[],notifs:[],config:{}};
+const ADMIN_USER='JulioHubb', ADMIN_PASS='@Ju123456789';
+let tempNewCargos=[], tempEditCargos=[];
+let pendingLoginCode='', pendingLoginName='';
+let pendingRegCode='', pendingRegName='';
+let amcFoundHabbo=null; // nick found in add-member-to-cargo modal
+
+function loadDB(){
+  try{
+    const s=localStorage.getItem('chv3_db');
+    if(s){const p=JSON.parse(s);db.users=p.users||[];db.posts=p.posts||[];db.empresas=p.empresas||[];db.notifs=p.notifs||[];db.config=p.config||{};}
+    const sess=localStorage.getItem('chv3_sess');
+    if(sess) db.session=JSON.parse(sess);
+  }catch(e){}
+}
+function saveDB(){
+  try{localStorage.setItem('chv3_db',JSON.stringify({users:db.users,posts:db.posts,empresas:db.empresas,notifs:db.notifs,config:db.config}));}
+  catch(e){showToast('localStorage cheio! Remova imagens grandes.','error');}
+}
+function saveSession(){
+  if(db.session) localStorage.setItem('chv3_sess',JSON.stringify(db.session));
+  else localStorage.removeItem('chv3_sess');
+}
+
+// ════════════════════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════════════════════
+function genCode(p){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let r=p+'-';for(let i=0;i<6;i++)r+=c[Math.floor(Math.random()*c.length)];return r;}
+function avatarUrl(n){return`https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(n)}&direction=2&head_direction=2&size=m&action=std`;}
+function avatarUrlLarge(n){return`https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(n)}&direction=2&head_direction=2&size=l&action=std`;}
+function dateStr(){return new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function extractYTId(url){if(!url)return null;const m=url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/);return m?m[1]:null;}
+
+// ════════════════════════════════════════════════════════════
+//  PWA — Service Worker + Install
+// ════════════════════════════════════════════════════════════
+let deferredInstallPrompt=null;
+
+function initPWA(){
+  // Register SW
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('/sw.js').then(reg=>{
+      console.log('[PWA] SW registrado:', reg.scope);
+      // Check for update
+      reg.addEventListener('updatefound',()=>{
+        const newSW=reg.installing;
+        newSW.addEventListener('statechange',()=>{
+          if(newSW.state==='installed'&&navigator.serviceWorker.controller){
+            showToast('🔄 Nova versão disponível! Clique em Forçar Update no Admin.','info');
+          }
+        });
+      });
+    }).catch(err=>console.warn('[PWA] SW error:',err));
+  }
+
+  // Online/Offline
+  window.addEventListener('online',()=>{
+    document.getElementById('offline-banner').classList.remove('show');
+    showToast('✅ Conexão restaurada!','success');
+  });
+  window.addEventListener('offline',()=>{
+    document.getElementById('offline-banner').classList.add('show');
+    showToast('⚠️ Você está offline.','error');
+  });
+  if(!navigator.onLine) document.getElementById('offline-banner').classList.add('show');
+
+  // Install prompt
+  window.addEventListener('beforeinstallprompt',e=>{
+    e.preventDefault();
+    deferredInstallPrompt=e;
+    document.getElementById('pwa-install-btn').style.display='inline-block';
+  });
+
+  window.addEventListener('appinstalled',()=>{
+    document.getElementById('pwa-install-btn').style.display='none';
+    deferredInstallPrompt=null;
+    showToast('📲 App instalado com sucesso!');
+  });
+}
+
+function installPWA(){
+  if(!deferredInstallPrompt){showToast('App já instalado ou não disponível.','info');return;}
+  deferredInstallPrompt.prompt();
+  deferredInstallPrompt.userChoice.then(r=>{
+    if(r.outcome==='accepted') showToast('📲 App instalado!');
+    deferredInstallPrompt=null;
+    document.getElementById('pwa-install-btn').style.display='none';
+  });
+}
+
+async function checkCacheStatus(){
+  const swStatus=document.getElementById('sw-status');
+  const cacheInst=document.getElementById('cache-installed');
+  const cacheSize=document.getElementById('cache-size');
+  const pwaMode=document.getElementById('pwa-mode');
+  const resList=document.getElementById('cache-resources-list');
+
+  if('serviceWorker' in navigator && navigator.serviceWorker.controller){
+    swStatus.textContent='✅ Ativo'; swStatus.style.color='var(--green)';
+  } else if('serviceWorker' in navigator){
+    swStatus.textContent='⏳ Registrado (sem controle)'; swStatus.style.color='var(--gold)';
+  } else {
+    swStatus.textContent='❌ Não suportado'; swStatus.style.color='var(--red)';
+  }
+
+  pwaMode.textContent = window.matchMedia('(display-mode: standalone)').matches ? '✅ Standalone (App)' : '🌐 Browser';
+  pwaMode.style.color = window.matchMedia('(display-mode: standalone)').matches ? 'var(--green)' : 'var(--gray)';
+
+  if('caches' in window){
+    const keys=await caches.keys();
+    cacheInst.textContent=keys.length>0?`✅ ${keys.length} cache(s)`:'❌ Nenhum cache';
+    cacheInst.style.color=keys.length>0?'var(--green)':'var(--red)';
+
+    let total=0, resources=[];
+    for(const k of keys){
+      const c=await caches.open(k);
+      const reqs=await c.keys();
+      for(const r of reqs){
+        const res=await c.match(r);
+        if(res){const b=await res.blob();total+=b.size;resources.push(new URL(r.url).pathname);}
+      }
+    }
+    cacheSize.textContent=total>1024*1024?`${(total/1024/1024).toFixed(2)} MB`:`${(total/1024).toFixed(1)} KB`;
+    resList.innerHTML=resources.slice(0,20).map(r=>`<div style="padding:3px 0;border-bottom:1px solid var(--border);font-family:monospace;font-size:11px">${escHtml(r)}</div>`).join('')+(resources.length>20?`<div style="color:var(--magenta);font-size:12px;margin-top:4px">...e mais ${resources.length-20} recursos</div>`:'');
+  }
+}
+
+async function clearCache(){
+  if(!confirm('Limpar todo o cache PWA?')) return;
+  if('caches' in window){
+    const keys=await caches.keys();
+    await Promise.all(keys.map(k=>caches.delete(k)));
+    showToast('Cache limpo! Recarregue a página.','success');
+    checkCacheStatus();
+  }
+}
+
+function forceUpdate(){
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistration().then(reg=>{
+      if(reg) reg.update().then(()=>showToast('Update verificado!','success'));
+      if(navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage('SKIP_WAITING');
+      setTimeout(()=>window.location.reload(),1000);
+    });
+  } else {window.location.reload();}
+}
+
+// ════════════════════════════════════════════════════════════
+//  SITE CONFIG
+// ════════════════════════════════════════════════════════════
+function applyConfig(){
+  const c=db.config;
+  if(c.colorGold) document.documentElement.style.setProperty('--gold',c.colorGold);
+  if(c.colorMag){document.documentElement.style.setProperty('--magenta',c.colorMag);document.documentElement.style.setProperty('--magenta2',c.colorMag);}
+  if(c.colorBg){document.documentElement.style.setProperty('--site-bg',c.colorBg);document.documentElement.style.setProperty('--black',c.colorBg);}
+  if(c.colorCard){document.documentElement.style.setProperty('--site-card',c.colorCard);document.documentElement.style.setProperty('--card',c.colorCard);}
+  const sn=c.siteName||'City Hub RPG', sl=c.siteSlogan||'Fã Site Oficial — Habbo Hotel BR';
+  document.title=sn+' — Fã Site Oficial';
+  ['topbar-name','navbar-site-name','footer-site-name'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=sn;});
+  const ht=document.getElementById('hero-title');if(ht)ht.textContent='🌆 '+sn;
+  const hs=document.getElementById('hero-sub');if(hs)hs.textContent=sl;
+  if(c.heroDesc){const hd=document.getElementById('hero-desc');if(hd)hd.textContent=c.heroDesc;}
+  if(c.logoB64){const li=document.getElementById('navbar-logo-img');if(li)li.src=c.logoB64;}
+  const bi=document.getElementById('hero-banner-img');
+  if(bi){if(c.bannerB64){bi.src=c.bannerB64;bi.style.display='block';}else bi.style.display='none';}
+  const wb=document.getElementById('hero-welcome-box');
+  if(wb){if(c.welcomeMsg){wb.textContent=c.welcomeMsg;wb.style.display='inline-block';}else wb.style.display='none';}
+}
+function previewColor(v,val){document.documentElement.style.setProperty(v,val);const m={'--gold':'prev-gold','--magenta':'prev-mag','--site-bg':'prev-bg','--site-card':'prev-card'};if(m[v]){const el=document.getElementById(m[v]);if(el)el.style.background=val;}}
+function salvarCores(){db.config.colorGold=document.getElementById('color-gold').value;db.config.colorMag=document.getElementById('color-mag').value;db.config.colorBg=document.getElementById('color-bg').value;db.config.colorCard=document.getElementById('color-card').value;saveDB();applyConfig();showToast('Cores salvas!');}
+function resetCores(){db.config.colorGold=db.config.colorMag=db.config.colorBg=db.config.colorCard=null;saveDB();['--gold','--magenta','--site-bg','--site-card','--black','--card'].forEach(v=>document.documentElement.style.removeProperty(v));showToast('Cores resetadas!');}
+function salvarIdentidade(){db.config.siteName=document.getElementById('cfg-site-name').value.trim()||'City Hub RPG';db.config.siteSlogan=document.getElementById('cfg-site-slogan').value.trim();db.config.welcomeMsg=document.getElementById('cfg-welcome-msg').value.trim();db.config.heroDesc=document.getElementById('cfg-hero-desc').value.trim();saveDB();applyConfig();showToast('Identidade salva!');}
+function salvarLogo(){const b=document.getElementById('cfg-logo-b64').value;if(!b){showToast('Escolha uma imagem.','error');return;}db.config.logoB64=b;saveDB();applyConfig();showToast('Logo salva!');}
+function salvarBanner(){const b=document.getElementById('cfg-banner-b64').value;if(!b){showToast('Escolha uma imagem.','error');return;}db.config.bannerB64=b;saveDB();applyConfig();showToast('Banner salvo!');}
+function removerBanner(){db.config.bannerB64=null;saveDB();applyConfig();showToast('Banner removido.');}
+function loadAdminSiteForm(){const c=db.config,f=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||'';};f('cfg-site-name',c.siteName);f('cfg-site-slogan',c.siteSlogan);f('cfg-welcome-msg',c.welcomeMsg);f('cfg-hero-desc',c.heroDesc);f('color-gold',c.colorGold||'#f5c518');f('color-mag',c.colorMag||'#e040fb');f('color-bg',c.colorBg||'#0a0a0f');f('color-card',c.colorCard||'#16162a');}
+
+// ════════════════════════════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════════════════════════════
+function showToast(msg,type='success'){
+  let t=document.getElementById('_toast');
+  if(!t){t=document.createElement('div');t.id='_toast';t.style.cssText='position:fixed;bottom:24px;right:24px;z-index:9000;display:flex;flex-direction:column;gap:8px;';document.body.appendChild(t);}
+  const style=document.createElement('style');style.textContent='@keyframes ti{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}';document.head.appendChild(style);
+  const d=document.createElement('div');d.style.cssText=`background:${type==='error'?'#ff1744':type==='info'?'#40c4ff':'#00e676'};color:#000;padding:10px 18px;border-radius:8px;font-weight:700;font-size:14px;font-family:'Rajdhani',sans-serif;box-shadow:0 4px 20px rgba(0,0,0,.4);animation:ti .2s ease;`;
+  d.textContent=msg;t.appendChild(d);setTimeout(()=>d.remove(),3000);
+}
+
+// ════════════════════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════════════════════
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
+  if(el&&el.classList) el.classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='publicacoes'){renderPosts();renderSidebar();renderFilterSelect();}
+  if(id==='empregos') renderEmpresas();
+  if(id==='home') renderHome();
+  if(id==='admin'){renderAdmin();loadAdminSiteForm();}
+  if(id==='novo-post') renderSelectEmpresas();
+}
+
+// ════════════════════════════════════════════════════════════
+//  MODALS
+// ════════════════════════════════════════════════════════════
+function openModal(id){document.getElementById(id).classList.add('active');}
+function closeModal(id){document.getElementById(id).classList.remove('active');}
+window.addEventListener('click',e=>{if(e.target.classList.contains('modal-overlay'))e.target.classList.remove('active');});
+
+// ════════════════════════════════════════════════════════════
+//  IMG UPLOAD
+// ════════════════════════════════════════════════════════════
+function handleImgUpload(input,prevId,hidId){
+  const f=input.files[0];if(!f)return;
+  if(f.size>1.5*1024*1024){showToast('Imagem muito grande! Máx 1.5MB.','error');return;}
+  const r=new FileReader();
+  r.onload=e=>{const b=e.target.result;const p=document.getElementById(prevId);if(p){p.src=b;p.classList.add('show');}const h=document.getElementById(hidId);if(h)h.value=b;};
+  r.readAsDataURL(f);
+}
+function switchImgTab(t){document.getElementById('tab-upload').classList.toggle('active',t==='upload');document.getElementById('tab-url').classList.toggle('active',t==='url');document.getElementById('img-upload-panel').style.display=t==='upload'?'block':'none';document.getElementById('img-url-panel').style.display=t==='url'?'block':'none';}
+function switchEmpImgTab(t){document.getElementById('emp-tab-upload').classList.toggle('active',t==='upload');document.getElementById('emp-tab-url').classList.toggle('active',t==='url');document.getElementById('emp-img-upload-panel').style.display=t==='upload'?'block':'none';document.getElementById('emp-img-url-panel').style.display=t==='url'?'block':'none';}
+
+// ════════════════════════════════════════════════════════════
+//  AUTH — LOGIN
+// ════════════════════════════════════════════════════════════
+function gerarCodigoLogin(){
+  const name=document.getElementById('login-habbo-name').value.trim();
+  if(!name){showToast('Digite seu nome!','error');return;}
+  pendingLoginName=name;
+  if(name.toLowerCase()===ADMIN_USER.toLowerCase()){const pw=prompt('Senha admin:');if(pw===ADMIN_PASS){loginSuccess(ADMIN_USER,'admin');closeModal('modal-login');return;}}
+  pendingLoginCode=genCode('CHR');
+  document.getElementById('login-code-display').textContent=pendingLoginCode;
+  document.getElementById('login-step-1').style.display='none';
+  document.getElementById('login-step-2').style.display='block';
+  document.getElementById('login-alert').innerHTML='';
+}
+async function verificarLogin(){
+  const btn=document.getElementById('btn-verificar-txt');btn.innerHTML='<span class="spinner"></span> Verificando...';
+  document.getElementById('login-alert').innerHTML='';
+  try{
+    const res=await fetch(`https://www.habbo.com.br/api/public/users?name=${encodeURIComponent(pendingLoginName)}`);
+    if(!res.ok)throw new Error();
+    const data=await res.json();const motto=(data.motto||'').trim();
+    if(motto===pendingLoginCode){
+      const user=db.users.find(u=>u.habbo.toLowerCase()===pendingLoginName.toLowerCase());
+      if(!user){document.getElementById('login-alert').innerHTML='<div class="alert alert-error">Sem conta. <a href="#" style="color:var(--gold)" onclick="closeModal(\'modal-login\');openModal(\'modal-register\')">Cadastre-se</a>.</div>';}
+      else{loginSuccess(user.habbo,user.role,user.empresaId);closeModal('modal-login');}
+    }else{document.getElementById('login-alert').innerHTML=`<div class="alert alert-error">Missão atual: "<strong>${escHtml(motto)||'(vazia)'}</strong>"</div>`;}
+  }catch(e){document.getElementById('login-alert').innerHTML='<div class="alert alert-error">Erro ao consultar API do Habbo.</div>';}
+  btn.innerHTML='✅ Verificar Missão';
+}
+function resetLoginStep(){document.getElementById('login-step-1').style.display='block';document.getElementById('login-step-2').style.display='none';}
+
+// ════════════════════════════════════════════════════════════
+//  AUTH — REGISTER
+// ════════════════════════════════════════════════════════════
+function gerarCodigoReg(){
+  const name=document.getElementById('reg-habbo-name').value.trim();
+  if(!name){showToast('Digite seu nome!','error');return;}
+  if(db.users.find(u=>u.habbo.toLowerCase()===name.toLowerCase())){showToast('Conta já existe! Faça login.','info');closeModal('modal-register');openModal('modal-login');return;}
+  pendingRegName=name;pendingRegCode=genCode('CHR');
+  document.getElementById('reg-code-display').textContent=pendingRegCode;
+  document.getElementById('reg-step-1').style.display='none';document.getElementById('reg-step-2').style.display='block';document.getElementById('reg-alert').innerHTML='';
+}
+async function verificarRegistro(){
+  const btn=document.getElementById('btn-reg-txt');btn.innerHTML='<span class="spinner"></span> Verificando...';document.getElementById('reg-alert').innerHTML='';
+  try{
+    const res=await fetch(`https://www.habbo.com.br/api/public/users?name=${encodeURIComponent(pendingRegName)}`);
+    if(!res.ok)throw new Error();
+    const data=await res.json();const motto=(data.motto||'').trim();
+    if(motto===pendingRegCode){
+      const role=pendingRegName.toLowerCase()===ADMIN_USER.toLowerCase()?'admin':'member';
+      const u={habbo:data.name||pendingRegName,role,empresaId:null,seguindo:[],registrado:dateStr()};
+      db.users.push(u);saveDB();loginSuccess(u.habbo,u.role);closeModal('modal-register');
+    }else{document.getElementById('reg-alert').innerHTML=`<div class="alert alert-error">Missão atual: "<strong>${escHtml(motto)||'(vazia)'}</strong>"</div>`;}
+  }catch(e){document.getElementById('reg-alert').innerHTML='<div class="alert alert-error">Erro ao consultar API do Habbo.</div>';}
+  btn.innerHTML='✅ Verificar e Criar Conta';
+}
+function resetRegStep(){document.getElementById('reg-step-1').style.display='block';document.getElementById('reg-step-2').style.display='none';}
+
+// ════════════════════════════════════════════════════════════
+//  SESSION
+// ════════════════════════════════════════════════════════════
+function loginSuccess(habbo,role,empresaId){
+  db.session={habbo,role,empresaId:empresaId||null};saveSession();updateNav();renderHome();
+  showPage('home',document.querySelector('.nav-links a'));showToast(`Bem-vindo, ${habbo}!`);
+}
+function logout(){db.session=null;saveSession();updateNav();renderHome();showPage('home',document.querySelector('.nav-links a'));}
+
+function canUserPost(habbo){return db.empresas.some(e=>e.editor===habbo||(e.editores||[]).includes(habbo));}
+function getUserEmpresas(habbo,role){if(role==='admin')return db.empresas;return db.empresas.filter(e=>e.editor===habbo||(e.editores||[]).includes(habbo));}
+function canManageEmpresa(habbo,role,empId){if(role==='admin')return true;const e=db.empresas.find(x=>x.id==empId);if(!e)return false;return e.editor===habbo||(e.editores||[]).includes(habbo);}
+
+function updateNav(){
+  const s=db.session,nr=document.getElementById('nav-right'),np=document.getElementById('nav-novo-post'),na=document.getElementById('nav-admin'),bp=document.getElementById('btn-publicar');
+  if(s){
+    const canPost=s.role==='admin'||canUserPost(s.habbo);
+    nr.innerHTML=`<div class="user-session"><img src="${avatarUrl(s.habbo)}" onclick="openPerfil('${s.habbo}')" onerror="this.style.display='none'"><div><div class="uname" onclick="openPerfil('${s.habbo}')">${escHtml(s.habbo)}</div><div class="urole">${s.role==='admin'?'⭐ Admin':s.role==='editor'?'✏️ Editor':'👤 Membro'}</div></div><button class="btn btn-outline btn-sm" onclick="logout()">Sair</button></div>`;
+    np.style.display=canPost?'block':'none';if(bp)bp.style.display=canPost?'inline-flex':'none';
+    na.style.display=s.role==='admin'?'block':'none';
+  }else{
+    nr.innerHTML=`<button class="btn btn-outline btn-sm" onclick="openModal('modal-login')">Entrar</button><button class="btn btn-gold btn-sm" onclick="openModal('modal-register')">Cadastrar</button>`;
+    np.style.display='none';na.style.display='none';if(bp)bp.style.display='none';
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  YOUTUBE
+// ════════════════════════════════════════════════════════════
+document.addEventListener('input',e=>{if(e.target.id==='post-youtube')previewYT(e.target.value);});
+function previewYT(url){const box=document.getElementById('yt-preview-box');if(!box)return;const id=extractYTId(url);if(!id){box.innerHTML='';return;}box.innerHTML=`<div style="border-radius:8px;overflow:hidden;border:1px solid var(--border)"><iframe width="100%" height="200" src="https://www.youtube.com/embed/${id}" frameborder="0" allowfullscreen style="display:block"></iframe></div>`;}
+
+// ════════════════════════════════════════════════════════════
+//  POSTS
+// ════════════════════════════════════════════════════════════
+function renderSelectEmpresas(){
+  const sel=document.getElementById('post-empresa'),s=db.session;
+  if(!s){sel.innerHTML='<option value="">Faça login primeiro</option>';return;}
+  const emps=getUserEmpresas(s.habbo,s.role);
+  if(!emps.length){sel.innerHTML='<option value="">Sem empresa disponível</option>';document.getElementById('post-alert').innerHTML='<div class="alert alert-error">Você não é editor de nenhuma empresa.</div>';return;}
+  sel.innerHTML='<option value="">Selecione...</option>'+emps.map(e=>`<option value="${e.id}">${e.emoji||'🏢'} ${escHtml(e.nome)}</option>`).join('');
+  document.getElementById('post-alert').innerHTML='';
+}
+
+function criarPost(){
+  const alrt=document.getElementById('post-alert'),empresa=document.getElementById('post-empresa').value,titulo=document.getElementById('post-titulo').value.trim(),conteudo=document.getElementById('post-conteudo').value.trim();
+  const ytUrl=document.getElementById('post-youtube').value.trim();
+  const imgTab=document.getElementById('tab-upload').classList.contains('active')?'upload':'url';
+  const imagem=imgTab==='upload'?document.getElementById('post-imagem-b64').value:document.getElementById('post-imagem-url').value.trim();
+  if(!empresa){alrt.innerHTML='<div class="alert alert-error">Selecione uma empresa.</div>';return;}
+  if(!titulo){alrt.innerHTML='<div class="alert alert-error">Digite um título.</div>';return;}
+  if(!conteudo){alrt.innerHTML='<div class="alert alert-error">Escreva o conteúdo.</div>';return;}
+  const s=db.session;if(!s){alrt.innerHTML='<div class="alert alert-error">Faça login.</div>';return;}
+  const emp=db.empresas.find(e=>e.id==empresa);
+  if(s.role!=='admin'&&emp&&emp.editor!==s.habbo&&!(emp.editores||[]).includes(s.habbo)){alrt.innerHTML='<div class="alert alert-error">Sem permissão para esta empresa.</div>';return;}
+  const ytId=extractYTId(ytUrl);
+  const post={id:Date.now(),titulo,conteudo,imagem,ytId,empresaId:empresa,empresaNome:emp?emp.nome:'Geral',empresaEmoji:emp?emp.emoji:'📢',empresaLogo:emp?emp.logo:'',autor:s.habbo,data:dateStr(),likes:[],comments:[]};
+  db.posts.unshift(post);saveDB();
+  (emp?.seguidores||[]).forEach(h=>{if(h!==s.habbo)addNotif(h,`Nova publicação em ${emp.nome}: ${titulo}`,'📰');});
+  alrt.innerHTML='<div class="alert alert-success">Publicação criada!</div>';
+  ['post-titulo','post-conteudo','post-youtube','post-imagem-b64','post-imagem-url'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('yt-preview-box').innerHTML='';const p=document.getElementById('post-img-preview');if(p){p.src='';p.classList.remove('show');}
+  updateStats();setTimeout(()=>showPage('publicacoes',null),900);
+}
+
+function renderPosts(containerEl,maxPosts){
+  const el=document.getElementById(containerEl||'posts-list');if(!el)return;
+  let posts=[...db.posts];
+  if(!containerEl){const fSel=document.getElementById('filter-empresa-select');if(fSel&&fSel.value)posts=posts.filter(p=>p.empresaId==fSel.value);}
+  if(maxPosts)posts=posts.slice(0,maxPosts);
+  if(!posts.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">📰</div><div class="empty-title">Nenhuma publicação ainda</div></div>';return;}
+  el.innerHTML=posts.map(p=>renderPostCard(p)).join('');
+}
+
+function renderPostCard(p){
+  const s=db.session,liked=s&&(p.likes||[]).includes(s.habbo);
+  const ytHtml=p.ytId?`<div class="yt-preview" id="yt-wrap-${p.id}"><div class="yt-thumb-wrap" onclick="playYT(${p.id},'${p.ytId}')"><img src="https://img.youtube.com/vi/${p.ytId}/hqdefault.jpg" alt="Video"><div class="yt-play-btn"><div class="yt-play-icon"></div></div></div></div>`:'';
+  const imgHtml=(p.imagem&&!p.ytId)?`<img class="post-img" src="${escHtml(p.imagem)}" alt="" onerror="this.style.display='none'">`:'';
+  const logoHtml=p.empresaLogo?`<img src="${escHtml(p.empresaLogo)}" style="width:18px;height:18px;border-radius:3px;object-fit:cover;">`:p.empresaEmoji;
+  const canDel=s&&(s.role==='admin'||s.habbo===p.autor);
+  return `<div class="post-card" id="post-${p.id}">${ytHtml}${imgHtml}<div class="post-body"><div style="margin-bottom:8px"><span class="post-company-badge" onclick="openEmpresaPage(${p.empresaId})">${logoHtml} ${escHtml(p.empresaNome)}</span></div><div class="post-title">${escHtml(p.titulo)}</div><div class="post-text">${escHtml(p.conteudo)}</div></div><div class="post-actions"><button class="like-btn ${liked?'liked':''}" onclick="toggleLike(${p.id})">${liked?'❤️':'🤍'} <span id="likes-${p.id}">${(p.likes||[]).length}</span></button>${canDel?`<button class="btn btn-danger btn-xs" style="margin-left:auto" onclick="deletarPost(${p.id})">🗑️</button>`:''}</div><div class="post-meta"><div class="author" onclick="openPerfil('${p.autor}')"><img src="${avatarUrl(p.autor)}" onerror="this.style.display='none'"><div><div style="font-size:13px">${escHtml(p.autor)}</div></div></div><div class="post-date">${p.data}</div></div></div>`;
+}
+
+function playYT(postId,ytId){const w=document.getElementById('yt-wrap-'+postId);if(w)w.innerHTML=`<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1" frameborder="0" allowfullscreen allow="autoplay" style="position:absolute;inset:0;width:100%;height:100%"></iframe>`;}
+
+function toggleLike(postId){
+  if(!db.session){showToast('Faça login para curtir.','info');return;}
+  const post=db.posts.find(p=>p.id===postId);if(!post)return;
+  post.likes=post.likes||[];const idx=post.likes.indexOf(db.session.habbo);
+  if(idx>-1)post.likes.splice(idx,1);else{post.likes.push(db.session.habbo);if(post.autor!==db.session.habbo)addNotif(post.autor,`${db.session.habbo} curtiu "${post.titulo}"`,'❤️');}
+  saveDB();
+  const btn=document.querySelector(`#post-${postId} .like-btn`);
+  if(btn)btn.innerHTML=(idx===-1?'❤️':'🤍')+` <span id="likes-${postId}">${post.likes.length}</span>`;
+}
+
+function deletarPost(id){if(!confirm('Deletar?'))return;db.posts=db.posts.filter(p=>p.id!==id);saveDB();renderPosts();renderAdmin();updateStats();showToast('Post removido.');}
+
+function renderFilterSelect(){const sel=document.getElementById('filter-empresa-select');if(!sel)return;sel.innerHTML='<option value="">Todas as empresas</option>'+db.empresas.map(e=>`<option value="${e.id}">${e.emoji} ${escHtml(e.nome)}</option>`).join('');}
+
+// ════════════════════════════════════════════════════════════
+//  EMPRESAS — CARGOS TEMPORÁRIOS
+// ════════════════════════════════════════════════════════════
+let tempNewCargos=[], tempEditCargos=[];
+function addCargoToList(){const n=document.getElementById('new-cargo-nome').value.trim(),lv=parseInt(document.getElementById('new-cargo-nivel').value)||1;if(!n)return;tempNewCargos.push({id:Date.now(),nome:n,nivel:lv});document.getElementById('new-cargo-nome').value='';renderTempCargos('new-emp-cargos-list',tempNewCargos,'new');}
+function addCargoToEditList(){const n=document.getElementById('edit-cargo-nome').value.trim(),lv=parseInt(document.getElementById('edit-cargo-nivel').value)||1;if(!n)return;tempEditCargos.push({id:Date.now(),nome:n,nivel:lv});document.getElementById('edit-cargo-nome').value='';renderTempCargos('edit-emp-cargos-list',tempEditCargos,'edit');}
+function removeTempCargo(type,id){if(type==='new')tempNewCargos=tempNewCargos.filter(c=>c.id!==id);else tempEditCargos=tempEditCargos.filter(c=>c.id!==id);renderTempCargos(type==='new'?'new-emp-cargos-list':'edit-emp-cargos-list',type==='new'?tempNewCargos:tempEditCargos,type);}
+function renderTempCargos(cid,list,type){const el=document.getElementById(cid);if(!el)return;if(!list.length){el.innerHTML='<div style="color:var(--gray);font-size:13px;padding:6px 0">Nenhum cargo.</div>';return;}el.innerHTML=list.map(c=>`<div class="cargo-item"><div><div class="cargo-name">${escHtml(c.nome)}</div><div class="cargo-level">Nível ${c.nivel}</div></div><button class="btn btn-danger btn-xs" onclick="removeTempCargo('${type}',${c.id})">✕</button></div>`).join('');}
+
+// ════════════════════════════════════════════════════════════
+//  EMPRESAS — CRUD
+// ════════════════════════════════════════════════════════════
+function criarEmpresa(){
+  const nome=document.getElementById('emp-nome').value.trim();
+  if(!nome){document.getElementById('empresa-alert').innerHTML='<div class="alert alert-error">Digite o nome.</div>';return;}
+  const emoji=document.getElementById('emp-emoji').value.trim()||'🏢';
+  const desc=document.getElementById('emp-desc').value.trim();
+  const priv=document.getElementById('emp-privacidade').value;
+  const logoB64=document.getElementById('emp-logo-b64').value;
+  const logoUrl=document.getElementById('emp-logo-url').value.trim();
+  const logo=logoB64||logoUrl;
+  const bannerB64=document.getElementById('emp-banner-b64').value;
+  const emp={id:Date.now(),nome,emoji,desc,privacidade:priv,logo,banner:bannerB64,editor:'',editores:[],cargos:[...tempNewCargos],membros:[],seguidores:[],solicitacoes:[],criado:dateStr()};
+  db.empresas.push(emp);saveDB();tempNewCargos=[];
+  closeModal('modal-nova-empresa');
+  ['emp-nome','emp-desc','emp-logo-b64','emp-logo-url','emp-banner-b64'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('new-emp-cargos-list').innerHTML='';
+  renderAdmin();renderEmpresas();updateStats();showToast('Empresa criada!');
+}
+
+function editarEmpresa(id){
+  const e=db.empresas.find(x=>x.id==id);if(!e)return;
+  document.getElementById('edit-emp-id').value=id;
+  document.getElementById('edit-emp-nome').value=e.nome;
+  document.getElementById('edit-emp-emoji').value=e.emoji;
+  document.getElementById('edit-emp-desc').value=e.desc||'';
+  document.getElementById('edit-emp-privacidade').value=e.privacidade||'public';
+  document.getElementById('edit-emp-logo-b64').value='';
+  document.getElementById('edit-emp-banner-b64').value='';
+  tempEditCargos=[...(e.cargos||[])];
+  renderTempCargos('edit-emp-cargos-list',tempEditCargos,'edit');
+  openModal('modal-edit-empresa');
+}
+
+function salvarEmpresa(){
+  const id=document.getElementById('edit-emp-id').value;const e=db.empresas.find(x=>x.id==id);if(!e)return;
+  e.nome=document.getElementById('edit-emp-nome').value.trim();
+  e.emoji=document.getElementById('edit-emp-emoji').value.trim()||'🏢';
+  e.desc=document.getElementById('edit-emp-desc').value.trim();
+  e.privacidade=document.getElementById('edit-emp-privacidade').value;
+  e.cargos=[...tempEditCargos];
+  const nl=document.getElementById('edit-emp-logo-b64').value;if(nl)e.logo=nl;
+  const nb=document.getElementById('edit-emp-banner-b64').value;if(nb)e.banner=nb;
+  saveDB();closeModal('modal-edit-empresa');renderAdmin();renderEmpresas();showToast('Empresa atualizada!');
+}
+
+function deletarEmpresa(id){if(!confirm('Deletar empresa e posts?'))return;db.empresas=db.empresas.filter(e=>e.id!=id);db.posts=db.posts.filter(p=>p.empresaId!=id);saveDB();renderAdmin();renderEmpresas();updateStats();showToast('Empresa removida.');}
+
+function renderEmpresas(){
+  const el=document.getElementById('empresas-list');if(!el)return;
+  const q=(document.getElementById('search-empresa')||{}).value||'';
+  let emps=db.empresas;if(q)emps=emps.filter(e=>e.nome.toLowerCase().includes(q.toLowerCase()));
+  if(!emps.length){el.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🏢</div><div class="empty-title">Nenhuma empresa</div></div>';return;}
+  el.innerHTML=emps.map(e=>empresaCardHtml(e)).join('');
+}
+
+function empresaCardHtml(e){
+  const s=db.session;
+  const isFollowing=(e.seguidores||[]).includes(s?.habbo);
+  const bannerHtml=e.banner?`<img class="empresa-banner" src="${escHtml(e.banner)}" alt="">`:
+    `<div class="empresa-banner-placeholder">${e.emoji}</div>`;
+  const logoHtml=e.logo?`<img src="${escHtml(e.logo)}" style="width:100%;height:100%;object-fit:cover;">`:
+    `<div class="empresa-logo-placeholder">${e.emoji}</div>`;
+  const seguBtn=s?`<button class="follow-btn ${isFollowing?'following':''}" onclick="event.stopPropagation();toggleSeguirEmpresa(${e.id})">${isFollowing?'✓ Seguindo':'+ Seguir'}</button>`:'';
+  return `<div class="empresa-card" onclick="openEmpresaPage(${e.id})">
+    ${bannerHtml}
+    <div class="empresa-info-row">
+      <div class="empresa-logo-wrap">${logoHtml}</div>
+      <div style="padding-bottom:4px;flex:1;min-width:0">
+        <div class="empresa-name">${escHtml(e.nome)}</div>
+        <div style="font-size:13px;color:var(--magenta)">${(e.cargos||[]).length} cargos · ${(e.membros||[]).length} membros</div>
+      </div>
+    </div>
+    <div class="empresa-body"><div class="empresa-desc">${escHtml(e.desc||'Sem descrição.')}</div></div>
+    <div class="empresa-footer">
+      ${e.privacidade==='private'?`<span class="privacy-private">🔒 Privada</span>`:`<span class="privacy-public">🌍 Pública</span>`}
+      <span class="tag tag-gold">${db.posts.filter(p=>p.empresaId==e.id).length} posts</span>
+      ${seguBtn}
+    </div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════════════════════
+//  EMPRESA PAGE — com cargos e avatares Habbo
+// ════════════════════════════════════════════════════════════
+function openEmpresaPage(id){
+  const e=db.empresas.find(x=>x.id==id);if(!e)return;
+  const s=db.session;
+  const isMember=(e.membros||[]).some(m=>m.habbo===s?.habbo);
+  const isFollowing=(e.seguidores||[]).includes(s?.habbo);
+  const isAdmin=s?.role==='admin';
+  const isEditor=e.editor===s?.habbo||(e.editores||[]).includes(s?.habbo);
+  const canManage=isAdmin||isEditor;
+
+  const bannerHtml=e.banner?`<img src="${escHtml(e.banner)}" style="width:100%;height:200px;object-fit:cover;border-radius:8px 8px 0 0;display:block" alt="">`:
+    `<div style="width:100%;height:200px;background:linear-gradient(135deg,#1a0030,#0a0a1f);border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center;font-size:60px">${e.emoji}</div>`;
+  const logoHtml=e.logo?`<img src="${escHtml(e.logo)}" style="width:100%;height:100%;object-fit:cover" alt="">`:
+    `<div style="width:100%;height:100%;background:linear-gradient(135deg,var(--magenta2),var(--magenta));display:flex;align-items:center;justify-content:center;font-size:36px">${e.emoji}</div>`;
+
+  // ── Cargos com membros e avatares Habbo ──
+  const cargosHtml=buildCargosSection(e, canManage, isAdmin);
+
+  // Posts
+  const postsDaEmpresa=db.posts.filter(p=>p.empresaId==id);
+  const postsHtml=postsDaEmpresa.length?postsDaEmpresa.map(p=>renderPostCard(p)).join(''):
+    '<div class="empty-state"><div class="empty-icon">📰</div><div>Nenhuma publicação.</div></div>';
+
+  // Action buttons
+  let actionBtns='';
+  if(s&&!isMember){
+    if(e.privacidade==='private'){
+      const jaSolicitou=(e.solicitacoes||[]).includes(s.habbo);
+      actionBtns=jaSolicitou?'<button class="btn btn-gray btn-sm" disabled>⏳ Solicitação enviada</button>':
+        `<button class="btn btn-magenta btn-sm" onclick="solicitarEntrada(${e.id})">📩 Solicitar Entrada</button>`;
+    }else{actionBtns=`<button class="btn btn-green btn-sm" onclick="entrarEmpresa(${e.id})">✅ Entrar</button>`;}
+  }else if(s&&isMember&&!isEditor&&!isAdmin){
+    actionBtns=`<button class="btn btn-danger btn-sm" onclick="sairEmpresa(${e.id})">🚪 Sair</button>`;
+  }
+  if(s)actionBtns+=` <button class="follow-btn ${isFollowing?'following':''}" onclick="toggleSeguirEmpresa(${e.id})" style="display:inline-flex">${isFollowing?'✓ Seguindo':'+ Seguir'}</button>`;
+  if(canManage)actionBtns+=` <button class="btn btn-outline btn-sm" onclick="editarEmpresa(${e.id})">✏️ Editar</button>`;
+
+  // Solicitações
+  const solicitacoesHtml=canManage&&(e.solicitacoes||[]).length?`
+    <div class="section-title" style="margin-top:28px">📩 Solicitações Pendentes</div>
+    <div class="card" style="margin-bottom:20px">
+      ${(e.solicitacoes||[]).map(hab=>`<div class="solicit-item">
+        <img src="${avatarUrl(hab)}" onerror="this.style.display='none'" style="width:40px;height:52px;image-rendering:pixelated;border-radius:4px">
+        <div><strong style="color:var(--gold)">${escHtml(hab)}</strong></div>
+        <div class="solicit-actions">
+          <button class="btn btn-green btn-xs" onclick="aprovarSolicitacao(${e.id},'${hab}')">✅ Aprovar</button>
+          <button class="btn btn-danger btn-xs" onclick="rejeitarSolicitacao(${e.id},'${hab}')">✕ Rejeitar</button>
+        </div>
+      </div>`).join('')}
+    </div>`:'';
+
+  document.getElementById('empresa-page-content').innerHTML=`
+    <div style="margin-bottom:16px"><button class="btn btn-outline btn-sm" onclick="showPage('empregos',null)">← Voltar</button></div>
+    <div class="card" style="overflow:visible;margin-bottom:24px">
+      ${bannerHtml}
+      <div style="display:flex;align-items:flex-end;gap:14px;padding:0 16px;position:relative">
+        <div style="width:80px;height:80px;border:4px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card);margin:-40px 0 0 0;position:relative;z-index:1;flex-shrink:0">${logoHtml}</div>
+        <div style="padding-bottom:10px;flex:1">
+          <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--white)">${escHtml(e.nome)}</div>
+          <div style="font-size:13px;color:var(--gray)">${(e.membros||[]).length} membros · ${(e.seguidores||[]).length} seguidores · ${db.posts.filter(p=>p.empresaId==id).length} posts</div>
+        </div>
+        <div style="padding-bottom:10px;display:flex;gap:6px;flex-wrap:wrap">${actionBtns}</div>
+      </div>
+      <div class="card-body" style="border-top:1px solid var(--border)">
+        <p style="color:var(--gray);font-size:14px;line-height:1.6">${escHtml(e.desc||'')}</p>
+      </div>
+    </div>
+    ${solicitacoesHtml}
+    <div class="grid-2" style="align-items:start">
+      <div>
+        <div class="section-title">📰 Publicações</div>
+        ${postsHtml}
+      </div>
+      <div>
+        <div class="section-title">👔 Cargos & Membros</div>
+        ${cargosHtml}
+      </div>
+    </div>`;
+
+  showPage('empresa',null);
+}
+
+// ════════════════════════════════════════════════════════════
+//  CARGOS — SEÇÃO COM AVATARES HABBO
+// ════════════════════════════════════════════════════════════
+function buildCargosSection(e, canManage, isAdmin){
+  const cargos=e.cargos||[];
+  if(!cargos.length) return `<div class="card"><div class="card-body"><div style="color:var(--gray);font-size:13px">Nenhum cargo cadastrado.</div>${canManage?`<button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="editarEmpresa(${e.id})">+ Adicionar Cargos</button>`:''}</div></div>`;
+
+  // Build sections by cargo
+  return cargos.sort((a,b)=>b.nivel-a.nivel).map(cargo=>{
+    const membrosNoCargo=(e.membros||[]).filter(m=>m.cargo===cargo.nome);
+    const membrosHtml=membrosNoCargo.length?
+      `<div class="cargo-members-grid">
+        ${membrosNoCargo.map(m=>`
+          <div class="cargo-member-card" onclick="openPerfil('${m.habbo}')">
+            <img class="cargo-member-avatar"
+              src="${avatarUrlLarge(m.habbo)}"
+              onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 40 52\'%3E%3Crect width=\'40\' height=\'52\' fill=\'%2316162a\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-size=\'20\' text-anchor=\'middle\' dominant-baseline=\'middle\' fill=\'%23888aaa\'%3E👤%3C/text%3E%3C/svg%3E'"
+              alt="${escHtml(m.habbo)}">
+            <div class="cargo-member-name">${escHtml(m.habbo)}</div>
+            <div class="cargo-member-role">${escHtml(cargo.nome)}</div>
+            ${(canManage||isAdmin)?`<div class="cargo-member-actions">
+              <button class="btn btn-outline btn-xs" title="Mudar cargo" onclick="event.stopPropagation();openAtribuirCargo('${m.habbo}',${e.id})">✏️</button>
+              <button class="btn btn-danger btn-xs" title="Remover" onclick="event.stopPropagation();removerMembro(${e.id},'${m.habbo}')">✕</button>
+            </div>`:''}
+          </div>`).join('')}
+      </div>`
+      :`<div style="padding:10px 14px;color:var(--gray);font-size:13px;font-style:italic">Nenhum membro neste cargo.</div>`;
+
+    const addBtn=canManage?`<button class="btn btn-outline-mag btn-xs" onclick="abrirAddMembroCargo(${e.id},'${escHtml(cargo.nome)}')">+ Adicionar</button>`:'';
+
+    return `<div class="card cargo-section" style="margin-bottom:14px">
+      <div class="cargo-section-title">
+        <span>📌 ${escHtml(cargo.nome)} <span style="color:var(--gray);font-size:11px;font-weight:400">Nível ${cargo.nivel}</span></span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="color:var(--gray);font-size:11px">${membrosNoCargo.length} membro(s)</span>
+          ${addBtn}
+        </div>
+      </div>
+      ${membrosHtml}
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+//  BUSCA DE NICK + ADD AO CARGO
+// ════════════════════════════════════════════════════════════
+function abrirAddMembroCargo(empresaId, cargoNome){
+  document.getElementById('amc-empresa-id').value=empresaId;
+  document.getElementById('amc-cargo-nome').value=cargoNome;
+  document.getElementById('amc-cargo-display').textContent=cargoNome;
+  document.getElementById('amc-nick-input').value='';
+  document.getElementById('amc-nick-result').style.display='none';
+  document.getElementById('amc-nick-preview').innerHTML='';
+  document.getElementById('amc-alert').innerHTML='';
+  document.getElementById('amc-confirm-btn').style.display='none';
+  document.getElementById('amc-search-txt').textContent='🔍 Buscar';
+  amcFoundHabbo=null;
+  openModal('modal-add-membro-cargo');
+}
+
+async function buscarNickHabbo(){
+  const nick=document.getElementById('amc-nick-input').value.trim();
+  const btn=document.getElementById('amc-search-txt');
+  const alertEl=document.getElementById('amc-alert');
+  const resultEl=document.getElementById('amc-nick-result');
+  const prevEl=document.getElementById('amc-nick-preview');
+  const confirmBtn=document.getElementById('amc-confirm-btn');
+
+  if(!nick){alertEl.innerHTML='<div class="alert alert-error">Digite um nick.</div>';return;}
+  btn.innerHTML='<span class="spinner"></span>';alertEl.innerHTML='';resultEl.style.display='none';confirmBtn.style.display='none';amcFoundHabbo=null;
+
+  try{
+    const res=await fetch(`https://www.habbo.com.br/api/public/users?name=${encodeURIComponent(nick)}`);
+    if(!res.ok)throw new Error('Personagem não encontrado na API do Habbo.');
+    const data=await res.json();
+    const habboName=data.name||nick;
+    const motto=data.motto||'(sem missão)';
+    amcFoundHabbo=habboName;
+
+    prevEl.innerHTML=`
+      <img src="${avatarUrlLarge(habboName)}" onerror="this.style.display='none'" style="width:40px;height:52px;image-rendering:pixelated;border-radius:4px;border:2px solid var(--gold)">
+      <div>
+        <div class="nick-name">${escHtml(habboName)}</div>
+        <div class="nick-motto">"${escHtml(motto)}"</div>
+        <div style="font-size:11px;color:var(--green);margin-top:3px">✅ Personagem encontrado no Habbo</div>
+      </div>`;
+    resultEl.style.display='block';
+    confirmBtn.style.display='block';
+    alertEl.innerHTML='';
+  }catch(err){
+    alertEl.innerHTML=`<div class="alert alert-error">${err.message||'Personagem não encontrado.'}</div>`;
+    resultEl.style.display='none';
+  }
+  btn.textContent='🔍 Buscar';
+}
+
+function confirmarAddMembroCargo(){
+  if(!amcFoundHabbo){showToast('Busque um nick primeiro.','error');return;}
+  const empresaId=document.getElementById('amc-empresa-id').value;
+  const cargoNome=document.getElementById('amc-cargo-nome').value;
+  const e=db.empresas.find(x=>x.id==empresaId);if(!e)return;
+
+  e.membros=e.membros||[];
+  const existente=e.membros.find(m=>m.habbo.toLowerCase()===amcFoundHabbo.toLowerCase());
+  if(existente){
+    // Atualiza cargo do membro existente
+    existente.cargo=cargoNome;
+    showToast(`Cargo de ${amcFoundHabbo} atualizado para ${cargoNome}!`);
+  }else{
+    // Adiciona novo membro com o cargo
+    e.membros.push({habbo:amcFoundHabbo,cargo:cargoNome,entrou:dateStr()});
+    addNotif(amcFoundHabbo,`Você foi adicionado ao cargo "${cargoNome}" em ${e.nome}!`,'👔');
+    showToast(`${amcFoundHabbo} adicionado ao cargo ${cargoNome}!`);
+  }
+  saveDB();closeModal('modal-add-membro-cargo');openEmpresaPage(empresaId);
+}
+
+// ════════════════════════════════════════════════════════════
+//  ATRIBUIR CARGO (membro já existente)
+// ════════════════════════════════════════════════════════════
+function openAtribuirCargo(habbo, empresaId){
+  const e=db.empresas.find(x=>x.id==empresaId);if(!e)return;
+  document.getElementById('ac-user-habbo').value=habbo;
+  document.getElementById('ac-empresa-id').value=empresaId;
+  const prev=document.getElementById('ac-preview');
+  prev.innerHTML=`<img src="${avatarUrlLarge(habbo)}" style="width:40px;height:52px;image-rendering:pixelated;border-radius:4px;border:2px solid var(--gold)" onerror="this.style.display='none'"><div><div style="font-weight:700;color:var(--gold)">${escHtml(habbo)}</div><div style="font-size:12px;color:var(--gray)">${e.nome}</div></div>`;
+  const sel=document.getElementById('ac-cargo-select');
+  sel.innerHTML=(e.cargos||[]).map(c=>`<option value="${escHtml(c.nome)}">${escHtml(c.nome)} (Nível ${c.nivel})</option>`).join('');
+  // Pre-select current cargo
+  const m=(e.membros||[]).find(x=>x.habbo===habbo);
+  if(m&&m.cargo)sel.value=m.cargo;
+  openModal('modal-atribuir-cargo');
+}
+
+function confirmarAtribuirCargo(){
+  const habbo=document.getElementById('ac-user-habbo').value;
+  const empresaId=document.getElementById('ac-empresa-id').value;
+  const cargo=document.getElementById('ac-cargo-select').value;
+  const e=db.empresas.find(x=>x.id==empresaId);if(!e)return;
+  const m=(e.membros||[]).find(x=>x.habbo===habbo);
+  if(m){m.cargo=cargo;saveDB();closeModal('modal-atribuir-cargo');openEmpresaPage(empresaId);showToast(`Cargo de ${habbo} → ${cargo}`);}
+}
+
+// ════════════════════════════════════════════════════════════
+//  MEMBERSHIP
+// ════════════════════════════════════════════════════════════
+function entrarEmpresa(id){
+  if(!db.session){showToast('Faça login!','info');return;}
+  const e=db.empresas.find(x=>x.id==id);if(!e)return;
+  e.membros=e.membros||[];
+  if(e.membros.some(m=>m.habbo===db.session.habbo)){showToast('Já é membro!','info');return;}
+  e.membros.push({habbo:db.session.habbo,cargo:'Membro',entrou:dateStr()});
+  saveDB();showToast(`Entrou em ${e.nome}!`);openEmpresaPage(id);
+}
+function sairEmpresa(id){
+  if(!db.session)return;const e=db.empresas.find(x=>x.id==id);if(!e)return;
+  e.membros=(e.membros||[]).filter(m=>m.habbo!==db.session.habbo);
+  saveDB();showToast(`Saiu de ${e.nome}.`);openEmpresaPage(id);
+}
+function solicitarEntrada(id){
+  if(!db.session){showToast('Faça login!','info');return;}
+  const e=db.empresas.find(x=>x.id==id);if(!e)return;
+  e.solicitacoes=e.solicitacoes||[];
+  if(e.solicitacoes.includes(db.session.habbo)){showToast('Já solicitado!','info');return;}
+  e.solicitacoes.push(db.session.habbo);
+  if(e.editor)addNotif(e.editor,`${db.session.habbo} solicitou entrar em ${e.nome}`,'📩');
+  saveDB();showToast('Solicitação enviada!');openEmpresaPage(id);
+}
+function aprovarSolicitacao(empId,habbo){
+  const e=db.empresas.find(x=>x.id==empId);if(!e)return;
+  e.solicitacoes=(e.solicitacoes||[]).filter(h=>h!==habbo);
+  e.membros=e.membros||[];
+  if(!e.membros.some(m=>m.habbo===habbo))e.membros.push({habbo,cargo:'Membro',entrou:dateStr()});
+  addNotif(habbo,`Sua solicitação para ${e.nome} foi aprovada!`,'✅');
+  saveDB();showToast(`${habbo} aprovado!`);openEmpresaPage(empId);renderAdmin();
+}
+function rejeitarSolicitacao(empId,habbo){
+  const e=db.empresas.find(x=>x.id==empId);if(!e)return;
+  e.solicitacoes=(e.solicitacoes||[]).filter(h=>h!==habbo);
+  addNotif(habbo,`Sua solicitação para ${e.nome} foi rejeitada.`,'❌');
+  saveDB();showToast(`${habbo} rejeitado.`);openEmpresaPage(empId);renderAdmin();
+}
+function removerMembro(empId,habbo){
+  if(!confirm(`Remover ${habbo}?`))return;
+  const e=db.empresas.find(x=>x.id==empId);if(!e)return;
+  e.membros=(e.membros||[]).filter(m=>m.habbo!==habbo);
+  saveDB();openEmpresaPage(empId);showToast(`${habbo} removido.`);
+}
+function toggleSeguirEmpresa(id){
+  if(!db.session){showToast('Faça login para seguir!','info');return;}
+  const e=db.empresas.find(x=>x.id==id);if(!e)return;
+  e.seguidores=e.seguidores||[];const idx=e.seguidores.indexOf(db.session.habbo);
+  if(idx>-1)e.seguidores.splice(idx,1);else{e.seguidores.push(db.session.habbo);showToast(`Seguindo ${e.nome}!`);}
+  saveDB();updateStats();renderEmpresas();renderSidebar();
+}
+
+// ════════════════════════════════════════════════════════════
+//  PERFIL
+// ════════════════════════════════════════════════════════════
+function openPerfil(habbo){
+  const u=db.users.find(x=>x.habbo===habbo);
+  const empresasDoUser=db.empresas.filter(e=>(e.membros||[]).some(m=>m.habbo===habbo));
+  const postsDo=db.posts.filter(p=>p.autor===habbo);
+  const totalLikes=postsDo.reduce((a,p)=>a+(p.likes||[]).length,0);
+  const empBadges=empresasDoUser.map(e=>{const mem=(e.membros||[]).find(m=>m.habbo===habbo);return`<span class="tag tag-magenta" style="cursor:pointer" onclick="openEmpresaPage(${e.id})">${e.emoji} ${escHtml(e.nome)} · ${escHtml(mem?.cargo||'Membro')}</span>`;}).join(' ');
+  const postsHtml=postsDo.length?postsDo.map(p=>renderPostCard(p)).join(''):'<div class="empty-state"><div class="empty-icon">📰</div><div>Nenhuma publicação.</div></div>';
+
+  document.getElementById('perfil-content').innerHTML=`
+    <div class="card" style="margin-bottom:20px;overflow:visible">
+      <div class="perfil-banner"></div>
+      <div style="display:flex;align-items:flex-end;gap:14px;padding:0 16px">
+        <div class="perfil-avatar-wrap">
+          <img src="${avatarUrl(habbo)}" onerror="this.style.display='none'" alt="${escHtml(habbo)}">
+        </div>
+        <div style="padding-bottom:10px;flex:1">
+          <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--gold)">${escHtml(habbo)}</div>
+          <div style="font-size:13px;color:var(--gray)">@${habbo.toLowerCase()}</div>
+          ${u?.role==='admin'?'<span class="badge-admin">Admin</span>':u?.role==='editor'?'<span class="badge-editor">Editor</span>':''}
+        </div>
+      </div>
+      <div class="card-body" style="border-top:1px solid var(--border);margin-top:10px">
+        <div style="display:flex;gap:24px;margin-bottom:14px;flex-wrap:wrap">
+          <div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--gold)">${postsDo.length}</div><div style="color:var(--gray);font-size:12px">Posts</div></div>
+          <div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--red)">${totalLikes}</div><div style="color:var(--gray);font-size:12px">Curtidas</div></div>
+          <div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--magenta)">${empresasDoUser.length}</div><div style="color:var(--gray);font-size:12px">Empresas</div></div>
+        </div>
+        ${empBadges?`<div style="display:flex;gap:6px;flex-wrap:wrap">${empBadges}</div>`:''}
+        ${u?.registrado?`<div style="font-size:12px;color:var(--gray);margin-top:10px">Membro desde ${u.registrado}</div>`:''}
+      </div>
+    </div>
+    <div class="section-title">📰 Publicações de ${escHtml(habbo)}</div>${postsHtml}`;
+  showPage('perfil',null);
+}
+
+// ════════════════════════════════════════════════════════════
+//  NOTIFICATIONS
+// ════════════════════════════════════════════════════════════
+function addNotif(habbo,msg,icon){db.notifs=db.notifs||[];db.notifs.unshift({id:Date.now(),habbo,msg,icon,lida:false,data:dateStr()});if(db.notifs.length>60)db.notifs=db.notifs.slice(0,60);saveDB();}
+function renderSidebarNotifs(){
+  const el=document.getElementById('notif-list');if(!el)return;
+  const s=db.session;if(!s){el.innerHTML='<div style="padding:12px;color:var(--gray);font-size:13px">Entre para ver notificações.</div>';return;}
+  const notifs=(db.notifs||[]).filter(n=>n.habbo===s.habbo).slice(0,8);
+  if(!notifs.length){el.innerHTML='<div style="padding:12px;color:var(--gray);font-size:13px">Sem notificações.</div>';return;}
+  el.innerHTML=notifs.map(n=>`<div class="notif-item ${n.lida?'':'unread'}" onclick="marcarLida(${n.id})"><div class="notif-icon">${n.icon||'🔔'}</div><div><div style="font-size:12px;line-height:1.4">${escHtml(n.msg)}</div><div style="font-size:11px;color:var(--gray);margin-top:2px">${n.data}</div></div></div>`).join('');
+}
+function marcarLida(id){const n=(db.notifs||[]).find(x=>x.id===id);if(n){n.lida=true;saveDB();renderSidebarNotifs();}}
+
+// ════════════════════════════════════════════════════════════
+//  SIDEBAR
+// ════════════════════════════════════════════════════════════
+function renderSidebar(){
+  renderSidebarNotifs();
+  const el=document.getElementById('sidebar-minhas-empresas');if(!el)return;
+  const s=db.session;if(!s){el.innerHTML='<div style="color:var(--gray);font-size:13px">Entre para ver suas empresas.</div>';return;}
+  const emps=db.empresas.filter(e=>(e.membros||[]).some(m=>m.habbo===s.habbo)||(e.seguidores||[]).includes(s.habbo));
+  if(!emps.length){el.innerHTML='<div style="color:var(--gray);font-size:13px">Entre em empresas para vê-las aqui.</div>';return;}
+  el.innerHTML=emps.map(e=>{const logo=e.logo?`<img src="${escHtml(e.logo)}" style="width:28px;height:28px;border-radius:4px;object-fit:cover">`:`<span style="font-size:20px">${e.emoji}</span>`;return`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="openEmpresaPage(${e.id})">${logo}<div><div style="font-weight:700;font-size:13px;color:var(--white)">${escHtml(e.nome)}</div><div style="font-size:11px;color:var(--gray)">${db.posts.filter(p=>p.empresaId==e.id).length} posts</div></div></div>`;}).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+//  HOME & STATS
+// ════════════════════════════════════════════════════════════
+function renderHome(){
+  renderPosts('home-posts',4);
+  const hel=document.getElementById('home-empresas');
+  if(hel){if(!db.empresas.length){hel.innerHTML='<div style="color:var(--gray);padding:30px;grid-column:1/-1;text-align:center">Nenhuma empresa.</div>';}else hel.innerHTML=db.empresas.slice(0,3).map(e=>empresaCardHtml(e)).join('');}
+  updateStats();
+  const bc=document.getElementById('btn-hero-criar');if(bc)bc.style.display=db.session?'none':'inline-flex';
+}
+function updateStats(){
+  const sm=document.getElementById('stat-members');if(sm)sm.textContent=db.users.length;
+  const sp=document.getElementById('stat-posts');if(sp)sp.textContent=db.posts.length;
+  const se=document.getElementById('stat-empresas');if(se)se.textContent=db.empresas.length;
+  const sf=document.getElementById('stat-follows');if(sf)sf.textContent=db.empresas.reduce((a,e)=>a+(e.seguidores||[]).length,0);
+  const oc=document.getElementById('online-count');if(oc)oc.textContent=`● ${Math.max(1,db.users.length)} online`;
+}
+
+// ════════════════════════════════════════════════════════════
+//  ADMIN
+// ════════════════════════════════════════════════════════════
+function showAdminPanel(id,btn){
+  document.querySelectorAll('.admin-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.admin-nav-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  if(id==='adm-cache')checkCacheStatus();
+}
+function renderAdmin(){
+  // Empresas
+  const tb=document.getElementById('tbody-empresas');
+  if(tb){if(!db.empresas.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px">Nenhuma empresa.</td></tr>';}
+  else tb.innerHTML=db.empresas.map(e=>{const logoHtml=e.logo?`<img src="${escHtml(e.logo)}" style="width:32px;height:32px;border-radius:4px;object-fit:cover">`:`<span style="font-size:22px">${e.emoji}</span>`;return`<tr><td>${logoHtml}</td><td><strong>${escHtml(e.nome)}</strong></td><td>${(e.cargos||[]).length}</td><td>${(e.membros||[]).length}</td><td>${e.privacidade==='private'?'<span class="tag tag-red">🔒 Privada</span>':'<span class="tag tag-green">🌍 Pública</span>'}</td><td style="display:flex;gap:5px;flex-wrap:wrap"><button class="btn btn-outline btn-xs" onclick="openEmpresaPage(${e.id})">👁️</button><button class="btn btn-outline btn-xs" onclick="editarEmpresa(${e.id})">✏️</button><button class="btn btn-danger btn-xs" onclick="deletarEmpresa(${e.id})">🗑️</button></td></tr>`;}).join('');}
+
+  // Posts
+  const tp=document.getElementById('tbody-posts-admin');
+  if(tp){if(!db.posts.length){tp.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px">Nenhuma publicação.</td></tr>';}
+  else tp.innerHTML=db.posts.map(p=>`<tr><td><strong>${escHtml(p.titulo)}</strong></td><td style="cursor:pointer;color:var(--gold)" onclick="openPerfil('${p.autor}')">${escHtml(p.autor)}</td><td>${p.empresaEmoji} ${escHtml(p.empresaNome)}</td><td>❤️ ${(p.likes||[]).length}</td><td style="font-size:11px;color:var(--gray)">${p.data}</td><td><button class="btn btn-danger btn-xs" onclick="deletarPost(${p.id})">🗑️</button></td></tr>`).join('');}
+
+  // Users
+  const tu=document.getElementById('tbody-users-admin');
+  if(tu){if(!db.users.length){tu.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--gray);padding:24px">Nenhum membro.</td></tr>';}
+  else tu.innerHTML=db.users.map(u=>{const emps=db.empresas.filter(e=>(e.membros||[]).some(m=>m.habbo===u.habbo));return`<tr><td><img src="${avatarUrl(u.habbo)}" style="width:34px;height:34px;image-rendering:pixelated;border-radius:4px" onerror="this.style.display='none'"></td><td style="cursor:pointer;color:var(--gold);font-weight:700" onclick="openPerfil('${u.habbo}')">${escHtml(u.habbo)}</td><td style="font-size:12px">${emps.map(e=>e.nome).join(', ')||'—'}</td><td>${u.role==='admin'?'<span class="badge-admin">Admin</span>':u.role==='editor'?'<span class="badge-editor">Editor</span>':'<span style="color:var(--gray)">Membro</span>'}</td><td style="display:flex;gap:4px;flex-wrap:wrap">${u.role!=='admin'?`${u.role!=='editor'?`<button class="btn btn-outline btn-xs" onclick="promoverEditor('${u.habbo}')">✏️ Editor</button>`:`<button class="btn btn-outline btn-xs" onclick="rebaixarMembro('${u.habbo}')">👤 Membro</button>`}<button class="btn btn-danger btn-xs" onclick="deletarUser('${u.habbo}')">🗑️</button>`:'<span style="color:var(--gold)">Admin</span>'}</td></tr>`;}).join('');}
+
+  // Solicitações
+  const sg=document.getElementById('solicit-global-list');
+  if(sg){const hasS=db.empresas.some(e=>(e.solicitacoes||[]).length>0);
+  if(!hasS){sg.innerHTML='<div class="empty-state"><div class="empty-icon">📩</div><div class="empty-title">Sem solicitações pendentes</div></div>';}
+  else sg.innerHTML=db.empresas.filter(e=>(e.solicitacoes||[]).length).map(e=>`<div style="margin-bottom:20px"><div class="section-title">${e.emoji} ${escHtml(e.nome)}</div><div class="card">${(e.solicitacoes||[]).map(hab=>`<div class="solicit-item"><img src="${avatarUrl(hab)}" onerror="this.style.display='none'" style="width:40px;height:52px;image-rendering:pixelated;border-radius:4px"><strong style="color:var(--gold)">${escHtml(hab)}</strong><div class="solicit-actions"><button class="btn btn-green btn-xs" onclick="aprovarSolicitacao(${e.id},'${hab}')">✅ Aprovar</button><button class="btn btn-danger btn-xs" onclick="rejeitarSolicitacao(${e.id},'${hab}')">✕ Rejeitar</button></div></div>`).join('')}</div></div>`).join('');}
+}
+
+function promoverEditor(h){const u=db.users.find(x=>x.habbo===h);if(u){u.role='editor';saveDB();renderAdmin();showToast(`${h} agora é Editor.`);}}
+function rebaixarMembro(h){const u=db.users.find(x=>x.habbo===h);if(u){u.role='member';u.empresaId=null;saveDB();renderAdmin();showToast(`${h} rebaixado.`);}}
+function deletarUser(h){if(!confirm(`Remover ${h}?`))return;db.users=db.users.filter(u=>u.habbo!==h);saveDB();renderAdmin();updateStats();showToast(`${h} removido.`);}
+
+// ════════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════════
+loadDB();
+if(!db.users.find(u=>u.habbo.toLowerCase()===ADMIN_USER.toLowerCase())){
+  db.users.push({habbo:ADMIN_USER,role:'admin',empresaId:null,seguindo:[],registrado:dateStr()});saveDB();
+}
+initPWA();
+applyConfig();
+updateNav();
+renderHome();
+updateStats();
+</script>
+</body>
+</html>
