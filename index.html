@@ -70,6 +70,17 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .post-actions{display:flex;align-items:center;gap:8px;padding:10px 16px;border-top:1px solid var(--border)}
 .like-btn{display:flex;align-items:center;gap:5px;background:none;border:1px solid var(--border);color:var(--gray);padding:5px 12px;border-radius:20px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;transition:all .15s}
 .like-btn:hover,.like-btn.liked{border-color:var(--red);color:var(--red);background:rgba(255,23,68,.08)}
+.react-wrap{position:relative;display:inline-block}
+.react-picker{position:absolute;bottom:calc(100% + 6px);left:0;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:6px 8px;display:none;gap:2px;box-shadow:0 4px 20px rgba(0,0,0,.4);z-index:10;white-space:nowrap}
+.react-picker.on{display:flex}
+.react-opt{background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;border-radius:50%;transition:transform .1s}
+.react-opt:hover{transform:scale(1.3);background:rgba(255,255,255,.08)}
+.react-summary{display:flex;gap:2px;align-items:center;font-size:14px}
+.post-comments{border-top:1px solid var(--border);padding:12px 16px;display:none}
+.post-comments.on{display:block}
+.comment-item{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
+.comment-item:last-child{border-bottom:none}
+.comment-item img{width:26px;height:34px;image-rendering:pixelated;border-radius:4px;object-fit:contain;flex-shrink:0}
 .yt-wrap{position:relative;width:100%;padding-bottom:56.25%;background:#000;overflow:hidden;border-bottom:1px solid var(--border)}
 .yt-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
 .yt-thumb{position:absolute;inset:0;cursor:pointer}
@@ -380,6 +391,12 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 <button class="btn btn-danger btn-sm" onclick="runExpiry()">🗑️ Executar Agora</button>
 </div>
 <div id="expiry-log" style="margin-top:12px;font-size:13px;color:var(--gray)"></div>
+<div class="hr"></div>
+<div class="fl">📦 Armazenamento na Nuvem</div>
+<div id="storage-usage" style="font-size:13px;color:var(--gray);margin:8px 0">Consultando...</div>
+<div style="background:#0a0a14;border:1px solid var(--border);border-radius:20px;height:14px;overflow:hidden">
+  <div id="storage-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--green),var(--gold));transition:width .4s"></div>
+</div>
 </div></div>
 <div class="card"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">🎨 Cores</span></div><div class="card-bd">
 <div class="clr-row"><label>Cor Principal</label><input type="color" id="c-gold" value="#f5c518" oninput="prevClr('--gold',this.value)"><div class="clr-prev" id="cp-gold" style="background:#f5c518"></div></div>
@@ -538,7 +555,7 @@ const sb=supabase.createClient(SB_URL,SB_KEY);
 const ADMIN='JulioHubb', ADMIN_PW='@Ju123456789';
 
 // ════════════ STATE ════════════
-let D={users:[],posts:[],empresas:[],notifs:[],config:{}};
+let D={users:[],posts:[],empresas:[],notifs:[],config:{},comentarios:[]};
 let sess=null;
 let tNewCargos=[],tEditCargos=[],acHabbo=null;
 let pLoginCode='',pLoginName='',pRegCode='',pRegName='';
@@ -565,7 +582,7 @@ function toast(msg,type='ok'){
 async function loadAll(){
   loader(true);
   try{
-    const [uR,pR,eR,nR,cR,tR,ptR,ctxR]=await Promise.all([
+    const [uR,pR,eR,nR,cR,tR,ptR,ctxR,cmR]=await Promise.all([
       sb.from('users').select('id,habbo,role,empresa_id,registrado,seguindo,seguidores,botoes,is_admin'),
       sb.from('posts').select('*').order('id',{ascending:false}),
       sb.from('empresas').select('*').order('id',{ascending:false}),
@@ -573,10 +590,11 @@ async function loadAll(){
       sb.from('config').select('*').eq('id',1).single(),
       sb.from('tags').select('*').order('id',{ascending:false}),
       sb.from('player_tags').select('*'),
-      sb.from('contextos').select('*').order('codigo',{ascending:true})
+      sb.from('contextos').select('*').order('codigo',{ascending:true}),
+      sb.from('comentarios').select('*').order('id',{ascending:true})
     ]);
     D.users=uR.data||[];D.posts=pR.data||[];D.empresas=eR.data||[];D.notifs=nR.data||[];D.config=cR.data||{};
-    D_tags=tR.data||[];D_playerTags=ptR.data||[];D_contextos=ctxR.data||[];
+    D_tags=tR.data||[];D_playerTags=ptR.data||[];D_contextos=ctxR.data||[];D.comentarios=cmR.data||[];
   }catch(e){console.error(e);}
   loader(false);
 }
@@ -615,6 +633,20 @@ function loadCfgForm(){
   f('c-gold',c.color_gold||'#f5c518');f('c-mag',c.color_mag||'#e040fb');f('c-bg',c.color_bg||'#0a0a0f');f('c-card',c.color_card||'#16162a');
   const ex=document.getElementById('cfg-expiry');if(ex)ex.value=c.post_expiry_days||0;
   updateExpiryStatus(c.post_expiry_days||0);
+  loadStorageUsage();
+}
+async function loadStorageUsage(){
+  const el=document.getElementById('storage-usage'),bar=document.getElementById('storage-bar');
+  if(!el)return;
+  const LIMITE_MB=500; // limite do plano gratuito do Supabase
+  try{
+    const {data,error}=await sb.rpc('get_db_size');
+    if(error||data==null)throw error||new Error('sem dados');
+    const usadoMB=data/1024/1024;
+    const pct=Math.min(100,(usadoMB/LIMITE_MB)*100);
+    el.innerHTML=`<strong style="color:${pct>85?'var(--red)':'var(--gold)'}">${usadoMB.toFixed(1)} MB</strong> de ${LIMITE_MB} MB usados (${pct.toFixed(1)}%)`;
+    if(bar){bar.style.width=pct+'%';if(pct>85)bar.style.background='var(--red)';}
+  }catch(e){el.textContent='Não foi possível consultar o armazenamento.';}
 }
 function updateExpiryStatus(days){
   const el=document.getElementById('expiry-status');if(!el)return;
@@ -636,8 +668,8 @@ async function runExpiry(){
   if(error){log.textContent='❌ Erro ao verificar posts.';return;}
   if(!expired||!expired.length){log.textContent=`✅ Nenhum post com mais de ${days} dia(s) encontrado.`;return;}
   const ids=expired.map(p=>p.id);
-  await sb.from('posts').delete().in('id',ids);
-  D.posts=D.posts.filter(p=>!ids.includes(p.id));
+  await Promise.all([sb.from('posts').delete().in('id',ids),sb.from('comentarios').delete().in('post_id',ids)]);
+  D.posts=D.posts.filter(p=>!ids.includes(p.id));D.comentarios=D.comentarios.filter(c=>!ids.includes(c.post_id));
   renderPosts();renderAdmin();updateStats();
   log.innerHTML=`🗑️ <strong style="color:var(--red)">${ids.length} post(s) deletado(s)</strong> com mais de ${days} dia(s):<br>${expired.map(p=>`• ${p.titulo}`).join('<br>')}`;
   toast(`${ids.length} post(s) expirado(s) removido(s)!`,'err');
@@ -649,8 +681,8 @@ async function autoRunExpiry(){
   const {data:expired}=await sb.from('posts').select('id').lt('created_at',cutoff.toISOString());
   if(!expired||!expired.length)return;
   const ids=expired.map(p=>p.id);
-  await sb.from('posts').delete().in('id',ids);
-  D.posts=D.posts.filter(p=>!ids.includes(p.id));
+  await Promise.all([sb.from('posts').delete().in('id',ids),sb.from('comentarios').delete().in('post_id',ids)]);
+  D.posts=D.posts.filter(p=>!ids.includes(p.id));D.comentarios=D.comentarios.filter(c=>!ids.includes(c.post_id));
   console.log(`[AutoExpiry] ${ids.length} post(s) removido(s) por expiração.`);
 }
 
@@ -847,7 +879,7 @@ async function criarPost(){
   const emp=eId?D.empresas.find(e=>e.id==eId):null;
   if(eId&&sess.role!=='admin'&&emp&&emp.editor!==sess.habbo&&!(emp.editores||[]).includes(sess.habbo)&&!(emp.admins||[]).includes(sess.habbo)){alrt.innerHTML='<div class="alert alert-err">Sem permissão.</div>';return;}
   const yId=ytId(ytUrl);
-  const post={id:Date.now(),titulo,conteudo,imagem:imagem||null,yt_id:yId||null,empresa_id:emp?parseInt(eId):null,empresa_nome:emp?emp.nome:null,empresa_emoji:emp?emp.emoji:null,empresa_logo:emp?emp.logo:null,autor:sess.habbo,data_post:ds(),likes:[]};
+  const post={id:Date.now(),titulo,conteudo,imagem:imagem||null,yt_id:yId||null,empresa_id:emp?parseInt(eId):null,empresa_nome:emp?emp.nome:null,empresa_emoji:emp?emp.emoji:null,empresa_logo:emp?emp.logo:null,autor:sess.habbo,data_post:ds(),reacoes:[]};
   const {data:ins,error}=await sb.from('posts').insert(post).select().single();
   if(error){alrt.innerHTML='<div class="alert alert-err">Erro ao publicar.</div>';return;}
   D.posts.unshift(ins);
@@ -867,8 +899,14 @@ function renderPosts(cEl,max){
   if(!posts.length){el.innerHTML='<div class="empty"><div class="empty-icon">📰</div><div class="empty-title">Nenhuma publicação ainda</div></div>';return;}
   el.innerHTML=posts.map(p=>postCard(p)).join('');
 }
+const REACOES=[{emoji:'❤️',label:'Amei'},{emoji:'👍',label:'Curtir'},{emoji:'😂',label:'Haha'},{emoji:'😮',label:'Uau'},{emoji:'😢',label:'Triste'},{emoji:'😡',label:'Grr'}];
 function postCard(p){
-  const liked=sess&&(p.likes||[]).includes(sess.habbo);
+  const reacoes=p.reacoes||[];
+  const minhaReacao=sess&&reacoes.find(r=>r.habbo===sess.habbo);
+  const contagem={};reacoes.forEach(r=>{contagem[r.emoji]=(contagem[r.emoji]||0)+1;});
+  const topEmojis=Object.keys(contagem).sort((a,b)=>contagem[b]-contagem[a]).slice(0,3);
+  const summaryHtml=reacoes.length?`<span class="react-summary">${topEmojis.map(e=>`<span>${e}</span>`).join('')} <span style="color:var(--gray);font-size:12px;margin-left:2px">${reacoes.length}</span></span>`:'';
+  const nComments=D.comentarios.filter(c=>c.post_id===p.id).length;
   const ytHtml=p.yt_id?`<div class="yt-wrap" id="yw-${p.id}"><div class="yt-thumb" onclick="playYT(${p.id},'${p.yt_id}')"><img src="https://img.youtube.com/vi/${p.yt_id}/hqdefault.jpg" alt=""><div class="yt-play"><div class="yt-icon"></div></div></div></div>`:'';
   const imgHtml=(p.imagem&&!p.yt_id)?`<img class="post-img" src="${esc(p.imagem)}" alt="" onerror="this.style.display='none'">`:'';
   const logo=p.empresa_logo?`<img src="${esc(p.empresa_logo)}" style="width:18px;height:18px;border-radius:3px;object-fit:cover;">`:p.empresa_emoji;
@@ -890,7 +928,11 @@ function postCard(p){
       <div class="post-txt">${renderConteudo(p.conteudo)}</div>
     </div>
     <div class="post-actions">
-      <button class="like-btn ${liked?'liked':''}" onclick="toggleLike(${p.id})">${liked?'❤️':'🤍'} <span id="lk-${p.id}">${(p.likes||[]).length}</span></button>
+      <div class="react-wrap">
+        <button class="like-btn ${minhaReacao?'liked':''}" onclick="toggleReactPicker(${p.id})">${minhaReacao?minhaReacao.emoji:'🤍'} ${summaryHtml||`<span id="rc-${p.id}">0</span>`}</button>
+        <div class="react-picker" id="rp-${p.id}">${REACOES.map(r=>`<button class="react-opt" title="${r.label}" onclick="setReacao(${p.id},'${r.emoji}')">${r.emoji}</button>`).join('')}</div>
+      </div>
+      <button class="like-btn" onclick="toggleComments(${p.id})">💬 <span class="cmt-count">${nComments}</span></button>
       <div style="display:flex;gap:6px;margin-left:auto">
         ${pinBtn}
         ${canDel?`<button class="btn btn-danger btn-xs" onclick="delPost(${p.id})">🗑️</button>`:''}
@@ -899,6 +941,10 @@ function postCard(p){
     <div class="post-meta">
       <div class="post-author" onclick="openPerfil('${p.autor}')"><img src="${av(p.autor)}" onerror="this.style.display='none'"><div style="font-size:13px">${esc(p.autor)}</div></div>
       <div style="margin-left:auto;font-size:12px">${p.data_post||''}</div>
+    </div>
+    <div class="post-comments" id="comments-${p.id}">
+      <div id="comments-list-${p.id}"></div>
+      ${sess?`<div class="nick-row" style="margin-top:10px"><input type="text" class="form-ctrl" id="comment-input-${p.id}" placeholder="Escreva um comentário..." onkeydown="if(event.key==='Enter')enviarComentario(${p.id})"><button class="btn btn-mag btn-sm" onclick="enviarComentario(${p.id})">Enviar</button></div>`:'<div style="color:var(--gray);font-size:13px;margin-top:8px">Faça login pra comentar.</div>'}
     </div>
   </div>`;
 }
@@ -910,17 +956,84 @@ async function togglePin(postId){
   renderPosts();
 }
 function playYT(pId,yId){const w=document.getElementById('yw-'+pId);if(w)w.innerHTML=`<iframe src="https://www.youtube.com/embed/${yId}?autoplay=1" frameborder="0" allowfullscreen allow="autoplay" style="position:absolute;inset:0;width:100%;height:100%"></iframe>`;}
-async function toggleLike(pId){
-  if(!sess){toast('Faça login para curtir.','info');return;}
+// ════════════ REAÇÕES ════════════
+function toggleReactPicker(pId){
+  if(!sess){toast('Faça login para reagir.','info');return;}
+  document.querySelectorAll('.react-picker.on').forEach(el=>{if(el.id!=='rp-'+pId)el.classList.remove('on');});
+  const rp=document.getElementById('rp-'+pId);if(rp)rp.classList.toggle('on');
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.react-wrap'))document.querySelectorAll('.react-picker.on').forEach(el=>el.classList.remove('on'));
+});
+async function setReacao(pId,emoji){
+  if(!sess){toast('Faça login para reagir.','info');return;}
   const post=D.posts.find(p=>p.id===pId);if(!post)return;
-  post.likes=post.likes||[];const idx=post.likes.indexOf(sess.habbo);
-  if(idx>-1)post.likes.splice(idx,1);else{post.likes.push(sess.habbo);if(post.autor!==sess.habbo)await sb.from('notifs').insert({id:Date.now(),habbo:post.autor,msg:`${sess.habbo} curtiu "${post.titulo}"`,icon:'❤️',lida:false,data_notif:ds()});}
-  await sb.from('posts').update({likes:post.likes}).eq('id',pId);
-  const btn=document.querySelector(`#pc-${pId} .like-btn`);if(btn)btn.innerHTML=(idx===-1?'❤️':'🤍')+` <span id="lk-${pId}">${post.likes.length}</span>`;
+  post.reacoes=post.reacoes||[];
+  const idx=post.reacoes.findIndex(r=>r.habbo===sess.habbo);
+  const jaEra=idx>-1?post.reacoes[idx].emoji:null;
+  if(idx>-1)post.reacoes.splice(idx,1);
+  if(jaEra!==emoji){
+    post.reacoes.push({habbo:sess.habbo,emoji});
+    if(post.autor!==sess.habbo)await sb.from('notifs').insert({id:Date.now(),habbo:post.autor,msg:`${sess.habbo} reagiu ${emoji} em "${post.titulo}"`,icon:emoji,lida:false,data_notif:ds()});
+  }
+  await sb.from('posts').update({reacoes:post.reacoes}).eq('id',pId);
+  document.querySelectorAll('.react-picker.on').forEach(el=>el.classList.remove('on'));
+  const card=document.getElementById('pc-'+pId);if(card)card.outerHTML=postCard(post);
+}
+
+// ════════════ COMENTÁRIOS ════════════
+function toggleComments(postId){
+  const el=document.getElementById('comments-'+postId);if(!el)return;
+  const show=!el.classList.contains('on');
+  el.classList.toggle('on',show);
+  if(show)renderComentarios(postId);
+}
+function renderComentarios(postId){
+  const el=document.getElementById('comments-list-'+postId);if(!el)return;
+  const cs=D.comentarios.filter(c=>c.post_id===postId);
+  if(!cs.length){el.innerHTML='<div style="color:var(--gray);font-size:13px;padding:6px 0">Nenhum comentário ainda.</div>';return;}
+  el.innerHTML=cs.map(c=>{
+    const canDel=sess&&(sess.role==='admin'||sess.habbo===c.habbo);
+    return `<div class="comment-item">
+      <img src="${av(c.habbo)}" onerror="this.style.display='none'">
+      <div style="flex:1">
+        <span style="font-weight:700;color:var(--gold);font-size:13px;cursor:pointer" onclick="openPerfil('${c.habbo}')">${esc(c.habbo)}</span>
+        <span style="color:var(--gray);font-size:11px;margin-left:6px">${c.data_comentario||''}</span>
+        <div style="font-size:14px;color:var(--white);margin-top:2px;word-break:break-word">${esc(c.texto)}</div>
+      </div>
+      ${canDel?`<button class="btn btn-danger btn-xs" onclick="delComentario(${c.id},${postId})">✕</button>`:''}
+    </div>`;
+  }).join('');
+}
+async function enviarComentario(postId){
+  if(!sess){toast('Faça login para comentar.','info');return;}
+  const inp=document.getElementById('comment-input-'+postId);
+  const texto=inp.value.trim();
+  if(!texto){toast('Escreva algo!','err');return;}
+  const c={id:Date.now(),post_id:postId,habbo:sess.habbo,texto,data_comentario:ds()};
+  const {data:ins,error}=await sb.from('comentarios').insert(c).select().single();
+  if(error){toast('Erro ao comentar.','err');return;}
+  D.comentarios.push(ins);
+  inp.value='';
+  renderComentarios(postId);
+  const btn=document.querySelector(`#pc-${postId} .cmt-count`);if(btn)btn.textContent=D.comentarios.filter(c=>c.post_id===postId).length;
+  const post=D.posts.find(p=>p.id===postId);
+  if(post&&post.autor!==sess.habbo)await addNotif(post.autor,`${sess.habbo} comentou em "${post.titulo}"`,'💬');
+  toast('Comentário enviado!');
+}
+async function delComentario(id,postId){
+  if(!confirm('Excluir comentário?'))return;
+  await sb.from('comentarios').delete().eq('id',id);
+  D.comentarios=D.comentarios.filter(c=>c.id!==id);
+  renderComentarios(postId);
+  const btn=document.querySelector(`#pc-${postId} .cmt-count`);if(btn)btn.textContent=D.comentarios.filter(c=>c.post_id===postId).length;
+  toast('Comentário removido.');
 }
 async function delPost(id){
   if(!confirm('Deletar?'))return;
-  await sb.from('posts').delete().eq('id',id);D.posts=D.posts.filter(p=>p.id!==id);renderPosts();renderAdmin();updateStats();toast('Post removido.');
+  await Promise.all([sb.from('posts').delete().eq('id',id),sb.from('comentarios').delete().eq('post_id',id)]);
+  D.posts=D.posts.filter(p=>p.id!==id);D.comentarios=D.comentarios.filter(c=>c.post_id!==id);
+  renderPosts();renderAdmin();updateStats();toast('Post removido.');
 }
 function renderFilterSel(){const sel=document.getElementById('filter-emp');if(!sel)return;sel.innerHTML='<option value="">Todas as empresas</option>'+D.empresas.map(e=>`<option value="${e.id}">${e.emoji} ${esc(e.nome)}</option>`).join('');}
 
@@ -1381,7 +1494,7 @@ function openPerfil(habbo,fromHistory){
   const u=D.users.find(x=>x.habbo===habbo);
   const emps=D.empresas.filter(e=>(e.membros||[]).some(m=>m.habbo===habbo));
   const ps=D.posts.filter(p=>p.autor===habbo);
-  const likes=ps.reduce((a,p)=>a+(p.likes||[]).length,0);
+  const likes=ps.reduce((a,p)=>a+(p.reacoes||[]).length,0);
   const badges=emps.map(e=>{const m=(e.membros||[]).find(x=>x.habbo===habbo);return`<span class="tag tm" style="cursor:pointer" onclick="openEmpPage(${e.id})">${e.emoji} ${esc(e.nome)} · ${esc(m?.cargo||'Membro')}</span>`;}).join(' ');
   const postsHtml=ps.length?ps.map(p=>postCard(p)).join(''):'<div class="empty"><div class="empty-icon">📰</div><div>Nenhuma publicação.</div></div>';
   const isOwn=sess&&sess.habbo===habbo;
@@ -1435,7 +1548,7 @@ function renderAdmin(){
   else te.innerHTML=D.empresas.map(e=>{const l=e.logo?`<img src="${esc(e.logo)}" style="width:32px;height:32px;border-radius:4px;object-fit:cover">`:`<span style="font-size:22px">${e.emoji}</span>`;return`<tr><td>${l}</td><td><strong>${esc(e.nome)}</strong></td><td>${(e.cargos||[]).length}</td><td>${(e.membros||[]).length}</td><td>${e.privacidade==='private'?'<span class="tag tr">🔒 Privada</span>':'<span class="tag tgr">🌍 Pública</span>'}</td><td style="display:flex;gap:5px;flex-wrap:wrap"><button class="btn btn-ol btn-xs" onclick="openEmpPage(${e.id})">👁️</button><button class="btn btn-ol btn-xs" onclick="editEmp(${e.id})">✏️</button><button class="btn btn-danger btn-xs" onclick="delEmp(${e.id})">🗑️</button></td></tr>`;}).join('');}
   const tp=document.getElementById('tb-posts');
   if(tp){if(!D.posts.length)tp.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px">Nenhuma publicação.</td></tr>';
-  else tp.innerHTML=D.posts.map(p=>`<tr><td><strong>${esc(p.titulo)}</strong></td><td style="cursor:pointer;color:var(--gold)" onclick="openPerfil('${p.autor}')">${esc(p.autor)}</td><td>${p.empresa_emoji} ${esc(p.empresa_nome)}</td><td>❤️ ${(p.likes||[]).length}</td><td style="font-size:11px;color:var(--gray)">${p.data_post||''}</td><td><button class="btn btn-danger btn-xs" onclick="delPost(${p.id})">🗑️</button></td></tr>`).join('');}
+  else tp.innerHTML=D.posts.map(p=>`<tr><td><strong>${esc(p.titulo)}</strong></td><td style="cursor:pointer;color:var(--gold)" onclick="openPerfil('${p.autor}')">${esc(p.autor)}</td><td>${p.empresa_emoji} ${esc(p.empresa_nome)}</td><td>❤️ ${(p.reacoes||[]).length}</td><td style="font-size:11px;color:var(--gray)">${p.data_post||''}</td><td><button class="btn btn-danger btn-xs" onclick="delPost(${p.id})">🗑️</button></td></tr>`).join('');}
   const tu=document.getElementById('tb-users');
   if(tu){if(!D.users.length)tu.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--gray);padding:24px">Nenhum membro.</td></tr>';
   else tu.innerHTML=D.users.map(u=>{const emps=D.empresas.filter(e=>(e.membros||[]).some(m=>m.habbo===u.habbo));return`<tr><td><img src="${av(u.habbo)}" style="width:34px;height:34px;image-rendering:pixelated;border-radius:4px;object-fit:contain" onerror="this.style.display='none'"></td><td style="cursor:pointer;color:var(--gold);font-weight:700" onclick="openPerfil('${u.habbo}')">${esc(u.habbo)}</td><td style="font-size:12px">${emps.map(e=>e.nome).join(', ')||'—'}</td><td>${u.role==='admin'?'<span class="badge-adm">Admin</span>':u.role==='editor'?'<span class="badge-ed">Editor</span>':'<span style="color:var(--gray)">Membro</span>'}</td><td style="display:flex;gap:4px;flex-wrap:wrap">${u.role!=='admin'?`${u.role!=='editor'?`<button class="btn btn-ol btn-xs" onclick="promover('${u.habbo}')">✏️ Editor</button>`:`<button class="btn btn-ol btn-xs" onclick="rebaixar('${u.habbo}')">👤 Membro</button>`}<button class="btn btn-danger btn-xs" onclick="delUser('${u.habbo}')">🗑️</button>`:'<span style="color:var(--gold)">Admin</span>'}</td></tr>`;}).join('');}
