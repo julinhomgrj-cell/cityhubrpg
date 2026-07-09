@@ -356,7 +356,7 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
     </div>
   </div>
   <div class="alert alert-info">Código numérico (0, 1, 2, 3...) de cada cargo/emprego cadastrado pelas empresas. Esse código será usado numa futura integração com o Habbo — edite direto aqui se precisar corrigir algo.</div>
-  <div class="tw"><table><thead><tr><th>Empresa</th><th>Cargo</th><th>Nível</th><th>Código</th><th>Contexto</th></tr></thead><tbody id="tb-empregos"></tbody></table></div>
+  <div class="tw"><table><thead><tr><th>Empresa</th><th>Cargo</th><th>Posição</th><th>Código</th><th>Contexto</th></tr></thead><tbody id="tb-empregos"></tbody></table></div>
 </div>
 
 <div id="adm-site" class="adm-panel"><div class="g2">
@@ -422,7 +422,7 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 <div id="epanel-up"><div class="upload-area" onclick="document.getElementById('emp-logo-f').click()"><div style="color:var(--gray);font-size:13px">📁 Escolher logo</div><input type="file" id="emp-logo-f" accept="image/*" onchange="handleImg(this,'emp-logo-prev','emp-logo-b64')"><img id="emp-logo-prev" class="img-prev"></div><input type="hidden" id="emp-logo-b64"></div>
 <div id="epanel-url" style="display:none"><input type="text" class="form-ctrl" id="emp-logo-url" placeholder="https://..."></div></div>
 <div class="fg"><label class="fl">Banner</label><div class="upload-area" onclick="document.getElementById('emp-banner-f').click()"><div style="color:var(--gray);font-size:13px">📁 Escolher banner</div><input type="file" id="emp-banner-f" accept="image/*" onchange="handleImg(this,'emp-banner-prev','emp-banner-b64')"><img id="emp-banner-prev" class="img-prev"></div><input type="hidden" id="emp-banner-b64"></div>
-<div class="fg"><label class="fl">Cargos</label><div id="new-cargos" class="cargo-list"></div><div class="cargo-add"><input type="text" class="form-ctrl" id="new-cargo-nome" placeholder="Nome do cargo"><input type="number" class="form-ctrl" id="new-cargo-lvl" value="1" min="1" max="10" style="width:80px"><input type="number" class="form-ctrl" id="new-cargo-cod" placeholder="Código" min="0" style="width:90px"><button class="btn btn-ol btn-sm" onclick="addNewCargo()">+ Add</button></div></div>
+<div class="fg"><label class="fl">Cargos</label><div id="new-cargos" class="cargo-list"></div><div class="cargo-add"><input type="text" class="form-ctrl" id="new-cargo-nome" placeholder="Nome do cargo"><input type="number" class="form-ctrl" id="new-cargo-lvl" value="1" min="1" max="10" style="width:80px" title="Posição na Hierarquia (1-10)"><input type="number" class="form-ctrl" id="new-cargo-cod" placeholder="Código" min="0" style="width:90px"><button class="btn btn-ol btn-sm" onclick="addNewCargo()">+ Add</button></div></div>
 <button class="btn btn-gold btn-block" onclick="criarEmp()">+ Criar Empresa</button>
 </div></div>
 
@@ -473,7 +473,7 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 <div class="fg"><label class="fl">📋 Cargos (arraste para reordenar hierarquia)</label>
 <div style="font-size:12px;color:var(--gray);margin-bottom:8px">⬆️ Topo = maior hierarquia | ⬇️ Base = menor hierarquia</div>
 <div id="edit-cargos" class="cargo-list"></div>
-<div class="cargo-add"><input type="text" class="form-ctrl" id="edit-cargo-nome" placeholder="Novo cargo"><input type="number" class="form-ctrl" id="edit-cargo-lvl" value="1" min="1" max="10" style="width:80px"><input type="number" class="form-ctrl" id="edit-cargo-cod" placeholder="Código" min="0" style="width:90px"><button class="btn btn-ol btn-sm" onclick="addEditCargo()">+ Add</button></div>
+<div class="cargo-add"><input type="text" class="form-ctrl" id="edit-cargo-nome" placeholder="Novo cargo"><input type="number" class="form-ctrl" id="edit-cargo-lvl" value="1" min="1" max="10" style="width:80px" title="Posição na Hierarquia (1-10)"><input type="number" class="form-ctrl" id="edit-cargo-cod" placeholder="Código" min="0" style="width:90px"><button class="btn btn-ol btn-sm" onclick="addEditCargo()">+ Add</button></div>
 </div>
 <button class="btn btn-gold btn-block" onclick="salvarEmp()">💾 Salvar</button>
 </div></div>
@@ -492,6 +492,28 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 <input type="hidden" id="mc-habbo"><input type="hidden" id="mc-emp-id">
 <div class="fg"><label class="fl">Cargo</label><select class="form-ctrl" id="mc-select"></select></div>
 <button class="btn btn-gold btn-block" onclick="salvarCargo()">✅ Confirmar</button>
+</div></div>
+
+<div class="modal-ov" id="m-edit-cargo"><div class="modal modal-wide"><button class="modal-x" onclick="closeM('m-edit-cargo')">✕</button><div class="modal-title">✏️ Editar Cargo</div>
+<input type="hidden" id="ec-emp-id"><input type="hidden" id="ec-cargo-id">
+<div class="frow">
+  <div class="fg"><label class="fl">Nome do Cargo</label><input type="text" class="form-ctrl" id="ec-nome"></div>
+  <div class="fg"><label class="fl">Posição na Hierarquia</label><input type="number" class="form-ctrl" id="ec-posicao" min="1" max="10"></div>
+</div>
+<div class="fg"><label class="fl">Código do Emprego</label><input type="number" class="form-ctrl" id="ec-codigo" min="0" placeholder="Ex: 1"></div>
+<div class="hr"></div>
+<div class="fg"><label class="fl">👤 Adicionar Membro a este Cargo</label>
+  <div class="nick-row"><input type="text" class="form-ctrl" id="ec-add-nick" placeholder="Nick Habbo..." onkeydown="if(event.key==='Enter')buscarEcNick()"><button class="btn btn-mag btn-sm" onclick="buscarEcNick()"><span id="ec-search-txt">🔍</span></button></div>
+  <div id="ec-add-result" style="display:none" class="nick-box"><div class="nick-preview" id="ec-add-preview"></div></div>
+  <div id="ec-add-alert"></div>
+  <button class="btn btn-gold btn-sm" id="ec-add-confirm" style="display:none;margin-top:10px" onclick="confirmarEcAdd()">✅ Adicionar ao Cargo</button>
+</div>
+<div class="fg"><label class="fl">👥 Membros neste Cargo</label><div id="ec-membros-list" style="display:flex;flex-direction:column;gap:6px"></div></div>
+<div class="hr"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+  <button class="btn btn-gold" onclick="salvarEditCargo()">💾 Salvar Alterações</button>
+  <button class="btn btn-danger" onclick="excluirCargoCompleto()">🗑️ Excluir Cargo</button>
+</div>
 </div></div>
 
 <div class="modal-ov" id="m-perfil-cfg"><div class="modal modal-wide"><button class="modal-x" onclick="closeM('m-perfil-cfg')">✕</button><div class="modal-title">⚙️ Configurações do Perfil</div>
@@ -913,7 +935,7 @@ function renderTC(cid,list,type){
     <div class="cargo-item" draggable="true" data-idx="${i}" data-type="${type}" data-id="${c.id}"
       ondragstart="dragStartCargo(event)" ondragover="dragOverCargo(event)" ondrop="dropCargo(event,${i},'${type}')" ondragleave="dragLeaveCargo(event)">
       <span class="drag-handle" title="Arraste para reordenar">☰</span>
-      <div style="flex:1"><div class="ci-name">${esc(c.nome)}</div><div class="ci-lvl">Nível ${c.nivel} · Código ${c.codigo!=null?c.codigo:'—'} · Posição ${i+1}</div></div>
+      <div style="flex:1"><div class="ci-name">${esc(c.nome)}</div><div class="ci-lvl">Posição na Hierarquia: ${c.nivel} · Código ${c.codigo!=null?c.codigo:'—'} · Ordem: ${i+1}</div></div>
       <div style="display:flex;gap:4px;align-items:center">
         <button class="btn btn-ol btn-xs" onclick="moveCargo('${type}',${i},-1)" ${i===0?'disabled':''} title="Subir">⬆</button>
         <button class="btn btn-ol btn-xs" onclick="moveCargo('${type}',${i},1)" ${i===list.length-1?'disabled':''} title="Descer">⬇</button>
@@ -1103,7 +1125,8 @@ function buildCargos(e,canMng,isAdm){
     const ctxBadge=ctx?`<span class="tag tg" style="margin-left:6px">${esc(ctx)}</span>`:'';
     const mHtml=mems.length?`<div class="cargo-grid">${mems.map(m=>`<div class="cargo-member" onclick="openPerfil('${m.habbo}')"><img class="cargo-avatar" src="${avL(m.habbo)}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 40 52\'%3E%3Crect width=\'40\' height=\'52\' fill=\'%2316162a\'/%3E%3C/svg%3E'" alt="${esc(m.habbo)}"><div class="cargo-mname">${esc(m.habbo)}</div><div class="cargo-mrole">${esc(cargo.nome)}</div>${ctx?`<div style="font-size:9px;color:var(--blue);text-transform:uppercase;margin-top:2px">${esc(ctx)}</div>`:''}${(canMng||isAdm)?`<div class="cargo-mactions"><button class="btn btn-ol btn-xs" onclick="event.stopPropagation();openCargo('${m.habbo}',${e.id})">✏️</button><button class="btn btn-danger btn-xs" onclick="event.stopPropagation();remMembro(${e.id},'${m.habbo}')">✕</button></div>`:''}</div>`).join('')}</div>`:`<div style="padding:10px 14px;color:var(--gray);font-size:13px;font-style:italic">Nenhum membro neste cargo.</div>`;
     const addBtn=canMng?`<button class="btn btn-ol-mag btn-xs" onclick="abrirAddCargo(${e.id},'${esc(cargo.nome)}')">+ Adicionar</button>`:'';
-    return `<div class="card cargo-sec" style="margin-bottom:14px"><div class="cargo-title"><span>📌 ${esc(cargo.nome)} <span style="color:var(--gray);font-size:11px;font-weight:400">Nível ${cargo.nivel}</span>${ctxBadge}</span><div style="display:flex;align-items:center;gap:6px"><span style="color:var(--gray);font-size:11px">${mems.length} membro(s)</span>${addBtn}</div></div>${mHtml}</div>`;
+    const editCargoBtn=canMng?`<button class="btn btn-ol btn-xs" onclick="abrirEditCargo(${e.id},${cargo.id})">✏️ Editar Cargo</button>`:'';
+    return `<div class="card cargo-sec" style="margin-bottom:14px"><div class="cargo-title"><span>📌 ${esc(cargo.nome)} <span style="color:var(--gray);font-size:11px;font-weight:400">Posição ${cargo.nivel}</span>${ctxBadge}</span><div style="display:flex;align-items:center;gap:6px"><span style="color:var(--gray);font-size:11px">${mems.length} membro(s)</span>${addBtn}${editCargoBtn}</div></div>${mHtml}</div>`;
   }).join('');
 }
 
@@ -1137,7 +1160,7 @@ function openCargo(habbo,eId){
   const e=D.empresas.find(x=>x.id==eId);if(!e)return;
   document.getElementById('mc-habbo').value=habbo;document.getElementById('mc-emp-id').value=eId;
   document.getElementById('mc-prev').innerHTML=`<img src="${avL(habbo)}" style="width:40px;height:52px;image-rendering:pixelated;border-radius:4px;border:2px solid var(--gold);object-fit:contain" onerror="this.style.display='none'"><div><div style="font-weight:700;color:var(--gold)">${esc(habbo)}</div><div style="font-size:12px;color:var(--gray)">${e.nome}</div></div>`;
-  const sel=document.getElementById('mc-select');sel.innerHTML=(e.cargos||[]).map(c=>`<option value="${esc(c.nome)}">${esc(c.nome)} (Nível ${c.nivel})</option>`).join('');
+  const sel=document.getElementById('mc-select');sel.innerHTML=(e.cargos||[]).map(c=>`<option value="${esc(c.nome)}">${esc(c.nome)} (Posição ${c.nivel})</option>`).join('');
   const m=(e.membros||[]).find(x=>x.habbo===habbo);if(m&&m.cargo)sel.value=m.cargo;
   openM('m-cargo');
 }
@@ -1145,6 +1168,116 @@ async function salvarCargo(){
   const habbo=document.getElementById('mc-habbo').value;const eId=document.getElementById('mc-emp-id').value;const cargo=document.getElementById('mc-select').value;
   const e=D.empresas.find(x=>x.id==eId);if(!e)return;
   const m=(e.membros||[]).find(x=>x.habbo===habbo);if(m){m.cargo=cargo;await sb.from('empresas').update({membros:e.membros}).eq('id',eId);closeM('m-cargo');openEmpPage(eId);toast(`Cargo de ${habbo} → ${cargo}`);}
+}
+
+// ════════════ EDITAR CARGO (completo) ════════════
+let ecFoundHabbo=null;
+function abrirEditCargo(empId,cargoId){
+  const e=D.empresas.find(x=>x.id==empId);if(!e)return;
+  const c=(e.cargos||[]).find(x=>x.id===cargoId);if(!c)return;
+  document.getElementById('ec-emp-id').value=empId;
+  document.getElementById('ec-cargo-id').value=cargoId;
+  document.getElementById('ec-nome').value=c.nome;
+  document.getElementById('ec-posicao').value=c.nivel;
+  document.getElementById('ec-codigo').value=c.codigo!=null?c.codigo:'';
+  document.getElementById('ec-add-nick').value='';
+  document.getElementById('ec-add-result').style.display='none';
+  document.getElementById('ec-add-alert').innerHTML='';
+  document.getElementById('ec-add-confirm').style.display='none';
+  ecFoundHabbo=null;
+  renderEcMembros();
+  openM('m-edit-cargo');
+}
+function renderEcMembros(){
+  const empId=document.getElementById('ec-emp-id').value;
+  const e=D.empresas.find(x=>x.id==empId);if(!e)return;
+  const cargoId=parseInt(document.getElementById('ec-cargo-id').value);
+  const c=(e.cargos||[]).find(x=>x.id===cargoId);if(!c)return;
+  const mems=(e.membros||[]).filter(m=>m.cargo===c.nome);
+  const el=document.getElementById('ec-membros-list');if(!el)return;
+  if(!mems.length){el.innerHTML='<div style="color:var(--gray);font-size:13px">Nenhum membro neste cargo.</div>';return;}
+  el.innerHTML=mems.map(m=>`
+    <div style="display:flex;align-items:center;gap:8px;background:#0a0a14;border:1px solid var(--border);border-radius:6px;padding:8px 12px">
+      <img src="${av(m.habbo)}" style="width:28px;height:36px;image-rendering:pixelated;border-radius:4px;object-fit:contain" onerror="this.style.display='none'">
+      <span style="font-weight:700;color:var(--gold);flex:1">${esc(m.habbo)}</span>
+      <button class="btn btn-danger btn-xs" onclick="remMembroEc('${m.habbo}')">✕</button>
+    </div>`).join('');
+}
+async function remMembroEc(habbo){
+  const empId=document.getElementById('ec-emp-id').value;
+  const e=D.empresas.find(x=>x.id==empId);if(!e)return;
+  if(!confirm(`Remover ${habbo} deste cargo?`))return;
+  e.membros=(e.membros||[]).filter(m=>m.habbo!==habbo);
+  await sb.from('empresas').update({membros:e.membros}).eq('id',empId);
+  renderEcMembros();toast(`${habbo} removido do cargo.`);
+}
+async function buscarEcNick(){
+  const nick=document.getElementById('ec-add-nick').value.trim();
+  const btn=document.getElementById('ec-search-txt');
+  const rEl=document.getElementById('ec-add-result');
+  const pEl=document.getElementById('ec-add-preview');
+  const aEl=document.getElementById('ec-add-alert');
+  const cBtn=document.getElementById('ec-add-confirm');
+  if(!nick){aEl.innerHTML='<div class="alert alert-err">Digite um nick.</div>';return;}
+  btn.innerHTML='<span class="spinner"></span>';aEl.innerHTML='';rEl.style.display='none';cBtn.style.display='none';ecFoundHabbo=null;
+  try{
+    const res=await fetch(`https://www.habbo.com.br/api/public/users?name=${encodeURIComponent(nick)}`);
+    if(!res.ok)throw new Error('Personagem não encontrado.');
+    const data=await res.json();const hName=data.name||nick;ecFoundHabbo=hName;
+    pEl.innerHTML=`<img src="${avL(hName)}" onerror="this.style.display='none'" style="width:40px;height:52px;image-rendering:pixelated;border-radius:4px;border:2px solid var(--gold);object-fit:contain"><div><div class="nick-name">${esc(hName)}</div><div class="nick-motto">"${esc(data.motto||'')}"</div><div style="font-size:11px;color:var(--green);margin-top:3px">✅ Encontrado!</div></div>`;
+    rEl.style.display='block';cBtn.style.display='block';
+  }catch(err){aEl.innerHTML=`<div class="alert alert-err">${err.message||'Não encontrado.'}</div>`;}
+  btn.textContent='🔍';
+}
+async function confirmarEcAdd(){
+  if(!ecFoundHabbo){toast('Busque um nick primeiro.','err');return;}
+  const empId=document.getElementById('ec-emp-id').value;
+  const e=D.empresas.find(x=>x.id==empId);if(!e)return;
+  const cargoId=parseInt(document.getElementById('ec-cargo-id').value);
+  const c=(e.cargos||[]).find(x=>x.id===cargoId);if(!c)return;
+  e.membros=e.membros||[];
+  const ex=e.membros.find(m=>m.habbo.toLowerCase()===ecFoundHabbo.toLowerCase());
+  if(ex){ex.cargo=c.nome;toast(`Cargo de ${ecFoundHabbo} atualizado!`);}
+  else{e.membros.push({habbo:ecFoundHabbo,cargo:c.nome,entrou:ds()});await addNotif(ecFoundHabbo,`Você foi adicionado ao cargo "${c.nome}" em ${e.nome}!`,'👔');toast(`${ecFoundHabbo} adicionado!`);}
+  await sb.from('empresas').update({membros:e.membros}).eq('id',empId);
+  document.getElementById('ec-add-nick').value='';
+  document.getElementById('ec-add-result').style.display='none';
+  document.getElementById('ec-add-confirm').style.display='none';
+  ecFoundHabbo=null;
+  renderEcMembros();
+}
+async function salvarEditCargo(){
+  const empId=document.getElementById('ec-emp-id').value;
+  const e=D.empresas.find(x=>x.id==empId);if(!e)return;
+  const cargoId=parseInt(document.getElementById('ec-cargo-id').value);
+  const c=(e.cargos||[]).find(x=>x.id===cargoId);if(!c)return;
+  const novoNome=document.getElementById('ec-nome').value.trim();
+  const pos=parseInt(document.getElementById('ec-posicao').value)||1;
+  const codEl=document.getElementById('ec-codigo'),cod=codEl.value!==''?parseInt(codEl.value):null;
+  if(!novoNome){toast('Digite o nome do cargo!','err');return;}
+  const nomeAntigo=c.nome;
+  c.nome=novoNome;c.nivel=pos;c.codigo=cod;
+  if(nomeAntigo!==novoNome){(e.membros||[]).forEach(m=>{if(m.cargo===nomeAntigo)m.cargo=novoNome;});}
+  await sb.from('empresas').update({cargos:e.cargos,membros:e.membros}).eq('id',empId);
+  closeM('m-edit-cargo');
+  openEmpPage(empId);
+  renderEmpregosAdmin();
+  toast('Cargo atualizado!');
+}
+async function excluirCargoCompleto(){
+  const empId=document.getElementById('ec-emp-id').value;
+  const e=D.empresas.find(x=>x.id==empId);if(!e)return;
+  const cargoId=parseInt(document.getElementById('ec-cargo-id').value);
+  const c=(e.cargos||[]).find(x=>x.id===cargoId);if(!c)return;
+  const qtdMembros=(e.membros||[]).filter(m=>m.cargo===c.nome).length;
+  const aviso=qtdMembros?` ${qtdMembros} membro(s) atualmente neste cargo ficarão sem cargo definido.`:'';
+  if(!confirm(`Excluir o cargo "${c.nome}"?${aviso}`))return;
+  e.cargos=(e.cargos||[]).filter(x=>x.id!==cargoId);
+  await sb.from('empresas').update({cargos:e.cargos}).eq('id',empId);
+  closeM('m-edit-cargo');
+  openEmpPage(empId);
+  renderEmpregosAdmin();
+  toast('Cargo excluído.');
 }
 
 // ════════════ MEMBERSHIP ════════════
