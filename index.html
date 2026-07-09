@@ -465,6 +465,7 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 <div class="fg"><label class="fl">Logo (trocar)</label><div class="upload-area" onclick="document.getElementById('edit-logo-f').click()"><div style="color:var(--gray);font-size:13px">📁 Nova logo</div><input type="file" id="edit-logo-f" accept="image/*" onchange="handleImg(this,'edit-logo-prev','edit-logo-b64')"><img id="edit-logo-prev" class="img-prev"></div><input type="hidden" id="edit-logo-b64"></div>
 <div class="fg"><label class="fl">Banner (trocar)</label><div class="upload-area" onclick="document.getElementById('edit-banner-f').click()"><div style="color:var(--gray);font-size:13px">📁 Novo banner</div><input type="file" id="edit-banner-f" accept="image/*" onchange="handleImg(this,'edit-banner-prev','edit-banner-b64')"><img id="edit-banner-prev" class="img-prev"></div><input type="hidden" id="edit-banner-b64"></div>
 <div class="fg"><label class="fl">👤 Editor da Empresa (por Nick Habbo)</label>
+<div style="font-size:12px;color:var(--gray);margin-bottom:8px">⚠️ Só permite <strong>1 pessoa</strong>. Buscar um novo editor substitui o atual. Pra adicionar várias pessoas com permissão de gerenciar, use "Administradores da Empresa" logo abaixo.</div>
 <div class="nick-row" style="margin-bottom:8px">
   <input type="text" class="form-ctrl" id="edit-editor-nick" placeholder="Digite o nick Habbo..." onkeydown="if(event.key==='Enter')buscarEditor()">
   <button class="btn btn-mag btn-sm" onclick="buscarEditor()"><span id="edit-editor-search-txt">🔍 Buscar</span></button>
@@ -484,12 +485,15 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 <div style="margin-top:6px;font-size:12px;color:var(--gray)">Personaliza as cores da página interna da empresa</div>
 </div>
 <div class="fg"><label class="fl">👑 Administradores da Empresa</label>
-<div style="font-size:12px;color:var(--gray);margin-bottom:8px">Podem gerenciar membros, cargos e publicações desta empresa</div>
+<div style="font-size:12px;color:var(--gray);margin-bottom:8px">Podem gerenciar membros, cargos e publicações desta empresa. Pode adicionar quantas pessoas quiser.</div>
 <div id="edit-emp-admins-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
 <div class="nick-row">
-  <input type="text" class="form-ctrl" id="edit-emp-admin-nick" placeholder="Nick Habbo do administrador...">
-  <button class="btn btn-gold btn-sm" onclick="addEmpAdmin()">+ Add</button>
+  <input type="text" class="form-ctrl" id="edit-emp-admin-nick" placeholder="Nick Habbo do administrador..." onkeydown="if(event.key==='Enter')buscarEmpAdminNick()">
+  <button class="btn btn-mag btn-sm" onclick="buscarEmpAdminNick()"><span id="emp-admin-search-txt">🔍 Buscar</span></button>
 </div>
+<div id="emp-admin-result" style="display:none" class="nick-box"><div class="nick-preview" id="emp-admin-preview"></div></div>
+<div id="emp-admin-alert"></div>
+<button class="btn btn-gold btn-sm" id="emp-admin-confirm" style="display:none;margin-top:10px" onclick="confirmarEmpAdmin()">✅ Confirmar e Adicionar</button>
 </div>
 <div class="fg"><label class="fl">🔘 Botões Personalizados</label>
 <div style="font-size:12px;color:var(--gray);margin-bottom:8px">Aparecem abaixo do banner da empresa. Defina nome, link e cor.</div>
@@ -1187,6 +1191,11 @@ function editEmp(id){
   tEditCargos=[...(e.cargos||[])];renderTC('edit-cargos',tEditCargos,'edit');
   // Admins e botões da empresa
   tempEmpAdmins=[...(e.admins||[])];renderEmpAdmins();
+  document.getElementById('edit-emp-admin-nick').value='';
+  document.getElementById('emp-admin-result').style.display='none';
+  document.getElementById('emp-admin-alert').innerHTML='';
+  document.getElementById('emp-admin-confirm').style.display='none';
+  empAdminFoundHabbo=null;
   tempEmpBotoes=[...(e.botoes||[])];renderEmpBotoes();
   openM('m-edit-emp');
 }
@@ -1897,14 +1906,38 @@ function renderEmpBotoes(){
 
 // ════════════ EMPRESA ADMINS ════════════
 let tempEmpAdmins=[];
+let empAdminFoundHabbo=null;
 
-async function addEmpAdmin(){
+async function buscarEmpAdminNick(){
   const nick=document.getElementById('edit-emp-admin-nick').value.trim();
-  if(!nick){toast('Digite um nick!','err');return;}
-  if(tempEmpAdmins.includes(nick)){toast('Já adicionado!','info');return;}
-  tempEmpAdmins.push(nick);
+  const btn=document.getElementById('emp-admin-search-txt');
+  const rEl=document.getElementById('emp-admin-result');
+  const pEl=document.getElementById('emp-admin-preview');
+  const aEl=document.getElementById('emp-admin-alert');
+  const cBtn=document.getElementById('emp-admin-confirm');
+  if(!nick){aEl.innerHTML='<div class="alert alert-err">Digite um nick.</div>';return;}
+  btn.innerHTML='<span class="spinner"></span>';aEl.innerHTML='';rEl.style.display='none';cBtn.style.display='none';empAdminFoundHabbo=null;
+  try{
+    const res=await fetch(`https://www.habbo.com.br/api/public/users?name=${encodeURIComponent(nick)}`);
+    if(!res.ok)throw new Error('Personagem não encontrado.');
+    const data=await res.json();const hName=data.name||nick;
+    if(tempEmpAdmins.some(n=>n.toLowerCase()===hName.toLowerCase())){aEl.innerHTML='<div class="alert alert-info">Essa pessoa já é administradora.</div>';btn.textContent='🔍 Buscar';return;}
+    empAdminFoundHabbo=hName;
+    pEl.innerHTML=`<img src="${avL(hName)}" onerror="this.style.display='none'" style="width:40px;height:52px;image-rendering:pixelated;border-radius:4px;border:2px solid var(--gold);object-fit:contain"><div><div class="nick-name">${esc(hName)}</div><div class="nick-motto">"${esc(data.motto||'')}"</div><div style="font-size:11px;color:var(--green);margin-top:3px">✅ Encontrado! Confirme abaixo pra adicionar.</div></div>`;
+    rEl.style.display='block';cBtn.style.display='block';
+  }catch(err){aEl.innerHTML=`<div class="alert alert-err">${err.message||'Não encontrado.'}</div>`;}
+  btn.textContent='🔍 Buscar';
+}
+function confirmarEmpAdmin(){
+  if(!empAdminFoundHabbo){toast('Busque um nick primeiro.','err');return;}
+  tempEmpAdmins.push(empAdminFoundHabbo);
   document.getElementById('edit-emp-admin-nick').value='';
+  document.getElementById('emp-admin-result').style.display='none';
+  document.getElementById('emp-admin-confirm').style.display='none';
+  document.getElementById('emp-admin-alert').innerHTML='';
+  empAdminFoundHabbo=null;
   renderEmpAdmins();
+  toast('Administrador adicionado à lista! Clique em "Salvar" pra confirmar.');
 }
 function remEmpAdmin(nick){tempEmpAdmins=tempEmpAdmins.filter(n=>n!==nick);renderEmpAdmins();}
 function renderEmpAdmins(){
