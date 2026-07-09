@@ -558,7 +558,18 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
   <button class="btn btn-ol btn-sm" style="height:40px" onclick="addPerfilBotao()">+ Add</button>
 </div>
 </div>
-<button class="btn btn-gold btn-block" onclick="salvarPerfilCfg()">💾 Salvar</button>
+<button class="btn btn-gold btn-block" onclick="salvarPerfilCfg()">💾 Salvar Botões</button>
+<div class="hr"></div>
+<div class="fg"><label class="fl">🔒 Senha de Acesso</label>
+<div class="alert alert-info">Cadastre uma senha pra entrar direto, sem precisar verificar a missão do Habbo toda vez.</div>
+<div id="perfil-senha-status"></div>
+<div class="frow"><div class="fg"><label class="fl">Nova Senha</label><input type="password" class="form-ctrl" id="perfil-senha-nova" placeholder="Mínimo 6 caracteres"></div><div class="fg"><label class="fl">Confirmar Senha</label><input type="password" class="form-ctrl" id="perfil-senha-confirma" placeholder="Repita a senha"></div></div>
+<div id="perfil-senha-alert"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+  <button class="btn btn-gold btn-sm" onclick="salvarSenha()">💾 Salvar Senha</button>
+  <button class="btn btn-danger btn-sm" id="btn-remover-senha" style="display:none" onclick="removerSenha()">🗑️ Remover Senha</button>
+</div>
+</div>
 </div></div>
 
 <script>
@@ -791,14 +802,14 @@ async function salvarSenha(){
   const {error}=await sb.from('users').update({senha:hash,senha_salt:salt}).eq('habbo',sess.habbo);
   if(error){alrt.innerHTML='<div class="alert alert-err">Erro ao salvar senha.</div>';return;}
   toast('Senha cadastrada! Agora você pode entrar com ela.');
-  openPerfil(sess.habbo);
+  abrirPerfilCfg();
 }
 async function removerSenha(){
   if(!sess)return;
   if(!confirm('Remover senha? Você vai precisar entrar por missão de novo.'))return;
   await sb.from('users').update({senha:null,senha_salt:null}).eq('habbo',sess.habbo);
   toast('Senha removida.');
-  openPerfil(sess.habbo);
+  abrirPerfilCfg();
 }
 
 // ════════════ AUTH ════════════
@@ -1500,6 +1511,15 @@ function abrirPerfilCfg(){
   const u=D.users.find(x=>x.habbo===sess.habbo);
   tempPerfilBotoes=[...(u?.botoes||[])];
   renderPerfilBotoes();
+  document.getElementById('perfil-senha-nova').value='';
+  document.getElementById('perfil-senha-confirma').value='';
+  document.getElementById('perfil-senha-alert').innerHTML='';
+  const st=document.getElementById('perfil-senha-status');const rb=document.getElementById('btn-remover-senha');
+  st.textContent='Consultando...';rb.style.display='none';
+  sb.from('users').select('senha').eq('habbo',sess.habbo).maybeSingle().then(({data})=>{
+    if(data&&data.senha){st.innerHTML='<div class="alert alert-ok">✅ Você já tem senha cadastrada. Pode entrar direto com ela na tela de login.</div>';rb.style.display='inline-flex';}
+    else st.innerHTML='';
+  });
   openM('m-perfil-cfg');
 }
 function addPerfilBotao(){
@@ -1568,25 +1588,7 @@ function openPerfil(habbo,fromHistory){
   const jaSegue=sess&&(u?.seguidores||[]).includes(sess.habbo);
   const acoesHtml=`<div style="padding-bottom:10px;display:flex;gap:6px;flex-wrap:wrap">${!isOwn&&sess?`<button class="follow-btn ${jaSegue?'on':''}" onclick="toggleSegPlayer('${habbo}')">${jaSegue?'✓ Seguindo':'+ Seguir'}</button>`:''}${isOwn?`<button class="btn btn-ol btn-sm" onclick="abrirPerfilCfg()" title="Configurações do perfil">⚙️ Configurações</button>`:''}</div>`;
   const botoesHtml=(u?.botoes||[]).length?`<div style="display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 16px">${u.botoes.map(b=>`<a href="${esc(b.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm" style="background:${b.cor||'var(--magenta)'};color:#fff">${esc(b.nome)}</a>`).join('')}</div>`:'';
-  const senhaHtml=isOwn?`<div class="card" style="margin-bottom:24px"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">🔒 Senha de Acesso</span></div><div class="card-bd">
-    <div class="alert alert-info">Cadastre uma senha pra entrar direto, sem precisar verificar a missão do Habbo toda vez.</div>
-    <div id="perfil-senha-status"></div>
-    <div class="frow"><div class="fg"><label class="fl">Nova Senha</label><input type="password" class="form-ctrl" id="perfil-senha-nova" placeholder="Mínimo 6 caracteres"></div><div class="fg"><label class="fl">Confirmar Senha</label><input type="password" class="form-ctrl" id="perfil-senha-confirma" placeholder="Repita a senha"></div></div>
-    <div id="perfil-senha-alert"></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn btn-gold btn-sm" onclick="salvarSenha()">💾 Salvar Senha</button>
-      <button class="btn btn-danger btn-sm" id="btn-remover-senha" style="display:none" onclick="removerSenha()">🗑️ Remover Senha</button>
-    </div>
-  </div></div>`:'';
-  document.getElementById('perfil-page').innerHTML=`<div class="card" style="margin-bottom:20px;overflow:visible"><div class="perfil-banner"></div><div style="display:flex;align-items:flex-end;gap:14px;padding:0 16px;flex-wrap:wrap"><div class="perfil-av"><img src="${av(habbo)}" onerror="this.style.display='none'" alt="${esc(habbo)}"></div><div style="padding-bottom:10px;flex:1"><div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--gold)">${esc(habbo)}</div><div style="font-size:13px;color:var(--gray)">@${habbo.toLowerCase()}</div>${u?.role==='admin'?'<span class="badge-adm">Admin</span>':u?.role==='editor'?'<span class="badge-ed">Editor</span>':''}</div>${acoesHtml}</div>${botoesHtml}<div class="card-bd" style="border-top:1px solid var(--border);margin-top:10px"><div style="display:flex;gap:24px;margin-bottom:14px;flex-wrap:wrap"><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--gold)">${ps.length}</div><div style="color:var(--gray);font-size:12px">Posts</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--red)">${likes}</div><div style="color:var(--gray);font-size:12px">Curtidas</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--blue)">${seguidores}</div><div style="color:var(--gray);font-size:12px">Seguidores</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--green)">${seguindoCount}</div><div style="color:var(--gray);font-size:12px">Seguindo</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--magenta)">${emps.length}</div><div style="color:var(--gray);font-size:12px">Empresas</div></div></div>${badges?`<div style="display:flex;gap:6px;flex-wrap:wrap">${badges}</div>`:''}${u?.registrado?`<div style="font-size:12px;color:var(--gray);margin-top:10px">Membro desde ${u.registrado}</div>`:''}</div></div>${senhaHtml}<div class="sec-title">📰 Publicações de ${esc(habbo)}</div>${postsHtml}`;
-  if(isOwn){
-    sb.from('users').select('senha').eq('habbo',habbo).maybeSingle().then(({data})=>{
-      const st=document.getElementById('perfil-senha-status');const rb=document.getElementById('btn-remover-senha');
-      if(!st)return;
-      if(data&&data.senha){st.innerHTML='<div class="alert alert-ok">✅ Você já tem senha cadastrada. Pode entrar direto com ela na tela de login.</div>';if(rb)rb.style.display='inline-flex';}
-      else st.innerHTML='';
-    });
-  }
+  document.getElementById('perfil-page').innerHTML=`<div class="card" style="margin-bottom:20px;overflow:visible"><div class="perfil-banner"></div><div style="display:flex;align-items:flex-end;gap:14px;padding:0 16px;flex-wrap:wrap"><div class="perfil-av"><img src="${av(habbo)}" onerror="this.style.display='none'" alt="${esc(habbo)}"></div><div style="padding-bottom:10px;flex:1"><div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--gold)">${esc(habbo)}</div><div style="font-size:13px;color:var(--gray)">@${habbo.toLowerCase()}</div>${u?.role==='admin'?'<span class="badge-adm">Admin</span>':u?.role==='editor'?'<span class="badge-ed">Editor</span>':''}</div>${acoesHtml}</div>${botoesHtml}<div class="card-bd" style="border-top:1px solid var(--border);margin-top:10px"><div style="display:flex;gap:24px;margin-bottom:14px;flex-wrap:wrap"><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--gold)">${ps.length}</div><div style="color:var(--gray);font-size:12px">Posts</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--red)">${likes}</div><div style="color:var(--gray);font-size:12px">Curtidas</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--blue)">${seguidores}</div><div style="color:var(--gray);font-size:12px">Seguidores</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--green)">${seguindoCount}</div><div style="color:var(--gray);font-size:12px">Seguindo</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--magenta)">${emps.length}</div><div style="color:var(--gray);font-size:12px">Empresas</div></div></div>${badges?`<div style="display:flex;gap:6px;flex-wrap:wrap">${badges}</div>`:''}${u?.registrado?`<div style="font-size:12px;color:var(--gray);margin-top:10px">Membro desde ${u.registrado}</div>`:''}</div></div><div class="sec-title">📰 Publicações de ${esc(habbo)}</div>${postsHtml}`;
   go('perfil',{skipPush:true});
   if(!fromHistory)pushRoute('#/perfil/'+encodeURIComponent(habbo));
 }
