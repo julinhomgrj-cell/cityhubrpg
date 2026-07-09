@@ -419,6 +419,20 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 <footer><strong id="footer-name">City Hub RPG</strong> — Fã Site Oficial <span class="fm">♦</span> Habbo Hotel Brasil<br><span style="font-size:11px;margin-top:5px;display:block">Este site não é afiliado à Sulake Oy.</span></footer>
 
 <!-- MODALS -->
+<div class="modal-ov" id="m-edit-post"><div class="modal"><button class="modal-x" onclick="closeM('m-edit-post')">✕</button><div class="modal-title">✏️ Editar Publicação</div>
+<input type="hidden" id="ep-id">
+<div id="ep-alert"></div>
+<div class="fg"><label class="fl">Título</label><input type="text" class="form-ctrl" id="ep-titulo" placeholder="Título..."></div>
+<div class="fg"><label class="fl">Conteúdo</label><textarea class="form-ctrl" id="ep-conteudo" rows="5" placeholder="Conteúdo..."></textarea></div>
+<div class="fg"><label class="fl">Link YouTube (opcional)</label><input type="text" class="form-ctrl" id="ep-yt" placeholder="https://youtube.com/watch?v=..."><div id="ep-yt-prev-box" style="margin-top:8px"></div></div>
+<div class="fg"><label class="fl">Imagem (opcional)</label>
+<div class="utabs"><div class="utab on" id="ep-tab-up" onclick="switchEpTab('up')">📁 Upload</div><div class="utab" id="ep-tab-url" onclick="switchEpTab('url')">🔗 URL</div></div>
+<div id="ep-panel-up"><div class="upload-area" onclick="document.getElementById('ep-img-f').click()"><div style="color:var(--gray);font-size:13px">📁 Clique para escolher (máx 1.5MB)</div><input type="file" id="ep-img-f" accept="image/*" onchange="handleImg(this,'ep-img-prev','ep-img-b64')"><img id="ep-img-prev" class="img-prev"></div></div>
+<div id="ep-panel-url" style="display:none"><input type="text" class="form-ctrl" id="ep-img-url" placeholder="https://..."></div>
+<input type="hidden" id="ep-img-b64"></div>
+<button class="btn btn-gold btn-block" onclick="salvarEditPost()">💾 Salvar Alterações</button>
+</div></div>
+
 <div class="modal-ov" id="m-login"><div class="modal"><button class="modal-x" onclick="closeM('m-login')">✕</button><div class="modal-title">🔑 Entrar com Habbo</div>
 <div id="login-s1"><div class="alert alert-info">Digite seu nome de personagem Habbo.</div><div class="fg"><label class="fl">Nome no Habbo</label><input type="text" class="form-ctrl" id="login-name" placeholder="Ex: JulioHubb"></div><div class="fg"><label class="fl">Senha (se já configurada)</label><input type="password" class="form-ctrl" id="login-senha" placeholder="Deixe em branco pra entrar por missão" onkeydown="if(event.key==='Enter')tryLoginSenha()"></div><div id="login-senha-alert"></div><button class="btn btn-gold btn-block" onclick="tryLoginSenha()" style="margin-bottom:8px"><span id="btn-login-senha">🔑 Entrar com Senha</span></button><button class="btn btn-ol btn-block" onclick="gerarLogin()">📋 Entrar por Missão →</button></div>
 <div id="login-s2" style="display:none"><div class="codebox"><div class="code" id="login-code"></div><div class="hint">Cole na sua <strong style="color:var(--magenta)">Missão/Slogan</strong> no Habbo e clique Verificar.</div></div><div id="login-alert"></div><button class="btn btn-gold btn-block" onclick="verificarLogin()" style="margin-bottom:8px"><span id="btn-login">✅ Verificar Missão</span></button><button class="btn btn-ol btn-sm btn-block" onclick="resetLogin()">← Voltar</button></div>
@@ -855,7 +869,12 @@ function updateNav(){
 }
 
 // ════════════ YOUTUBE ════════════
-document.addEventListener('input',e=>{if(e.target.id==='post-yt'){const box=document.getElementById('yt-prev-box');if(!box)return;const id=ytId(e.target.value);if(!id){box.innerHTML='';return;}box.innerHTML=`<div style="border-radius:8px;overflow:hidden;border:1px solid var(--border)"><iframe width="100%" height="200" src="https://www.youtube.com/embed/${id}" frameborder="0" allowfullscreen style="display:block"></iframe></div>`;}});
+document.addEventListener('input',e=>{
+  if(e.target.id!=='post-yt'&&e.target.id!=='ep-yt')return;
+  const box=document.getElementById(e.target.id==='post-yt'?'yt-prev-box':'ep-yt-prev-box');if(!box)return;
+  const id=ytId(e.target.value);if(!id){box.innerHTML='';return;}
+  box.innerHTML=`<div style="border-radius:8px;overflow:hidden;border:1px solid var(--border)"><iframe width="100%" height="200" src="https://www.youtube.com/embed/${id}" frameborder="0" allowfullscreen style="display:block"></iframe></div>`;
+});
 
 // ════════════ POSTS ════════════
 function renderPostSel(){
@@ -935,6 +954,7 @@ function postCard(p){
       <button class="like-btn" onclick="toggleComments(${p.id})">💬 <span class="cmt-count">${nComments}</span></button>
       <div style="display:flex;gap:6px;margin-left:auto">
         ${pinBtn}
+        ${canDel?`<button class="btn btn-ol btn-xs" onclick="abrirEditPost(${p.id})" title="Editar publicação">✏️ Editar</button>`:''}
         ${canDel?`<button class="btn btn-danger btn-xs" onclick="delPost(${p.id})">🗑️</button>`:''}
       </div>
     </div>
@@ -1034,6 +1054,51 @@ async function delPost(id){
   await Promise.all([sb.from('posts').delete().eq('id',id),sb.from('comentarios').delete().eq('post_id',id)]);
   D.posts=D.posts.filter(p=>p.id!==id);D.comentarios=D.comentarios.filter(c=>c.post_id!==id);
   renderPosts();renderAdmin();updateStats();toast('Post removido.');
+}
+
+// ════════════ EDITAR PUBLICAÇÃO ════════════
+function podeEditarPost(p){
+  if(!sess)return false;
+  if(sess.role==='admin'||sess.habbo===p.autor)return true;
+  const emp=D.empresas.find(e=>e.id==p.empresa_id);
+  return !!(emp&&(emp.editor_habbo===sess.habbo||emp.editor===sess.habbo||(emp.editores||[]).includes(sess.habbo)||(emp.admins||[]).includes(sess.habbo)));
+}
+function switchEpTab(t){document.getElementById('ep-tab-up').classList.toggle('on',t==='up');document.getElementById('ep-tab-url').classList.toggle('on',t==='url');document.getElementById('ep-panel-up').style.display=t==='up'?'block':'none';document.getElementById('ep-panel-url').style.display=t==='url'?'block':'none';}
+function abrirEditPost(postId){
+  const p=D.posts.find(x=>x.id===postId);if(!p)return;
+  if(!podeEditarPost(p)){toast('Sem permissão para editar esta publicação.','err');return;}
+  document.getElementById('ep-id').value=postId;
+  document.getElementById('ep-titulo').value=p.titulo;
+  document.getElementById('ep-conteudo').value=p.conteudo;
+  document.getElementById('ep-yt').value=p.yt_id?`https://youtube.com/watch?v=${p.yt_id}`:'';
+  document.getElementById('ep-yt-prev-box').innerHTML=p.yt_id?`<div style="border-radius:8px;overflow:hidden;border:1px solid var(--border)"><iframe width="100%" height="200" src="https://www.youtube.com/embed/${p.yt_id}" frameborder="0" allowfullscreen style="display:block"></iframe></div>`:'';
+  const prev=document.getElementById('ep-img-prev');prev.src='';prev.classList.remove('on');
+  if(p.imagem&&p.imagem.startsWith('data:')){document.getElementById('ep-img-b64').value=p.imagem;document.getElementById('ep-img-url').value='';prev.src=p.imagem;prev.classList.add('on');switchEpTab('up');}
+  else if(p.imagem){document.getElementById('ep-img-b64').value='';document.getElementById('ep-img-url').value=p.imagem;switchEpTab('url');}
+  else{document.getElementById('ep-img-b64').value='';document.getElementById('ep-img-url').value='';switchEpTab('up');}
+  document.getElementById('ep-alert').innerHTML='';
+  openM('m-edit-post');
+}
+async function salvarEditPost(){
+  const id=parseInt(document.getElementById('ep-id').value);
+  const p=D.posts.find(x=>x.id===id);if(!p)return;
+  const alrt=document.getElementById('ep-alert');
+  if(!podeEditarPost(p)){alrt.innerHTML='<div class="alert alert-err">Sem permissão.</div>';return;}
+  const titulo=document.getElementById('ep-titulo').value.trim();
+  const conteudo=document.getElementById('ep-conteudo').value.trim();
+  const ytUrl=document.getElementById('ep-yt').value.trim();
+  const isUp=document.getElementById('ep-tab-up').classList.contains('on');
+  const imagem=isUp?(document.getElementById('ep-img-b64').value||null):(document.getElementById('ep-img-url').value.trim()||null);
+  if(!titulo){alrt.innerHTML='<div class="alert alert-err">Digite um título.</div>';return;}
+  if(!conteudo){alrt.innerHTML='<div class="alert alert-err">Escreva o conteúdo.</div>';return;}
+  const yId=ytId(ytUrl);
+  const upd={titulo,conteudo,imagem,yt_id:yId||null};
+  const {error}=await sb.from('posts').update(upd).eq('id',id);
+  if(error){alrt.innerHTML='<div class="alert alert-err">Erro ao salvar.</div>';return;}
+  Object.assign(p,upd);
+  closeM('m-edit-post');
+  renderPosts();renderAdmin();
+  toast('Publicação atualizada!');
 }
 function renderFilterSel(){const sel=document.getElementById('filter-emp');if(!sel)return;sel.innerHTML='<option value="">Todas as empresas</option>'+D.empresas.map(e=>`<option value="${e.id}">${e.emoji} ${esc(e.nome)}</option>`).join('');}
 
