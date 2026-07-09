@@ -687,8 +687,8 @@ function resetReg(){document.getElementById('reg-s1').style.display='block';docu
 
 function loginOk(habbo,role){sess={habbo,role};saveSess();updateNav();renderHome();go('home');toast(`Bem-vindo, ${habbo}!`);}
 function logout(){sess=null;saveSess();updateNav();renderHome();go('home');}
-function canPost(h){return D.empresas.some(e=>e.editor===h||(e.editores||[]).includes(h));}
-function getEmpsByUser(h,r){if(r==='admin')return D.empresas;return D.empresas.filter(e=>e.editor===h||(e.editores||[]).includes(h));}
+function canPost(h){return D.empresas.some(e=>e.editor===h||(e.editores||[]).includes(h)||(e.admins||[]).includes(h));}
+function getEmpsByUser(h,r){if(r==='admin')return D.empresas;return D.empresas.filter(e=>e.editor===h||(e.editores||[]).includes(h)||(e.admins||[]).includes(h));}
 
 function updateNav(){
   const nr=document.getElementById('nav-right'),np=document.getElementById('nav-post'),na=document.getElementById('nav-adm'),bp=document.getElementById('btn-pub');
@@ -728,7 +728,7 @@ async function criarPost(){
   if(!conteudo){alrt.innerHTML='<div class="alert alert-err">Escreva o conteúdo.</div>';return;}
   if(!sess){alrt.innerHTML='<div class="alert alert-err">Faça login.</div>';return;}
   const emp=D.empresas.find(e=>e.id==eId);
-  if(sess.role!=='admin'&&emp&&emp.editor!==sess.habbo&&!(emp.editores||[]).includes(sess.habbo)){alrt.innerHTML='<div class="alert alert-err">Sem permissão.</div>';return;}
+  if(sess.role!=='admin'&&emp&&emp.editor!==sess.habbo&&!(emp.editores||[]).includes(sess.habbo)&&!(emp.admins||[]).includes(sess.habbo)){alrt.innerHTML='<div class="alert alert-err">Sem permissão.</div>';return;}
   const yId=ytId(ytUrl);
   const post={id:Date.now(),titulo,conteudo,imagem:imagem||null,yt_id:yId||null,empresa_id:parseInt(eId),empresa_nome:emp?emp.nome:'Geral',empresa_emoji:emp?emp.emoji:'📢',empresa_logo:emp?emp.logo:null,autor:sess.habbo,data_post:ds(),likes:[]};
   const {data:ins,error}=await sb.from('posts').insert(post).select().single();
@@ -757,7 +757,7 @@ function postCard(p){
   const logo=p.empresa_logo?`<img src="${esc(p.empresa_logo)}" style="width:18px;height:18px;border-radius:3px;object-fit:cover;">`:p.empresa_emoji;
   // Verificar permissão para fixar/deletar
   const emp=D.empresas.find(e=>e.id==p.empresa_id);
-  const canMng=sess&&(sess.role==='admin'||(emp&&(emp.editor_habbo===sess.habbo||emp.editor===sess.habbo||(emp.editores||[]).includes(sess.habbo))));
+  const canMng=sess&&(sess.role==='admin'||(emp&&(emp.editor_habbo===sess.habbo||emp.editor===sess.habbo||(emp.editores||[]).includes(sess.habbo)||(emp.admins||[]).includes(sess.habbo))));
   const canDel=sess&&(sess.role==='admin'||sess.habbo===p.autor||canMng);
   const pinBtn=canMng?`<button class="btn btn-xs ${p.pinned?'btn-gold':'btn-ol'}" onclick="togglePin(${p.id})" title="${p.pinned?'Desafixar':'Fixar publicação'}">📌 ${p.pinned?'Fixado':'Fixar'}</button>`:'';
   const pinnedBadge=p.pinned?`<span class="pin-badge">📌 Fixado</span>`:'';
@@ -878,6 +878,9 @@ function editEmp(id){
   document.getElementById('edit-cor-fundo').value=e.cor_fundo||'#0a0a0f';
   // Cargos
   tEditCargos=[...(e.cargos||[])];renderTC('edit-cargos',tEditCargos,'edit');
+  // Admins e botões da empresa
+  tempEmpAdmins=[...(e.admins||[])];renderEmpAdmins();
+  tempEmpBotoes=[...(e.botoes||[])];renderEmpBotoes();
   openM('m-edit-emp');
 }
 function removerEditor(){
@@ -925,6 +928,8 @@ async function salvarEmp(){
     cor_primaria:document.getElementById('edit-cor-primaria').value,
     cor_secundaria:document.getElementById('edit-cor-secundaria').value,
     cor_fundo:document.getElementById('edit-cor-fundo').value,
+    admins:tempEmpAdmins,
+    botoes:tempEmpBotoes,
   };
   const nl=document.getElementById('edit-logo-b64').value;if(nl)upd.logo=nl;
   const nb=document.getElementById('edit-banner-b64').value;if(nb)upd.banner=nb;
@@ -972,7 +977,7 @@ function openEmpPage(id){
   const isF=(e.seguidores||[]).includes(sess?.habbo);
   const isAdm=sess?.role==='admin';
   const isEd=e.editor===sess?.habbo||(e.editores||[]).includes(sess?.habbo);
-  const canMng=isAdm||isEd;
+  const canMng=isAdm||isEd||(e.admins||[]).includes(sess?.habbo);
   const banner=e.banner?`<img src="${esc(e.banner)}" style="width:100%;height:200px;object-fit:cover;border-radius:8px 8px 0 0;display:block" alt="">`:`<div style="width:100%;height:200px;background:linear-gradient(135deg,#1a0030,#0a0a1f);border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center;font-size:60px">${e.emoji}</div>`;
   const logo=e.logo?`<img src="${esc(e.logo)}" style="width:100%;height:100%;object-fit:cover" alt="">`:`<div style="width:100%;height:100%;background:linear-gradient(135deg,var(--magenta2),var(--magenta));display:flex;align-items:center;justify-content:center;font-size:36px">${e.emoji}</div>`;
   const cargosHtml=buildCargos(e,canMng,isAdm);
@@ -986,7 +991,8 @@ function openEmpPage(id){
   const solHtml=canMng&&(e.solicitacoes||[]).length?`<div class="sec-title" style="margin-top:28px">📩 Solicitações Pendentes</div><div class="card" style="margin-bottom:20px">${(e.solicitacoes||[]).map(h=>`<div class="sol-item"><img src="${av(h)}" onerror="this.style.display='none'" style="width:40px;height:52px;image-rendering:pixelated;border-radius:4px"><div><strong style="color:var(--gold)">${esc(h)}</strong></div><div class="sol-actions"><button class="btn btn-green btn-xs" onclick="aprovarSol(${e.id},'${h}')">✅ Aprovar</button><button class="btn btn-danger btn-xs" onclick="rejeitarSol(${e.id},'${h}')">✕ Rejeitar</button></div></div>`).join('')}</div>`:'';
   const epBg=e.cor_fundo||'';const epPri=e.cor_primaria||'';const epSec=e.cor_secundaria||'';
   const epStyle=epBg?`style="background:${epBg};min-height:100vh;padding:16px;border-radius:8px;"`:'';
-  document.getElementById('emp-page').innerHTML=`<div ${epStyle}><div style="margin-bottom:16px"><button class="btn btn-ol btn-sm" onclick="go('empresas')" ${epPri?`style="border-color:${epPri};color:${epPri}"`:''}">← Voltar</button></div><div class="card" style="overflow:visible;margin-bottom:24px;${epBg?'background:'+epBg+';border-color:'+(epPri||'var(--border)')+';':''}">${banner}<div style="display:flex;align-items:flex-end;gap:14px;padding:0 16px;position:relative"><div style="width:80px;height:80px;border:4px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card);margin:-40px 0 0 0;position:relative;z-index:1;flex-shrink:0">${logo}</div><div style="padding-bottom:10px;flex:1"><div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--white)">${esc(e.nome)}</div><div style="font-size:13px;color:var(--gray)">${(e.membros||[]).length} membros · ${(e.seguidores||[]).length} seguidores · ${D.posts.filter(p=>p.empresa_id==id).length} posts</div></div><div style="padding-bottom:10px;display:flex;gap:6px;flex-wrap:wrap">${abtns}</div></div><div class="card-bd" style="border-top:1px solid var(--border)"><p style="color:var(--gray);font-size:14px;line-height:1.6">${esc(e.descricao||'')}</p></div></div>${solHtml}<div class="g2" style="align-items:start"><div><div class="sec-title">📰 Publicações</div>${postsHtml}</div><div><div class="sec-title">👔 Cargos & Membros</div>${cargosHtml}</div></div>`;
+  const botoesHtml=(e.botoes||[]).length?`<div style="display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 16px">${e.botoes.map(b=>`<a href="${esc(b.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm" style="background:${b.cor||'var(--magenta)'};color:#fff">${esc(b.nome)}</a>`).join('')}</div>`:'';
+  document.getElementById('emp-page').innerHTML=`<div ${epStyle}><div style="margin-bottom:16px"><button class="btn btn-ol btn-sm" onclick="go('empresas')" ${epPri?`style="border-color:${epPri};color:${epPri}"`:''}">← Voltar</button></div><div class="card" style="overflow:visible;margin-bottom:24px;${epBg?'background:'+epBg+';border-color:'+(epPri||'var(--border)')+';':''}">${banner}<div style="display:flex;align-items:flex-end;gap:14px;padding:0 16px;position:relative"><div style="width:80px;height:80px;border:4px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card);margin:-40px 0 0 0;position:relative;z-index:1;flex-shrink:0">${logo}</div><div style="padding-bottom:10px;flex:1"><div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--white)">${esc(e.nome)}</div><div style="font-size:13px;color:var(--gray)">${(e.membros||[]).length} membros · ${(e.seguidores||[]).length} seguidores · ${D.posts.filter(p=>p.empresa_id==id).length} posts</div></div><div style="padding-bottom:10px;display:flex;gap:6px;flex-wrap:wrap">${abtns}</div></div>${botoesHtml}<div class="card-bd" style="border-top:1px solid var(--border)"><p style="color:var(--gray);font-size:14px;line-height:1.6">${esc(e.descricao||'')}</p></div></div>${solHtml}<div class="g2" style="align-items:start"><div><div class="sec-title">📰 Publicações</div>${postsHtml}</div><div><div class="sec-title">👔 Cargos & Membros</div>${cargosHtml}</div></div>`;
   // Close wrapping div if bg color set
   if(epBg) document.getElementById('emp-page').innerHTML += '</div>';
   go('empresa');
