@@ -289,7 +289,7 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 
 <!-- ADMIN -->
 <div id="page-admin" class="page"><div class="wrap"><div class="sec-title">⚙️ Painel Administrativo</div>
-<div class="adm-nav"><button class="adm-btn on" onclick="showAdm('adm-emps',this)">🏢 Empresas</button><button class="adm-btn" onclick="showAdm('adm-posts',this)">📰 Posts</button><button class="adm-btn" onclick="showAdm('adm-users',this)">👥 Membros</button><button class="adm-btn" onclick="showAdm('adm-sol',this)">📩 Solicitações</button><button class="adm-btn" onclick="showAdm('adm-vips',this)">⭐ VIPs/Tags</button><button class="adm-btn" onclick="showAdm('adm-site',this)">🎨 Personalizar</button></div>
+<div class="adm-nav"><button class="adm-btn on" onclick="showAdm('adm-emps',this)">🏢 Empresas</button><button class="adm-btn" onclick="showAdm('adm-posts',this)">📰 Posts</button><button class="adm-btn" onclick="showAdm('adm-users',this)">👥 Membros</button><button class="adm-btn" onclick="showAdm('adm-sol',this)">📩 Solicitações</button><button class="adm-btn" onclick="showAdm('adm-vips',this)">⭐ VIPs/Tags</button><button class="adm-btn" onclick="showAdm('adm-empregos',this)">💼 Empregos</button><button class="adm-btn" onclick="showAdm('adm-site',this)">🎨 Personalizar</button></div>
 <div id="adm-emps" class="adm-panel on"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px"><span style="color:var(--gray);font-size:13px">Gerencie as empresas</span><button class="btn btn-gold btn-sm" onclick="openM('m-nova-emp')">+ Nova Empresa</button></div><div class="tw"><table><thead><tr><th>Logo</th><th>Nome</th><th>Cargos</th><th>Membros</th><th>Privacidade</th><th>Ações</th></tr></thead><tbody id="tb-emps"></tbody></table></div></div>
 <div id="adm-posts" class="adm-panel"><div class="tw"><table><thead><tr><th>Título</th><th>Autor</th><th>Empresa</th><th>❤️</th><th>Data</th><th>Ações</th></tr></thead><tbody id="tb-posts"></tbody></table></div></div>
 <div id="adm-users" class="adm-panel"><div class="tw"><table><thead><tr><th>Avatar</th><th>Habbo</th><th>Empresa(s)</th><th>Role</th><th>Ações</th></tr></thead><tbody id="tb-users"></tbody></table></div></div>
@@ -339,6 +339,13 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
     </div>
   </div></div>
 </div>
+
+<!-- EMPREGOS ADMIN PANEL -->
+<div id="adm-empregos" class="adm-panel">
+  <div class="alert alert-info">Código numérico (0, 1, 2, 3...) de cada cargo/emprego cadastrado pelas empresas. Esse código será usado numa futura integração com o Habbo — edite direto aqui se precisar corrigir algo.</div>
+  <div class="tw"><table><thead><tr><th>Empresa</th><th>Cargo</th><th>Nível</th><th>Código</th></tr></thead><tbody id="tb-empregos"></tbody></table></div>
+</div>
+
 <div id="adm-site" class="adm-panel"><div class="g2">
 <div class="card"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">🏷️ Identidade</span></div><div class="card-bd">
 <div class="fg"><label class="fl">Nome do Site</label><input type="text" class="form-ctrl" id="cfg-name"></div>
@@ -402,7 +409,7 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 <div id="epanel-up"><div class="upload-area" onclick="document.getElementById('emp-logo-f').click()"><div style="color:var(--gray);font-size:13px">📁 Escolher logo</div><input type="file" id="emp-logo-f" accept="image/*" onchange="handleImg(this,'emp-logo-prev','emp-logo-b64')"><img id="emp-logo-prev" class="img-prev"></div><input type="hidden" id="emp-logo-b64"></div>
 <div id="epanel-url" style="display:none"><input type="text" class="form-ctrl" id="emp-logo-url" placeholder="https://..."></div></div>
 <div class="fg"><label class="fl">Banner</label><div class="upload-area" onclick="document.getElementById('emp-banner-f').click()"><div style="color:var(--gray);font-size:13px">📁 Escolher banner</div><input type="file" id="emp-banner-f" accept="image/*" onchange="handleImg(this,'emp-banner-prev','emp-banner-b64')"><img id="emp-banner-prev" class="img-prev"></div><input type="hidden" id="emp-banner-b64"></div>
-<div class="fg"><label class="fl">Cargos</label><div id="new-cargos" class="cargo-list"></div><div class="cargo-add"><input type="text" class="form-ctrl" id="new-cargo-nome" placeholder="Nome do cargo"><input type="number" class="form-ctrl" id="new-cargo-lvl" value="1" min="1" max="10" style="width:80px"><button class="btn btn-ol btn-sm" onclick="addNewCargo()">+ Add</button></div></div>
+<div class="fg"><label class="fl">Cargos</label><div id="new-cargos" class="cargo-list"></div><div class="cargo-add"><input type="text" class="form-ctrl" id="new-cargo-nome" placeholder="Nome do cargo"><input type="number" class="form-ctrl" id="new-cargo-lvl" value="1" min="1" max="10" style="width:80px"><input type="number" class="form-ctrl" id="new-cargo-cod" placeholder="Código" min="0" style="width:90px"><button class="btn btn-ol btn-sm" onclick="addNewCargo()">+ Add</button></div></div>
 <button class="btn btn-gold btn-block" onclick="criarEmp()">+ Criar Empresa</button>
 </div></div>
 
@@ -453,7 +460,7 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 <div class="fg"><label class="fl">📋 Cargos (arraste para reordenar hierarquia)</label>
 <div style="font-size:12px;color:var(--gray);margin-bottom:8px">⬆️ Topo = maior hierarquia | ⬇️ Base = menor hierarquia</div>
 <div id="edit-cargos" class="cargo-list"></div>
-<div class="cargo-add"><input type="text" class="form-ctrl" id="edit-cargo-nome" placeholder="Novo cargo"><input type="number" class="form-ctrl" id="edit-cargo-lvl" value="1" min="1" max="10" style="width:80px"><button class="btn btn-ol btn-sm" onclick="addEditCargo()">+ Add</button></div>
+<div class="cargo-add"><input type="text" class="form-ctrl" id="edit-cargo-nome" placeholder="Novo cargo"><input type="number" class="form-ctrl" id="edit-cargo-lvl" value="1" min="1" max="10" style="width:80px"><input type="number" class="form-ctrl" id="edit-cargo-cod" placeholder="Código" min="0" style="width:90px"><button class="btn btn-ol btn-sm" onclick="addEditCargo()">+ Add</button></div>
 </div>
 <button class="btn btn-gold btn-block" onclick="salvarEmp()">💾 Salvar</button>
 </div></div>
@@ -852,8 +859,8 @@ async function delPost(id){
 function renderFilterSel(){const sel=document.getElementById('filter-emp');if(!sel)return;sel.innerHTML='<option value="">Todas as empresas</option>'+D.empresas.map(e=>`<option value="${e.id}">${e.emoji} ${esc(e.nome)}</option>`).join('');}
 
 // ════════════ EMPRESA CARGOS ════════════
-function addNewCargo(){const n=document.getElementById('new-cargo-nome').value.trim(),lv=parseInt(document.getElementById('new-cargo-lvl').value)||1;if(!n)return;tNewCargos.push({id:Date.now(),nome:n,nivel:lv});document.getElementById('new-cargo-nome').value='';renderTC('new-cargos',tNewCargos,'new');}
-function addEditCargo(){const n=document.getElementById('edit-cargo-nome').value.trim(),lv=parseInt(document.getElementById('edit-cargo-lvl').value)||1;if(!n)return;tEditCargos.push({id:Date.now(),nome:n,nivel:lv});document.getElementById('edit-cargo-nome').value='';renderTC('edit-cargos',tEditCargos,'edit');}
+function addNewCargo(){const n=document.getElementById('new-cargo-nome').value.trim(),lv=parseInt(document.getElementById('new-cargo-lvl').value)||1,codEl=document.getElementById('new-cargo-cod'),cod=codEl.value!==''?parseInt(codEl.value):null;if(!n)return;tNewCargos.push({id:Date.now(),nome:n,nivel:lv,codigo:cod});document.getElementById('new-cargo-nome').value='';codEl.value='';renderTC('new-cargos',tNewCargos,'new');}
+function addEditCargo(){const n=document.getElementById('edit-cargo-nome').value.trim(),lv=parseInt(document.getElementById('edit-cargo-lvl').value)||1,codEl=document.getElementById('edit-cargo-cod'),cod=codEl.value!==''?parseInt(codEl.value):null;if(!n)return;tEditCargos.push({id:Date.now(),nome:n,nivel:lv,codigo:cod});document.getElementById('edit-cargo-nome').value='';codEl.value='';renderTC('edit-cargos',tEditCargos,'edit');}
 function rmCargo(type,id){if(type==='new')tNewCargos=tNewCargos.filter(c=>c.id!==id);else tEditCargos=tEditCargos.filter(c=>c.id!==id);renderTC(type==='new'?'new-cargos':'edit-cargos',type==='new'?tNewCargos:tEditCargos,type);}
 function renderTC(cid,list,type){
   const el=document.getElementById(cid);if(!el)return;
@@ -862,7 +869,7 @@ function renderTC(cid,list,type){
     <div class="cargo-item" draggable="true" data-idx="${i}" data-type="${type}" data-id="${c.id}"
       ondragstart="dragStartCargo(event)" ondragover="dragOverCargo(event)" ondrop="dropCargo(event,${i},'${type}')" ondragleave="dragLeaveCargo(event)">
       <span class="drag-handle" title="Arraste para reordenar">☰</span>
-      <div style="flex:1"><div class="ci-name">${esc(c.nome)}</div><div class="ci-lvl">Nível ${c.nivel} · Posição ${i+1}</div></div>
+      <div style="flex:1"><div class="ci-name">${esc(c.nome)}</div><div class="ci-lvl">Nível ${c.nivel} · Código ${c.codigo!=null?c.codigo:'—'} · Posição ${i+1}</div></div>
       <div style="display:flex;gap:4px;align-items:center">
         <button class="btn btn-ol btn-xs" onclick="moveCargo('${type}',${i},-1)" ${i===0?'disabled':''} title="Subir">⬆</button>
         <button class="btn btn-ol btn-xs" onclick="moveCargo('${type}',${i},1)" ${i===list.length-1?'disabled':''} title="Descer">⬇</button>
@@ -1183,6 +1190,26 @@ function renderAdmin(){
   const sg=document.getElementById('sol-list');
   if(sg){const hasS=D.empresas.some(e=>(e.solicitacoes||[]).length>0);if(!hasS)sg.innerHTML='<div class="empty"><div class="empty-icon">📩</div><div class="empty-title">Sem solicitações pendentes</div></div>';
   else sg.innerHTML=D.empresas.filter(e=>(e.solicitacoes||[]).length).map(e=>`<div style="margin-bottom:20px"><div class="sec-title">${e.emoji} ${esc(e.nome)}</div><div class="card">${(e.solicitacoes||[]).map(h=>`<div class="sol-item"><img src="${av(h)}" onerror="this.style.display='none'" style="width:40px;height:52px;image-rendering:pixelated;border-radius:4px"><strong style="color:var(--gold)">${esc(h)}</strong><div class="sol-actions"><button class="btn btn-green btn-xs" onclick="aprovarSol(${e.id},'${h}')">✅ Aprovar</button><button class="btn btn-danger btn-xs" onclick="rejeitarSol(${e.id},'${h}')">✕ Rejeitar</button></div></div>`).join('')}</div></div>`).join('');}
+  renderEmpregosAdmin();
+}
+function renderEmpregosAdmin(){
+  const tb=document.getElementById('tb-empregos');if(!tb)return;
+  const rows=[];
+  D.empresas.forEach(e=>{(e.cargos||[]).forEach(c=>{rows.push({empId:e.id,empNome:e.nome,empEmoji:e.emoji,cargoId:c.id,nome:c.nome,nivel:c.nivel,codigo:c.codigo});});});
+  if(!rows.length){tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--gray);padding:24px">Nenhum cargo cadastrado ainda.</td></tr>';return;}
+  tb.innerHTML=rows.map(r=>`<tr>
+    <td style="cursor:pointer;color:var(--gold)" onclick="openEmpPage(${r.empId})">${r.empEmoji||'🏢'} ${esc(r.empNome)}</td>
+    <td>${esc(r.nome)}</td>
+    <td>${r.nivel}</td>
+    <td><input type="number" class="form-ctrl" style="width:110px;padding:5px 10px" min="0" value="${r.codigo!=null?r.codigo:''}" placeholder="—" onchange="setCargoCodigo(${r.empId},${r.cargoId},this.value)"></td>
+  </tr>`).join('');
+}
+async function setCargoCodigo(empId,cargoId,val){
+  const e=D.empresas.find(x=>x.id==empId);if(!e)return;
+  const c=(e.cargos||[]).find(x=>x.id===cargoId);if(!c)return;
+  c.codigo=val!==''?parseInt(val):null;
+  await sb.from('empresas').update({cargos:e.cargos}).eq('id',empId);
+  toast(`Código de "${c.nome}" (${e.nome}) atualizado!`);
 }
 async function promover(h){const u=D.users.find(x=>x.habbo===h);if(u){u.role='editor';await sb.from('users').update({role:'editor'}).eq('habbo',h);renderAdmin();toast(`${h} agora é Editor.`);}}
 async function rebaixar(h){const u=D.users.find(x=>x.habbo===h);if(u){u.role='member';await sb.from('users').update({role:'member'}).eq('habbo',h);renderAdmin();toast(`${h} rebaixado.`);}}
