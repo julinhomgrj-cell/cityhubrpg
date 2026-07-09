@@ -633,7 +633,8 @@ async function autoRunExpiry(){
 }
 
 // ════════════ NAV ════════════
-function go(page){
+function go(page,opts){
+  opts=opts||{};
   // Restaurar cores ao sair da página de empresa
   if(window._empColorsActive && page!=='empresa'){
     document.documentElement.style.removeProperty('--emp-primary');
@@ -650,7 +651,23 @@ function go(page){
   if(page==='home')renderHome();
   if(page==='admin'){renderAdmin();loadCfgForm();}
   if(page==='novo-post')renderPostSel();
+  if(!opts.skipPush)pushRoute(opts.path||('#/'+page));
 }
+
+// ════════════ ROTEAMENTO (histórico do navegador) ════════════
+function pushRoute(path){
+  if(location.hash===path)return;
+  history.pushState({path},'',path);
+}
+function routeFromHash(fromHistory){
+  const parts=location.hash.replace(/^#\/?/,'').split('/').filter(Boolean);
+  if(!parts.length){go('home',{skipPush:true});return;}
+  if(parts[0]==='empresa'&&parts[1]){openEmpPage(parseInt(parts[1]),true);return;}
+  if(parts[0]==='perfil'&&parts[1]){openPerfil(decodeURIComponent(parts[1]),true);return;}
+  const validas=['home','feed','empresas','novo-post','vips','admin'];
+  go(validas.includes(parts[0])?parts[0]:'home',{skipPush:true});
+}
+window.addEventListener('popstate',()=>routeFromHash(true));
 document.addEventListener('DOMContentLoaded',()=>{
   const nav=document.getElementById('nav');
   if(nav)nav.addEventListener('click',e=>{const b=e.target.closest('.nav-btn');if(!b)return;e.preventDefault();e.stopPropagation();go(b.dataset.p);});
@@ -1041,7 +1058,7 @@ function empCard(e){
 }
 
 // ════════════ EMPRESA PAGE ════════════
-function openEmpPage(id){
+function openEmpPage(id,fromHistory){
   const e=D.empresas.find(x=>x.id==id);if(!e)return;
   // Aplicar cores personalizadas da empresa
   const root=document.documentElement;
@@ -1073,7 +1090,8 @@ function openEmpPage(id){
   document.getElementById('emp-page').innerHTML=`<div ${epStyle}><div style="margin-bottom:16px"><button class="btn btn-ol btn-sm" onclick="go('empresas')" ${epPri?`style="border-color:${epPri};color:${epPri}"`:''}">← Voltar</button></div><div class="card" style="overflow:visible;margin-bottom:24px;${epBg?'background:'+epBg+';border-color:'+(epPri||'var(--border)')+';':''}">${banner}<div style="display:flex;align-items:flex-end;gap:14px;padding:0 16px;position:relative"><div style="width:80px;height:80px;border:4px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card);margin:-40px 0 0 0;position:relative;z-index:1;flex-shrink:0">${logo}</div><div style="padding-bottom:10px;flex:1"><div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--white)">${esc(e.nome)}</div><div style="font-size:13px;color:var(--gray)">${(e.membros||[]).length} membros · ${(e.seguidores||[]).length} seguidores · ${D.posts.filter(p=>p.empresa_id==id).length} posts</div></div><div style="padding-bottom:10px;display:flex;gap:6px;flex-wrap:wrap">${abtns}</div></div>${botoesHtml}<div class="card-bd" style="border-top:1px solid var(--border)"><p style="color:var(--gray);font-size:14px;line-height:1.6">${esc(e.descricao||'')}</p></div></div>${solHtml}<div class="g2" style="align-items:start"><div><div class="sec-title">📰 Publicações</div>${postsHtml}</div><div><div class="sec-title">👔 Cargos & Membros</div>${cargosHtml}</div></div>`;
   // Close wrapping div if bg color set
   if(epBg) document.getElementById('emp-page').innerHTML += '</div>';
-  go('empresa');
+  go('empresa',{skipPush:true});
+  if(!fromHistory)pushRoute('#/empresa/'+id);
 }
 function buildCargos(e,canMng,isAdm){
   const cargos=e.cargos||[];
@@ -1225,7 +1243,7 @@ function renderSide(){
 }
 
 // ════════════ PERFIL ════════════
-function openPerfil(habbo){
+function openPerfil(habbo,fromHistory){
   const u=D.users.find(x=>x.habbo===habbo);
   const emps=D.empresas.filter(e=>(e.membros||[]).some(m=>m.habbo===habbo));
   const ps=D.posts.filter(p=>p.autor===habbo);
@@ -1257,7 +1275,8 @@ function openPerfil(habbo){
       else st.innerHTML='';
     });
   }
-  go('perfil');
+  go('perfil',{skipPush:true});
+  if(!fromHistory)pushRoute('#/perfil/'+encodeURIComponent(habbo));
 }
 
 // ════════════ HOME ════════════
@@ -1583,7 +1602,7 @@ async function init(){
     if(data)D.users.push(data);
   }
   await autoRunExpiry();
-  applyConfig();updateNav();renderHome();initPWA();loader(false);
+  applyConfig();updateNav();routeFromHash();initPWA();loader(false);
 }
 init();
 </script>
