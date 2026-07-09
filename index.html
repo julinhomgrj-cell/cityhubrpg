@@ -227,6 +227,7 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
     <li><button class="nav-btn on" data-p="home">🏠 <span>Início</span></button></li>
     <li><button class="nav-btn" data-p="feed">📰 <span>Feed</span></button></li>
     <li><button class="nav-btn" data-p="empresas">🏢 <span>Empresas</span></button></li>
+    <li><button class="nav-btn" data-p="vips">⭐ <span>VIPs</span></button></li>
     <li id="nav-post" style="display:none"><button class="nav-btn" data-p="novo-post">✏️ <span>Publicar</span></button></li>
     <li id="nav-adm" style="display:none"><button class="nav-btn" data-p="admin">⚙️ <span>Admin</span></button></li>
   </ul>
@@ -277,13 +278,67 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 <button class="btn btn-gold btn-block" onclick="criarPost()">📤 Publicar</button>
 </div></div></div></div>
 
+<!-- VIPs PAGE -->
+<div id="page-vips" class="page">
+<div class="wrap">
+  <div class="sec-title">⭐ VIPs & Patrocinadores</div>
+  <div id="vips-tags-row" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px"></div>
+  <div id="vips-list" class="g3"></div>
+</div>
+</div>
+
 <!-- ADMIN -->
 <div id="page-admin" class="page"><div class="wrap"><div class="sec-title">⚙️ Painel Administrativo</div>
-<div class="adm-nav"><button class="adm-btn on" onclick="showAdm('adm-emps',this)">🏢 Empresas</button><button class="adm-btn" onclick="showAdm('adm-posts',this)">📰 Posts</button><button class="adm-btn" onclick="showAdm('adm-users',this)">👥 Membros</button><button class="adm-btn" onclick="showAdm('adm-sol',this)">📩 Solicitações</button><button class="adm-btn" onclick="showAdm('adm-site',this)">🎨 Personalizar</button></div>
+<div class="adm-nav"><button class="adm-btn on" onclick="showAdm('adm-emps',this)">🏢 Empresas</button><button class="adm-btn" onclick="showAdm('adm-posts',this)">📰 Posts</button><button class="adm-btn" onclick="showAdm('adm-users',this)">👥 Membros</button><button class="adm-btn" onclick="showAdm('adm-sol',this)">📩 Solicitações</button><button class="adm-btn" onclick="showAdm('adm-vips',this)">⭐ VIPs/Tags</button><button class="adm-btn" onclick="showAdm('adm-site',this)">🎨 Personalizar</button></div>
 <div id="adm-emps" class="adm-panel on"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px"><span style="color:var(--gray);font-size:13px">Gerencie as empresas</span><button class="btn btn-gold btn-sm" onclick="openM('m-nova-emp')">+ Nova Empresa</button></div><div class="tw"><table><thead><tr><th>Logo</th><th>Nome</th><th>Cargos</th><th>Membros</th><th>Privacidade</th><th>Ações</th></tr></thead><tbody id="tb-emps"></tbody></table></div></div>
 <div id="adm-posts" class="adm-panel"><div class="tw"><table><thead><tr><th>Título</th><th>Autor</th><th>Empresa</th><th>❤️</th><th>Data</th><th>Ações</th></tr></thead><tbody id="tb-posts"></tbody></table></div></div>
 <div id="adm-users" class="adm-panel"><div class="tw"><table><thead><tr><th>Avatar</th><th>Habbo</th><th>Empresa(s)</th><th>Role</th><th>Ações</th></tr></thead><tbody id="tb-users"></tbody></table></div></div>
 <div id="adm-sol" class="adm-panel"><div id="sol-list"></div></div>
+
+<!-- VIPs ADMIN PANEL -->
+<div id="adm-vips" class="adm-panel">
+  <div class="g2" style="margin-bottom:24px">
+    <div class="card">
+      <div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">🏷️ Criar Tag</span></div>
+      <div class="card-bd">
+        <div class="frow">
+          <div class="fg"><label class="fl">Nome da Tag</label><input type="text" class="form-ctrl" id="tag-nome" placeholder="Ex: Patrocinador, VIP..."></div>
+          <div class="fg"><label class="fl">Emoji</label><input type="text" class="form-ctrl" id="tag-emoji" placeholder="⭐" maxlength="4" value="⭐"></div>
+        </div>
+        <div class="frow">
+          <div class="fg"><label class="fl">Cor de Fundo</label><input type="color" class="form-ctrl" id="tag-cor" value="#f5c518" style="height:40px;padding:4px;cursor:pointer"></div>
+          <div class="fg"><label class="fl">Cor do Texto</label><input type="color" class="form-ctrl" id="tag-cor-txt" value="#000000" style="height:40px;padding:4px;cursor:pointer"></div>
+        </div>
+        <div id="tag-preview" style="margin:10px 0"></div>
+        <button class="btn btn-gold btn-sm" onclick="criarTag()">+ Criar Tag</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">👤 Atribuir Tag a Player</span></div>
+      <div class="card-bd">
+        <div class="fg"><label class="fl">Nick Habbo</label>
+          <div class="nick-row"><input type="text" class="form-ctrl" id="vip-nick" placeholder="Nick do player..." onkeydown="if(event.key==='Enter')buscarVipNick()"><button class="btn btn-mag btn-sm" onclick="buscarVipNick()"><span id="vip-search-txt">🔍</span></button></div>
+        </div>
+        <div id="vip-nick-result" style="display:none" class="nick-box"><div class="nick-preview" id="vip-nick-preview"></div></div>
+        <div class="fg" style="margin-top:10px"><label class="fl">Tag</label><select class="form-ctrl" id="vip-tag-select"></select></div>
+        <div id="vip-alert"></div>
+        <button class="btn btn-gold btn-sm btn-block" id="vip-confirm" style="display:none" onclick="atribuirTag()">✅ Atribuir Tag</button>
+      </div>
+    </div>
+  </div>
+  <div class="sec-title">🏷️ Tags Criadas</div>
+  <div id="tags-list-adm" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px"></div>
+  <div class="sec-title">👥 Players com Tags</div>
+  <div class="tw"><table><thead><tr><th>Avatar</th><th>Habbo</th><th>Tag</th><th>Atribuído</th><th>Ações</th></tr></thead><tbody id="tb-player-tags"></tbody></table></div>
+  <div class="sec-title" style="margin-top:24px">👑 Adicionar Administrador</div>
+  <div class="card"><div class="card-bd">
+    <div class="alert alert-info">Promova membros a administradores do site. Eles terão acesso total ao painel admin.</div>
+    <div class="nick-row">
+      <input type="text" class="form-ctrl" id="new-admin-nick" placeholder="Nick Habbo do novo admin...">
+      <button class="btn btn-gold btn-sm" onclick="promoverAdmin()">👑 Tornar Admin</button>
+    </div>
+  </div></div>
+</div>
 <div id="adm-site" class="adm-panel"><div class="g2">
 <div class="card"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">🏷️ Identidade</span></div><div class="card-bd">
 <div class="fg"><label class="fl">Nome do Site</label><input type="text" class="form-ctrl" id="cfg-name"></div>
@@ -377,6 +432,24 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 </div>
 <div style="margin-top:6px;font-size:12px;color:var(--gray)">Personaliza as cores da página interna da empresa</div>
 </div>
+<div class="fg"><label class="fl">👑 Administradores da Empresa</label>
+<div style="font-size:12px;color:var(--gray);margin-bottom:8px">Podem gerenciar membros, cargos e publicações desta empresa</div>
+<div id="edit-emp-admins-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
+<div class="nick-row">
+  <input type="text" class="form-ctrl" id="edit-emp-admin-nick" placeholder="Nick Habbo do administrador...">
+  <button class="btn btn-gold btn-sm" onclick="addEmpAdmin()">+ Add</button>
+</div>
+</div>
+<div class="fg"><label class="fl">🔘 Botões Personalizados</label>
+<div style="font-size:12px;color:var(--gray);margin-bottom:8px">Aparecem abaixo do banner da empresa. Defina nome, link e cor.</div>
+<div id="edit-emp-botoes-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;align-items:flex-end">
+  <div><label class="fl" style="font-size:10px">Nome do Botão</label><input type="text" class="form-ctrl" id="new-btn-nome" placeholder="Ex: Site Oficial"></div>
+  <div><label class="fl" style="font-size:10px">Link (URL)</label><input type="text" class="form-ctrl" id="new-btn-link" placeholder="https://..."></div>
+  <div><label class="fl" style="font-size:10px">Cor</label><input type="color" class="form-ctrl" id="new-btn-cor" value="#e040fb" style="height:40px;padding:4px;cursor:pointer"></div>
+  <button class="btn btn-ol btn-sm" style="height:40px" onclick="addEmpBotao()">+ Add</button>
+</div>
+</div>
 <div class="fg"><label class="fl">📋 Cargos (arraste para reordenar hierarquia)</label>
 <div style="font-size:12px;color:var(--gray);margin-bottom:8px">⬆️ Topo = maior hierarquia | ⬇️ Base = menor hierarquia</div>
 <div id="edit-cargos" class="cargo-list"></div>
@@ -436,14 +509,17 @@ function toast(msg,type='ok'){
 async function loadAll(){
   loader(true);
   try{
-    const [uR,pR,eR,nR,cR]=await Promise.all([
+    const [uR,pR,eR,nR,cR,tR,ptR]=await Promise.all([
       sb.from('users').select('*'),
       sb.from('posts').select('*').order('id',{ascending:false}),
       sb.from('empresas').select('*').order('id',{ascending:false}),
       sb.from('notifs').select('*').order('id',{ascending:false}).limit(60),
-      sb.from('config').select('*').eq('id',1).single()
+      sb.from('config').select('*').eq('id',1).single(),
+      sb.from('tags').select('*').order('id',{ascending:false}),
+      sb.from('player_tags').select('*')
     ]);
     D.users=uR.data||[];D.posts=pR.data||[];D.empresas=eR.data||[];D.notifs=nR.data||[];D.config=cR.data||{};
+    D_tags=tR.data||[];D_playerTags=ptR.data||[];
   }catch(e){console.error(e);}
   loader(false);
 }
@@ -693,7 +769,7 @@ function postCard(p){
         ${pinnedBadge}
       </div>
       <div class="post-title">${esc(p.titulo)}</div>
-      <div class="post-txt">${esc(p.conteudo)}</div>
+      <div class="post-txt">${renderConteudo(p.conteudo)}</div>
     </div>
     <div class="post-actions">
       <button class="like-btn ${liked?'liked':''}" onclick="toggleLike(${p.id})">${liked?'❤️':'🤍'} <span id="lk-${p.id}">${(p.likes||[]).length}</span></button>
@@ -1053,6 +1129,207 @@ function initPWA(){
   window.addEventListener('appinstalled',()=>{document.getElementById('pwa-btn').style.display='none';dip=null;toast('📲 App instalado!');});
 }
 function installPWA(){if(!dip)return;dip.prompt();dip.userChoice.then(()=>{dip=null;document.getElementById('pwa-btn').style.display='none';});}
+
+// ════════════ LINKS CLICÁVEIS NO CONTEÚDO ════════════
+function renderConteudo(txt){
+  if(!txt)return'';
+  // Detecta URLs e transforma em links clicáveis
+  const escaped=esc(txt);
+  return escaped.replace(/https?:\/\/[^\s&lt;&gt;"]+/g, url=>{
+    const realUrl=url.replace(/&amp;/g,'&');
+    return `<a href="${realUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--gold);text-decoration:underline;word-break:break-all">${url}</a>`;
+  }).replace(/\n/g,'<br>');
+}
+
+// ════════════ TAGS VIP ════════════
+let D_tags=[], D_playerTags=[], vipFoundHabbo=null;
+
+async function loadTags(){
+  const [tR,ptR]=await Promise.all([
+    sb.from('tags').select('*').order('id',{ascending:false}),
+    sb.from('player_tags').select('*')
+  ]);
+  D_tags=tR.data||[];D_playerTags=ptR.data||[];
+}
+
+function tagBadgeHtml(tag){
+  return `<span style="display:inline-flex;align-items:center;gap:4px;background:${tag.cor};color:${tag.cor_texto};font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase">${tag.emoji} ${esc(tag.nome)}</span>`;
+}
+
+async function criarTag(){
+  const nome=document.getElementById('tag-nome').value.trim();
+  const emoji=document.getElementById('tag-emoji').value.trim()||'⭐';
+  const cor=document.getElementById('tag-cor').value;
+  const corTxt=document.getElementById('tag-cor-txt').value;
+  if(!nome){toast('Digite o nome da tag!','err');return;}
+  const tag={id:Date.now(),nome,emoji,cor,cor_texto:corTxt,criado:ds()};
+  const {data:ins,error}=await sb.from('tags').insert(tag).select().single();
+  if(error){toast('Erro ao criar tag.','err');return;}
+  D_tags.unshift(ins);
+  document.getElementById('tag-nome').value='';
+  renderTagsAdm();renderVipTagSelect();renderVips();toast('Tag criada!');
+}
+
+async function deletarTag(id){
+  if(!confirm('Deletar esta tag?'))return;
+  await sb.from('tags').delete().eq('id',id);
+  await sb.from('player_tags').delete().eq('tag_id',id);
+  D_tags=D_tags.filter(t=>t.id!==id);
+  D_playerTags=D_playerTags.filter(p=>p.tag_id!==id);
+  renderTagsAdm();renderVips();renderAdminVips();toast('Tag removida.');
+}
+
+async function buscarVipNick(){
+  const nick=document.getElementById('vip-nick').value.trim();
+  const btn=document.getElementById('vip-search-txt');
+  const rEl=document.getElementById('vip-nick-result');
+  const pEl=document.getElementById('vip-nick-preview');
+  const cBtn=document.getElementById('vip-confirm');
+  if(!nick){toast('Digite um nick!','err');return;}
+  btn.innerHTML='<span class="spinner"></span>';vipFoundHabbo=null;rEl.style.display='none';cBtn.style.display='none';
+  try{
+    const res=await fetch(`https://www.habbo.com.br/api/public/users?name=${encodeURIComponent(nick)}`);
+    if(!res.ok)throw new Error('Não encontrado.');
+    const data=await res.json();const hName=data.name||nick;vipFoundHabbo=hName;
+    pEl.innerHTML=`<img src="${avL(hName)}" style="width:40px;height:52px;image-rendering:pixelated;border-radius:4px;border:2px solid var(--gold)" onerror="this.style.display='none'"><div><div class="nick-name">${esc(hName)}</div><div class="nick-motto">"${esc(data.motto||'')}"</div><div style="font-size:11px;color:var(--green);margin-top:3px">✅ Encontrado!</div></div>`;
+    rEl.style.display='block';cBtn.style.display='block';
+  }catch(err){toast(err.message,'err');}
+  btn.textContent='🔍';
+}
+
+async function atribuirTag(){
+  if(!vipFoundHabbo){toast('Busque um nick primeiro.','err');return;}
+  const tagId=parseInt(document.getElementById('vip-tag-select').value);
+  if(!tagId){toast('Selecione uma tag!','err');return;}
+  // Remover tag anterior do mesmo player
+  await sb.from('player_tags').delete().eq('habbo',vipFoundHabbo).eq('tag_id',tagId);
+  const pt={id:Date.now(),habbo:vipFoundHabbo,tag_id:tagId,atribuido:ds()};
+  const {data:ins,error}=await sb.from('player_tags').insert(pt).select().single();
+  if(error){toast('Erro ao atribuir tag.','err');return;}
+  D_playerTags=D_playerTags.filter(p=>!(p.habbo===vipFoundHabbo&&p.tag_id===tagId));
+  D_playerTags.push(ins);
+  document.getElementById('vip-nick').value='';
+  document.getElementById('vip-nick-result').style.display='none';
+  document.getElementById('vip-confirm').style.display='none';
+  vipFoundHabbo=null;renderVips();renderAdminVips();toast(`Tag atribuída a ${ins.habbo}!`);
+}
+
+async function removerPlayerTag(id){
+  await sb.from('player_tags').delete().eq('id',id);
+  D_playerTags=D_playerTags.filter(p=>p.id!==id);
+  renderVips();renderAdminVips();toast('Tag removida do player.');
+}
+
+function renderVipTagSelect(){
+  const sel=document.getElementById('vip-tag-select');if(!sel)return;
+  sel.innerHTML=D_tags.length?D_tags.map(t=>`<option value="${t.id}">${t.emoji} ${esc(t.nome)}</option>`).join(''):'<option value="">Nenhuma tag criada</option>';
+}
+
+function renderTagsAdm(){
+  const el=document.getElementById('tags-list-adm');if(!el)return;
+  if(!D_tags.length){el.innerHTML='<div style="color:var(--gray);font-size:13px">Nenhuma tag criada.</div>';return;}
+  el.innerHTML=D_tags.map(t=>`<div style="display:inline-flex;align-items:center;gap:6px;background:#0a0a14;border:1px solid var(--border);border-radius:8px;padding:6px 12px">${tagBadgeHtml(t)}<button class="btn btn-danger btn-xs" onclick="deletarTag(${t.id})">✕</button></div>`).join('');
+  // Preview ao criar
+  const pv=document.getElementById('tag-preview');if(pv){
+    const n=document.getElementById('tag-nome').value||'Prévia';const e2=document.getElementById('tag-emoji').value||'⭐';const c=document.getElementById('tag-cor').value;const ct=document.getElementById('tag-cor-txt').value;
+    pv.innerHTML=`<span style="background:${c};color:${ct};font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase">${e2} ${esc(n)}</span>`;
+  }
+  renderVipTagSelect();
+}
+
+function renderAdminVips(){
+  const el=document.getElementById('tb-player-tags');if(!el)return;
+  if(!D_playerTags.length){el.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--gray);padding:24px">Nenhum player com tag.</td></tr>';return;}
+  el.innerHTML=D_playerTags.map(pt=>{
+    const tag=D_tags.find(t=>t.id===pt.tag_id);
+    return`<tr>
+      <td><img src="${av(pt.habbo)}" style="width:34px;height:34px;image-rendering:pixelated;border-radius:4px" onerror="this.style.display='none'"></td>
+      <td style="cursor:pointer;color:var(--gold);font-weight:700" onclick="openPerfil('${pt.habbo}')">${esc(pt.habbo)}</td>
+      <td>${tag?tagBadgeHtml(tag):'<span style="color:var(--gray)">—</span>'}</td>
+      <td style="font-size:12px;color:var(--gray)">${pt.atribuido||''}</td>
+      <td><button class="btn btn-danger btn-xs" onclick="removerPlayerTag(${pt.id})">🗑️</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderVips(){
+  const el=document.getElementById('vips-list');if(!el)return;
+  const tagsRow=document.getElementById('vips-tags-row');
+  if(tagsRow){
+    tagsRow.innerHTML=D_tags.map(t=>`<span style="cursor:pointer;${tagBadgeHtml(t).match(/style="([^"]+)"/)?.[1]||''};padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700" onclick="filtrarVipTag(${t.id})">${t.emoji} ${esc(t.nome)}</span>`).join('');
+  }
+  if(!D_playerTags.length){el.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">⭐</div><div class="empty-title">Nenhum VIP/Patrocinador</div></div>';return;}
+  el.innerHTML=D_playerTags.map(pt=>{
+    const tag=D_tags.find(t=>t.id===pt.tag_id);
+    return`<div class="card" style="text-align:center;padding:20px;cursor:pointer" onclick="openPerfil('${pt.habbo}')">
+      <img src="${av(pt.habbo)}" style="width:64px;height:80px;image-rendering:pixelated;border-radius:8px;margin:0 auto 10px;display:block;border:3px solid ${tag?tag.cor:'var(--gold)'}" onerror="this.style.display='none'">
+      <div style="font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:8px">${esc(pt.habbo)}</div>
+      ${tag?tagBadgeHtml(tag):''}
+    </div>`;
+  }).join('');
+}
+
+// ════════════ PROMOVER ADMIN ════════════
+async function promoverAdmin(){
+  const nick=document.getElementById('new-admin-nick').value.trim();
+  if(!nick){toast('Digite um nick!','err');return;}
+  const u=D.users.find(x=>x.habbo.toLowerCase()===nick.toLowerCase());
+  if(!u){toast('Usuário não encontrado. Ele precisa ter conta no site.','err');return;}
+  if(u.role==='admin'){toast('Já é admin!','info');return;}
+  u.role='admin';u.is_admin=true;
+  await sb.from('users').update({role:'admin',is_admin:true}).eq('habbo',u.habbo);
+  document.getElementById('new-admin-nick').value='';
+  renderAdmin();toast(`👑 ${nick} agora é Administrador!`);
+}
+
+// ════════════ EMPRESA BOTÕES ════════════
+let tempEmpBotoes=[];
+
+function addEmpBotao(){
+  const nome=document.getElementById('new-btn-nome').value.trim();
+  const link=document.getElementById('new-btn-link').value.trim();
+  const cor=document.getElementById('new-btn-cor').value;
+  if(!nome||!link){toast('Preencha nome e link do botão!','err');return;}
+  if(!link.startsWith('http')){toast('O link deve começar com https://','err');return;}
+  tempEmpBotoes.push({id:Date.now(),nome,link,cor});
+  document.getElementById('new-btn-nome').value='';
+  document.getElementById('new-btn-link').value='';
+  renderEmpBotoes();
+}
+function remEmpBotao(id){tempEmpBotoes=tempEmpBotoes.filter(b=>b.id!==id);renderEmpBotoes();}
+function renderEmpBotoes(){
+  const el=document.getElementById('edit-emp-botoes-list');if(!el)return;
+  if(!tempEmpBotoes.length){el.innerHTML='<div style="color:var(--gray);font-size:13px">Nenhum botão adicionado.</div>';return;}
+  el.innerHTML=tempEmpBotoes.map(b=>`
+    <div style="display:flex;align-items:center;gap:8px;background:#0a0a14;border:1px solid var(--border);border-radius:6px;padding:8px 12px">
+      <span style="background:${b.cor};color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:4px">${esc(b.nome)}</span>
+      <span style="color:var(--gray);font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis">${esc(b.link)}</span>
+      <button class="btn btn-danger btn-xs" onclick="remEmpBotao(${b.id})">✕</button>
+    </div>`).join('');
+}
+
+// ════════════ EMPRESA ADMINS ════════════
+let tempEmpAdmins=[];
+
+async function addEmpAdmin(){
+  const nick=document.getElementById('edit-emp-admin-nick').value.trim();
+  if(!nick){toast('Digite um nick!','err');return;}
+  if(tempEmpAdmins.includes(nick)){toast('Já adicionado!','info');return;}
+  tempEmpAdmins.push(nick);
+  document.getElementById('edit-emp-admin-nick').value='';
+  renderEmpAdmins();
+}
+function remEmpAdmin(nick){tempEmpAdmins=tempEmpAdmins.filter(n=>n!==nick);renderEmpAdmins();}
+function renderEmpAdmins(){
+  const el=document.getElementById('edit-emp-admins-list');if(!el)return;
+  if(!tempEmpAdmins.length){el.innerHTML='<div style="color:var(--gray);font-size:13px">Nenhum administrador adicional.</div>';return;}
+  el.innerHTML=tempEmpAdmins.map(nick=>`
+    <div style="display:flex;align-items:center;gap:8px;background:#0a0a14;border:1px solid var(--gold);border-radius:6px;padding:8px 12px">
+      <img src="${av(nick)}" style="width:28px;height:28px;image-rendering:pixelated;border-radius:4px" onerror="this.style.display='none'">
+      <span style="font-weight:700;color:var(--gold)">${esc(nick)}</span>
+      <button class="btn btn-danger btn-xs" style="margin-left:auto" onclick="remEmpAdmin('${nick}')">✕</button>
+    </div>`).join('');
+}
 
 // ════════════ INIT ════════════
 async function init(){
