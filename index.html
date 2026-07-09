@@ -651,6 +651,7 @@ function go(page,opts){
   if(page==='home')renderHome();
   if(page==='admin'){renderAdmin();loadCfgForm();}
   if(page==='novo-post')renderPostSel();
+  if(page==='vips')renderVips();
   if(!opts.skipPush)pushRoute(opts.path||('#/'+page));
 }
 
@@ -1515,14 +1516,24 @@ function renderAdminVips(){
   }).join('');
 }
 
+let _vipFilterTag=null;
+function filtrarVipTag(tagId){
+  _vipFilterTag=(_vipFilterTag===tagId)?null:tagId;
+  renderVips();
+}
 function renderVips(){
   const el=document.getElementById('vips-list');if(!el)return;
   const tagsRow=document.getElementById('vips-tags-row');
   if(tagsRow){
-    tagsRow.innerHTML=D_tags.map(t=>`<span style="cursor:pointer;${tagBadgeHtml(t).match(/style="([^"]+)"/)?.[1]||''};padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700" onclick="filtrarVipTag(${t.id})">${t.emoji} ${esc(t.nome)}</span>`).join('');
+    tagsRow.innerHTML=D_tags.map(t=>{
+      const baseStyle=tagBadgeHtml(t).match(/style="([^"]+)"/)?.[1]||'';
+      const onStyle=_vipFilterTag===t.id?';outline:2px solid var(--white)':'';
+      return `<span style="cursor:pointer;${baseStyle};padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700${onStyle}" onclick="filtrarVipTag(${t.id})">${t.emoji} ${esc(t.nome)}</span>`;
+    }).join('');
   }
-  if(!D_playerTags.length){el.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">⭐</div><div class="empty-title">Nenhum VIP/Patrocinador</div></div>';return;}
-  el.innerHTML=D_playerTags.map(pt=>{
+  const list=_vipFilterTag?D_playerTags.filter(pt=>pt.tag_id===_vipFilterTag):D_playerTags;
+  if(!list.length){el.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">⭐</div><div class="empty-title">Nenhum VIP/Patrocinador</div></div>';return;}
+  el.innerHTML=list.map(pt=>{
     const tag=D_tags.find(t=>t.id===pt.tag_id);
     return`<div class="card" style="text-align:center;padding:20px;cursor:pointer" onclick="openPerfil('${pt.habbo}')">
       <img src="${av(pt.habbo)}" style="width:64px;height:80px;image-rendering:pixelated;border-radius:8px;margin:0 auto 10px;display:block;border:3px solid ${tag?tag.cor:'var(--gold)'};object-fit:contain" onerror="this.style.display='none'">
