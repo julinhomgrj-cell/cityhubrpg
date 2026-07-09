@@ -342,8 +342,21 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 
 <!-- EMPREGOS ADMIN PANEL -->
 <div id="adm-empregos" class="adm-panel">
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">📖 Contexto por Código</span></div>
+    <div class="card-bd">
+      <div class="alert alert-info">Defina o que cada código significa (ex: Código 1 = Policial). Só administradores podem alterar. O contexto aparece automaticamente no cargo do jogador quando o código bater.</div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Código</label><input type="number" class="form-ctrl" id="ctx-codigo" min="0" placeholder="Ex: 1"></div>
+        <div class="fg"><label class="fl">Contexto</label><input type="text" class="form-ctrl" id="ctx-texto" placeholder="Ex: Policial"></div>
+      </div>
+      <div id="ctx-alert"></div>
+      <button class="btn btn-gold btn-sm" onclick="salvarContexto()">💾 Salvar Contexto</button>
+      <div id="contextos-list-adm" style="margin-top:16px"></div>
+    </div>
+  </div>
   <div class="alert alert-info">Código numérico (0, 1, 2, 3...) de cada cargo/emprego cadastrado pelas empresas. Esse código será usado numa futura integração com o Habbo — edite direto aqui se precisar corrigir algo.</div>
-  <div class="tw"><table><thead><tr><th>Empresa</th><th>Cargo</th><th>Nível</th><th>Código</th></tr></thead><tbody id="tb-empregos"></tbody></table></div>
+  <div class="tw"><table><thead><tr><th>Empresa</th><th>Cargo</th><th>Nível</th><th>Código</th><th>Contexto</th></tr></thead><tbody id="tb-empregos"></tbody></table></div>
 </div>
 
 <div id="adm-site" class="adm-panel"><div class="g2">
@@ -516,17 +529,18 @@ function toast(msg,type='ok'){
 async function loadAll(){
   loader(true);
   try{
-    const [uR,pR,eR,nR,cR,tR,ptR]=await Promise.all([
+    const [uR,pR,eR,nR,cR,tR,ptR,ctxR]=await Promise.all([
       sb.from('users').select('id,habbo,role,empresa_id,registrado,seguindo,is_admin'),
       sb.from('posts').select('*').order('id',{ascending:false}),
       sb.from('empresas').select('*').order('id',{ascending:false}),
       sb.from('notifs').select('*').order('id',{ascending:false}).limit(60),
       sb.from('config').select('*').eq('id',1).single(),
       sb.from('tags').select('*').order('id',{ascending:false}),
-      sb.from('player_tags').select('*')
+      sb.from('player_tags').select('*'),
+      sb.from('contextos').select('*').order('codigo',{ascending:true})
     ]);
     D.users=uR.data||[];D.posts=pR.data||[];D.empresas=eR.data||[];D.notifs=nR.data||[];D.config=cR.data||{};
-    D_tags=tR.data||[];D_playerTags=ptR.data||[];
+    D_tags=tR.data||[];D_playerTags=ptR.data||[];D_contextos=ctxR.data||[];
   }catch(e){console.error(e);}
   loader(false);
 }
@@ -1054,9 +1068,11 @@ function buildCargos(e,canMng,isAdm){
   if(!cargos.length)return`<div class="card"><div class="card-bd"><div style="color:var(--gray);font-size:13px">Nenhum cargo cadastrado.</div>${canMng?`<button class="btn btn-ol btn-sm" style="margin-top:10px" onclick="editEmp(${e.id})">+ Adicionar Cargos</button>`:''}</div></div>`;
   return cargos.sort((a,b)=>b.nivel-a.nivel).map(cargo=>{
     const mems=(e.membros||[]).filter(m=>m.cargo===cargo.nome);
-    const mHtml=mems.length?`<div class="cargo-grid">${mems.map(m=>`<div class="cargo-member" onclick="openPerfil('${m.habbo}')"><img class="cargo-avatar" src="${avL(m.habbo)}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 40 52\'%3E%3Crect width=\'40\' height=\'52\' fill=\'%2316162a\'/%3E%3C/svg%3E'" alt="${esc(m.habbo)}"><div class="cargo-mname">${esc(m.habbo)}</div><div class="cargo-mrole">${esc(cargo.nome)}</div>${(canMng||isAdm)?`<div class="cargo-mactions"><button class="btn btn-ol btn-xs" onclick="event.stopPropagation();openCargo('${m.habbo}',${e.id})">✏️</button><button class="btn btn-danger btn-xs" onclick="event.stopPropagation();remMembro(${e.id},'${m.habbo}')">✕</button></div>`:''}</div>`).join('')}</div>`:`<div style="padding:10px 14px;color:var(--gray);font-size:13px;font-style:italic">Nenhum membro neste cargo.</div>`;
+    const ctx=contextoDoCodigo(cargo.codigo);
+    const ctxBadge=ctx?`<span class="tag tg" style="margin-left:6px">${esc(ctx)}</span>`:'';
+    const mHtml=mems.length?`<div class="cargo-grid">${mems.map(m=>`<div class="cargo-member" onclick="openPerfil('${m.habbo}')"><img class="cargo-avatar" src="${avL(m.habbo)}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 40 52\'%3E%3Crect width=\'40\' height=\'52\' fill=\'%2316162a\'/%3E%3C/svg%3E'" alt="${esc(m.habbo)}"><div class="cargo-mname">${esc(m.habbo)}</div><div class="cargo-mrole">${esc(cargo.nome)}</div>${ctx?`<div style="font-size:9px;color:var(--blue);text-transform:uppercase;margin-top:2px">${esc(ctx)}</div>`:''}${(canMng||isAdm)?`<div class="cargo-mactions"><button class="btn btn-ol btn-xs" onclick="event.stopPropagation();openCargo('${m.habbo}',${e.id})">✏️</button><button class="btn btn-danger btn-xs" onclick="event.stopPropagation();remMembro(${e.id},'${m.habbo}')">✕</button></div>`:''}</div>`).join('')}</div>`:`<div style="padding:10px 14px;color:var(--gray);font-size:13px;font-style:italic">Nenhum membro neste cargo.</div>`;
     const addBtn=canMng?`<button class="btn btn-ol-mag btn-xs" onclick="abrirAddCargo(${e.id},'${esc(cargo.nome)}')">+ Adicionar</button>`:'';
-    return `<div class="card cargo-sec" style="margin-bottom:14px"><div class="cargo-title"><span>📌 ${esc(cargo.nome)} <span style="color:var(--gray);font-size:11px;font-weight:400">Nível ${cargo.nivel}</span></span><div style="display:flex;align-items:center;gap:6px"><span style="color:var(--gray);font-size:11px">${mems.length} membro(s)</span>${addBtn}</div></div>${mHtml}</div>`;
+    return `<div class="card cargo-sec" style="margin-bottom:14px"><div class="cargo-title"><span>📌 ${esc(cargo.nome)} <span style="color:var(--gray);font-size:11px;font-weight:400">Nível ${cargo.nivel}</span>${ctxBadge}</span><div style="display:flex;align-items:center;gap:6px"><span style="color:var(--gray);font-size:11px">${mems.length} membro(s)</span>${addBtn}</div></div>${mHtml}</div>`;
   }).join('');
 }
 
@@ -1193,22 +1209,25 @@ function renderAdmin(){
   renderEmpregosAdmin();
 }
 function renderEmpregosAdmin(){
+  renderContextosAdmin();
   const tb=document.getElementById('tb-empregos');if(!tb)return;
   const rows=[];
   D.empresas.forEach(e=>{(e.cargos||[]).forEach(c=>{rows.push({empId:e.id,empNome:e.nome,empEmoji:e.emoji,cargoId:c.id,nome:c.nome,nivel:c.nivel,codigo:c.codigo});});});
-  if(!rows.length){tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--gray);padding:24px">Nenhum cargo cadastrado ainda.</td></tr>';return;}
-  tb.innerHTML=rows.map(r=>`<tr>
+  if(!rows.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--gray);padding:24px">Nenhum cargo cadastrado ainda.</td></tr>';return;}
+  tb.innerHTML=rows.map(r=>{const ctx=contextoDoCodigo(r.codigo);return`<tr>
     <td style="cursor:pointer;color:var(--gold)" onclick="openEmpPage(${r.empId})">${r.empEmoji||'🏢'} ${esc(r.empNome)}</td>
     <td>${esc(r.nome)}</td>
     <td>${r.nivel}</td>
     <td><input type="number" class="form-ctrl" style="width:110px;padding:5px 10px" min="0" value="${r.codigo!=null?r.codigo:''}" placeholder="—" onchange="setCargoCodigo(${r.empId},${r.cargoId},this.value)"></td>
-  </tr>`).join('');
+    <td>${ctx?esc(ctx):'<span style="color:var(--gray)">—</span>'}</td>
+  </tr>`;}).join('');
 }
 async function setCargoCodigo(empId,cargoId,val){
   const e=D.empresas.find(x=>x.id==empId);if(!e)return;
   const c=(e.cargos||[]).find(x=>x.id===cargoId);if(!c)return;
   c.codigo=val!==''?parseInt(val):null;
   await sb.from('empresas').update({cargos:e.cargos}).eq('id',empId);
+  renderEmpregosAdmin();
   toast(`Código de "${c.nome}" (${e.nome}) atualizado!`);
 }
 async function promover(h){const u=D.users.find(x=>x.habbo===h);if(u){u.role='editor';await sb.from('users').update({role:'editor'}).eq('habbo',h);renderAdmin();toast(`${h} agora é Editor.`);}}
@@ -1236,6 +1255,51 @@ function renderConteudo(txt){
     const realUrl=url.replace(/&amp;/g,'&');
     return `<a href="${realUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--gold);text-decoration:underline;word-break:break-all">${url}</a>`;
   }).replace(/\n/g,'<br>');
+}
+
+// ════════════ CONTEXTOS DE CÓDIGO (emprego) ════════════
+let D_contextos=[];
+function contextoDoCodigo(codigo){
+  if(codigo==null)return null;
+  const c=D_contextos.find(x=>x.codigo===codigo);
+  return c?c.contexto:null;
+}
+function renderContextosAdmin(){
+  const el=document.getElementById('contextos-list-adm');if(!el)return;
+  if(!D_contextos.length){el.innerHTML='<div style="color:var(--gray);font-size:13px">Nenhum contexto cadastrado ainda.</div>';return;}
+  el.innerHTML=`<div class="tw"><table><thead><tr><th>Código</th><th>Contexto</th><th>Ações</th></tr></thead><tbody>${D_contextos.map(c=>`<tr>
+    <td><strong style="color:var(--gold)">${c.codigo}</strong></td>
+    <td>${esc(c.contexto)}</td>
+    <td><button class="btn btn-danger btn-xs" onclick="delContexto(${c.id})">🗑️</button></td>
+  </tr>`).join('')}</tbody></table></div>`;
+}
+async function salvarContexto(){
+  if(!sess||sess.role!=='admin'){toast('Só administradores podem alterar contextos.','err');return;}
+  const codEl=document.getElementById('ctx-codigo'),ctxEl=document.getElementById('ctx-texto');
+  const alrt=document.getElementById('ctx-alert');alrt.innerHTML='';
+  const codigo=codEl.value!==''?parseInt(codEl.value):null;
+  const contexto=ctxEl.value.trim();
+  if(codigo==null||codigo<0){alrt.innerHTML='<div class="alert alert-err">Digite um código válido (0 ou mais).</div>';return;}
+  if(!contexto){alrt.innerHTML='<div class="alert alert-err">Digite o contexto.</div>';return;}
+  const existente=D_contextos.find(x=>x.codigo===codigo);
+  if(existente){
+    await sb.from('contextos').update({contexto}).eq('id',existente.id);
+    existente.contexto=contexto;
+  }else{
+    const novo={id:Date.now(),codigo,contexto,criado:ds()};
+    const {data:ins,error}=await sb.from('contextos').insert(novo).select().single();
+    if(error){alrt.innerHTML='<div class="alert alert-err">Erro ao salvar contexto.</div>';return;}
+    D_contextos.push(ins);D_contextos.sort((a,b)=>a.codigo-b.codigo);
+  }
+  codEl.value='';ctxEl.value='';
+  renderContextosAdmin();renderEmpregosAdmin();toast('Contexto salvo!');
+}
+async function delContexto(id){
+  if(!sess||sess.role!=='admin')return;
+  if(!confirm('Remover este contexto?'))return;
+  await sb.from('contextos').delete().eq('id',id);
+  D_contextos=D_contextos.filter(c=>c.id!==id);
+  renderContextosAdmin();renderEmpregosAdmin();toast('Contexto removido.');
 }
 
 // ════════════ TAGS VIP ════════════
