@@ -266,7 +266,7 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 <div id="page-novo-post" class="page"><div class="wrap-sm"><div class="sec-title">✏️ Nova Publicação</div>
 <div class="card"><div class="card-bd">
 <div id="post-alert"></div>
-<div class="fg"><label class="fl">Empresa</label><select class="form-ctrl" id="post-emp"></select></div>
+<div class="fg"><label class="fl">Publicar em</label><select class="form-ctrl" id="post-emp"></select></div>
 <div class="fg"><label class="fl">Título</label><input type="text" class="form-ctrl" id="post-titulo" placeholder="Título..."></div>
 <div class="fg"><label class="fl">Conteúdo</label><textarea class="form-ctrl" id="post-conteudo" rows="5" placeholder="Conteúdo..."></textarea></div>
 <div class="fg"><label class="fl">Link YouTube (opcional)</label><input type="text" class="form-ctrl" id="post-yt" placeholder="https://youtube.com/watch?v=..."><div id="yt-prev-box" style="margin-top:8px"></div></div>
@@ -494,6 +494,20 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 <button class="btn btn-gold btn-block" onclick="salvarCargo()">✅ Confirmar</button>
 </div></div>
 
+<div class="modal-ov" id="m-perfil-cfg"><div class="modal modal-wide"><button class="modal-x" onclick="closeM('m-perfil-cfg')">✕</button><div class="modal-title">⚙️ Configurações do Perfil</div>
+<div class="fg"><label class="fl">🔘 Botões Personalizados</label>
+<div style="font-size:12px;color:var(--gray);margin-bottom:8px">Aparecem no seu perfil público. Defina nome, link e cor.</div>
+<div id="perfil-botoes-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;align-items:flex-end">
+  <div><label class="fl" style="font-size:10px">Nome do Botão</label><input type="text" class="form-ctrl" id="new-pbtn-nome" placeholder="Ex: Meu Canal"></div>
+  <div><label class="fl" style="font-size:10px">Link (URL)</label><input type="text" class="form-ctrl" id="new-pbtn-link" placeholder="https://..."></div>
+  <div><label class="fl" style="font-size:10px">Cor</label><input type="color" class="form-ctrl" id="new-pbtn-cor" value="#e040fb" style="height:40px;padding:4px;cursor:pointer"></div>
+  <button class="btn btn-ol btn-sm" style="height:40px" onclick="addPerfilBotao()">+ Add</button>
+</div>
+</div>
+<button class="btn btn-gold btn-block" onclick="salvarPerfilCfg()">💾 Salvar</button>
+</div></div>
+
 <script>
 // ════════════ SUPABASE ════════════
 const SB_URL='https://vkavradhgbdrqlccvmtg.supabase.co';
@@ -530,7 +544,7 @@ async function loadAll(){
   loader(true);
   try{
     const [uR,pR,eR,nR,cR,tR,ptR,ctxR]=await Promise.all([
-      sb.from('users').select('id,habbo,role,empresa_id,registrado,seguindo,is_admin'),
+      sb.from('users').select('id,habbo,role,empresa_id,registrado,seguindo,seguidores,botoes,is_admin'),
       sb.from('posts').select('*').order('id',{ascending:false}),
       sb.from('empresas').select('*').order('id',{ascending:false}),
       sb.from('notifs').select('*').order('id',{ascending:false}).limit(60),
@@ -753,13 +767,12 @@ function resetReg(){document.getElementById('reg-s1').style.display='block';docu
 
 function loginOk(habbo,role){sess={habbo,role};saveSess();updateNav();renderHome();go('home');toast(`Bem-vindo, ${habbo}!`);}
 function logout(){sess=null;saveSess();updateNav();renderHome();go('home');}
-function canPost(h){return D.empresas.some(e=>e.editor===h||(e.editores||[]).includes(h)||(e.admins||[]).includes(h));}
 function getEmpsByUser(h,r){if(r==='admin')return D.empresas;return D.empresas.filter(e=>e.editor===h||(e.editores||[]).includes(h)||(e.admins||[]).includes(h));}
 
 function updateNav(){
   const nr=document.getElementById('nav-right'),np=document.getElementById('nav-post'),na=document.getElementById('nav-adm'),bp=document.getElementById('btn-pub');
   if(sess){
-    const cp=sess.role==='admin'||canPost(sess.habbo);
+    const cp=true;
     nr.innerHTML=`<div class="user-sess"><img src="${av(sess.habbo)}" onclick="openPerfil('${sess.habbo}')" onerror="this.style.display='none'"><div><div class="uname" onclick="openPerfil('${sess.habbo}')">${esc(sess.habbo)}</div><div class="urole">${sess.role==='admin'?'⭐ Admin':sess.role==='editor'?'✏️ Editor':'👤 Membro'}</div></div><button class="btn btn-ol btn-sm" onclick="logout()">Sair</button></div>`;
     np.style.display=cp?'block':'none';if(bp)bp.style.display=cp?'inline-flex':'none';
     na.style.display=sess.role==='admin'?'block':'none';
@@ -777,8 +790,7 @@ function renderPostSel(){
   const sel=document.getElementById('post-emp');
   if(!sess){sel.innerHTML='<option value="">Faça login primeiro</option>';return;}
   const emps=getEmpsByUser(sess.habbo,sess.role);
-  if(!emps.length){sel.innerHTML='<option value="">Sem empresa disponível</option>';document.getElementById('post-alert').innerHTML='<div class="alert alert-err">Você não é editor de nenhuma empresa.</div>';return;}
-  sel.innerHTML='<option value="">Selecione...</option>'+emps.map(e=>`<option value="${e.id}">${e.emoji||'🏢'} ${esc(e.nome)}</option>`).join('');
+  sel.innerHTML='<option value="">👤 Meu Perfil (pessoal)</option>'+emps.map(e=>`<option value="${e.id}">${e.emoji||'🏢'} ${esc(e.nome)}</option>`).join('');
   document.getElementById('post-alert').innerHTML='';
 }
 async function criarPost(){
@@ -789,14 +801,13 @@ async function criarPost(){
   const ytUrl=document.getElementById('post-yt').value.trim();
   const isUp=document.getElementById('tab-up').classList.contains('on');
   const imagem=isUp?document.getElementById('post-img-b64').value:document.getElementById('post-img-url').value.trim();
-  if(!eId){alrt.innerHTML='<div class="alert alert-err">Selecione uma empresa.</div>';return;}
   if(!titulo){alrt.innerHTML='<div class="alert alert-err">Digite um título.</div>';return;}
   if(!conteudo){alrt.innerHTML='<div class="alert alert-err">Escreva o conteúdo.</div>';return;}
   if(!sess){alrt.innerHTML='<div class="alert alert-err">Faça login.</div>';return;}
-  const emp=D.empresas.find(e=>e.id==eId);
-  if(sess.role!=='admin'&&emp&&emp.editor!==sess.habbo&&!(emp.editores||[]).includes(sess.habbo)&&!(emp.admins||[]).includes(sess.habbo)){alrt.innerHTML='<div class="alert alert-err">Sem permissão.</div>';return;}
+  const emp=eId?D.empresas.find(e=>e.id==eId):null;
+  if(eId&&sess.role!=='admin'&&emp&&emp.editor!==sess.habbo&&!(emp.editores||[]).includes(sess.habbo)&&!(emp.admins||[]).includes(sess.habbo)){alrt.innerHTML='<div class="alert alert-err">Sem permissão.</div>';return;}
   const yId=ytId(ytUrl);
-  const post={id:Date.now(),titulo,conteudo,imagem:imagem||null,yt_id:yId||null,empresa_id:parseInt(eId),empresa_nome:emp?emp.nome:'Geral',empresa_emoji:emp?emp.emoji:'📢',empresa_logo:emp?emp.logo:null,autor:sess.habbo,data_post:ds(),likes:[]};
+  const post={id:Date.now(),titulo,conteudo,imagem:imagem||null,yt_id:yId||null,empresa_id:emp?parseInt(eId):null,empresa_nome:emp?emp.nome:null,empresa_emoji:emp?emp.emoji:null,empresa_logo:emp?emp.logo:null,autor:sess.habbo,data_post:ds(),likes:[]};
   const {data:ins,error}=await sb.from('posts').insert(post).select().single();
   if(error){alrt.innerHTML='<div class="alert alert-err">Erro ao publicar.</div>';return;}
   D.posts.unshift(ins);
@@ -821,6 +832,7 @@ function postCard(p){
   const ytHtml=p.yt_id?`<div class="yt-wrap" id="yw-${p.id}"><div class="yt-thumb" onclick="playYT(${p.id},'${p.yt_id}')"><img src="https://img.youtube.com/vi/${p.yt_id}/hqdefault.jpg" alt=""><div class="yt-play"><div class="yt-icon"></div></div></div></div>`:'';
   const imgHtml=(p.imagem&&!p.yt_id)?`<img class="post-img" src="${esc(p.imagem)}" alt="" onerror="this.style.display='none'">`:'';
   const logo=p.empresa_logo?`<img src="${esc(p.empresa_logo)}" style="width:18px;height:18px;border-radius:3px;object-fit:cover;">`:p.empresa_emoji;
+  const badgeHtml=p.empresa_id?`<span class="emp-badge" onclick="openEmpPage(${p.empresa_id})">${logo} ${esc(p.empresa_nome)}</span>`:`<span class="emp-badge" style="background:linear-gradient(135deg,var(--gold2),var(--gold));color:#000" onclick="openPerfil('${p.autor}')">👤 Perfil Pessoal</span>`;
   // Verificar permissão para fixar/deletar
   const emp=D.empresas.find(e=>e.id==p.empresa_id);
   const canMng=sess&&(sess.role==='admin'||(emp&&(emp.editor_habbo===sess.habbo||emp.editor===sess.habbo||(emp.editores||[]).includes(sess.habbo)||(emp.admins||[]).includes(sess.habbo))));
@@ -831,7 +843,7 @@ function postCard(p){
     ${ytHtml}${imgHtml}
     <div class="post-bd">
       <div style="margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <span class="emp-badge" onclick="openEmpPage(${p.empresa_id})">${logo} ${esc(p.empresa_nome)}</span>
+        ${badgeHtml}
         ${pinnedBadge}
       </div>
       <div class="post-title">${esc(p.titulo)}</div>
@@ -1125,6 +1137,72 @@ async function rejeitarSol(eId,h){const e=D.empresas.find(x=>x.id==eId);if(!e)re
 async function remMembro(eId,h){if(!confirm(`Remover ${h}?`))return;const e=D.empresas.find(x=>x.id==eId);if(!e)return;e.membros=(e.membros||[]).filter(m=>m.habbo!==h);await sb.from('empresas').update({membros:e.membros}).eq('id',eId);openEmpPage(eId);toast(`${h} removido.`);}
 async function toggleSeg(id){if(!sess){toast('Faça login!','info');return;}const e=D.empresas.find(x=>x.id==id);if(!e)return;e.seguidores=e.seguidores||[];const idx=e.seguidores.indexOf(sess.habbo);if(idx>-1)e.seguidores.splice(idx,1);else{e.seguidores.push(sess.habbo);toast(`Seguindo ${e.nome}!`);}await sb.from('empresas').update({seguidores:e.seguidores}).eq('id',id);updateStats();renderEmps();renderSide();}
 
+// ════════════ SEGUIR PLAYERS ════════════
+async function toggleSegPlayer(alvoHabbo){
+  if(!sess){toast('Faça login!','info');return;}
+  if(sess.habbo===alvoHabbo){toast('Você não pode seguir a si mesmo.','info');return;}
+  const me=D.users.find(u=>u.habbo===sess.habbo);
+  const alvo=D.users.find(u=>u.habbo===alvoHabbo);
+  if(!me||!alvo)return;
+  me.seguindo=me.seguindo||[];alvo.seguidores=alvo.seguidores||[];
+  const idx=me.seguindo.indexOf(alvoHabbo);
+  if(idx>-1){
+    me.seguindo.splice(idx,1);
+    alvo.seguidores=alvo.seguidores.filter(h=>h!==sess.habbo);
+    toast(`Deixou de seguir ${alvoHabbo}.`);
+  }else{
+    me.seguindo.push(alvoHabbo);
+    alvo.seguidores.push(sess.habbo);
+    await addNotif(alvoHabbo,`${sess.habbo} começou a seguir você!`,'👤');
+    toast(`Seguindo ${alvoHabbo}!`);
+  }
+  await Promise.all([
+    sb.from('users').update({seguindo:me.seguindo}).eq('habbo',sess.habbo),
+    sb.from('users').update({seguidores:alvo.seguidores}).eq('habbo',alvoHabbo)
+  ]);
+  openPerfil(alvoHabbo);
+}
+
+// ════════════ BOTÕES DO PERFIL ════════════
+let tempPerfilBotoes=[];
+function abrirPerfilCfg(){
+  if(!sess)return;
+  const u=D.users.find(x=>x.habbo===sess.habbo);
+  tempPerfilBotoes=[...(u?.botoes||[])];
+  renderPerfilBotoes();
+  openM('m-perfil-cfg');
+}
+function addPerfilBotao(){
+  const nome=document.getElementById('new-pbtn-nome').value.trim();
+  const link=document.getElementById('new-pbtn-link').value.trim();
+  const cor=document.getElementById('new-pbtn-cor').value;
+  if(!nome||!link){toast('Preencha nome e link do botão!','err');return;}
+  if(!link.startsWith('http')){toast('O link deve começar com https://','err');return;}
+  tempPerfilBotoes.push({id:Date.now(),nome,link,cor});
+  document.getElementById('new-pbtn-nome').value='';
+  document.getElementById('new-pbtn-link').value='';
+  renderPerfilBotoes();
+}
+function remPerfilBotao(id){tempPerfilBotoes=tempPerfilBotoes.filter(b=>b.id!==id);renderPerfilBotoes();}
+function renderPerfilBotoes(){
+  const el=document.getElementById('perfil-botoes-list');if(!el)return;
+  if(!tempPerfilBotoes.length){el.innerHTML='<div style="color:var(--gray);font-size:13px">Nenhum botão adicionado.</div>';return;}
+  el.innerHTML=tempPerfilBotoes.map(b=>`
+    <div style="display:flex;align-items:center;gap:8px;background:#0a0a14;border:1px solid var(--border);border-radius:6px;padding:8px 12px">
+      <span style="background:${b.cor};color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:4px">${esc(b.nome)}</span>
+      <span style="color:var(--gray);font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis">${esc(b.link)}</span>
+      <button class="btn btn-danger btn-xs" onclick="remPerfilBotao(${b.id})">✕</button>
+    </div>`).join('');
+}
+async function salvarPerfilCfg(){
+  if(!sess)return;
+  const u=D.users.find(x=>x.habbo===sess.habbo);if(!u)return;
+  u.botoes=tempPerfilBotoes;
+  await sb.from('users').update({botoes:tempPerfilBotoes}).eq('habbo',sess.habbo);
+  closeM('m-perfil-cfg');toast('Perfil atualizado!');
+  openPerfil(sess.habbo);
+}
+
 // ════════════ NOTIFS ════════════
 async function addNotif(habbo,msg,icon){const n={id:Date.now(),habbo,msg,icon,lida:false,data_notif:ds()};await sb.from('notifs').insert(n);D.notifs.unshift(n);if(D.notifs.length>60)D.notifs=D.notifs.slice(0,60);}
 function renderNotifs(){
@@ -1155,6 +1233,11 @@ function openPerfil(habbo){
   const badges=emps.map(e=>{const m=(e.membros||[]).find(x=>x.habbo===habbo);return`<span class="tag tm" style="cursor:pointer" onclick="openEmpPage(${e.id})">${e.emoji} ${esc(e.nome)} · ${esc(m?.cargo||'Membro')}</span>`;}).join(' ');
   const postsHtml=ps.length?ps.map(p=>postCard(p)).join(''):'<div class="empty"><div class="empty-icon">📰</div><div>Nenhuma publicação.</div></div>';
   const isOwn=sess&&sess.habbo===habbo;
+  const seguidores=(u?.seguidores||[]).length;
+  const seguindoCount=(u?.seguindo||[]).length;
+  const jaSegue=sess&&(u?.seguidores||[]).includes(sess.habbo);
+  const acoesHtml=`<div style="padding-bottom:10px;display:flex;gap:6px;flex-wrap:wrap">${!isOwn&&sess?`<button class="follow-btn ${jaSegue?'on':''}" onclick="toggleSegPlayer('${habbo}')">${jaSegue?'✓ Seguindo':'+ Seguir'}</button>`:''}${isOwn?`<button class="btn btn-ol btn-sm" onclick="abrirPerfilCfg()" title="Configurações do perfil">⚙️ Configurações</button>`:''}</div>`;
+  const botoesHtml=(u?.botoes||[]).length?`<div style="display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 16px">${u.botoes.map(b=>`<a href="${esc(b.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm" style="background:${b.cor||'var(--magenta)'};color:#fff">${esc(b.nome)}</a>`).join('')}</div>`:'';
   const senhaHtml=isOwn?`<div class="card" style="margin-bottom:24px"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">🔒 Senha de Acesso</span></div><div class="card-bd">
     <div class="alert alert-info">Cadastre uma senha pra entrar direto, sem precisar verificar a missão do Habbo toda vez.</div>
     <div id="perfil-senha-status"></div>
@@ -1165,7 +1248,7 @@ function openPerfil(habbo){
       <button class="btn btn-danger btn-sm" id="btn-remover-senha" style="display:none" onclick="removerSenha()">🗑️ Remover Senha</button>
     </div>
   </div></div>`:'';
-  document.getElementById('perfil-page').innerHTML=`<div class="card" style="margin-bottom:20px;overflow:visible"><div class="perfil-banner"></div><div style="display:flex;align-items:flex-end;gap:14px;padding:0 16px"><div class="perfil-av"><img src="${av(habbo)}" onerror="this.style.display='none'" alt="${esc(habbo)}"></div><div style="padding-bottom:10px;flex:1"><div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--gold)">${esc(habbo)}</div><div style="font-size:13px;color:var(--gray)">@${habbo.toLowerCase()}</div>${u?.role==='admin'?'<span class="badge-adm">Admin</span>':u?.role==='editor'?'<span class="badge-ed">Editor</span>':''}</div></div><div class="card-bd" style="border-top:1px solid var(--border);margin-top:10px"><div style="display:flex;gap:24px;margin-bottom:14px;flex-wrap:wrap"><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--gold)">${ps.length}</div><div style="color:var(--gray);font-size:12px">Posts</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--red)">${likes}</div><div style="color:var(--gray);font-size:12px">Curtidas</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--magenta)">${emps.length}</div><div style="color:var(--gray);font-size:12px">Empresas</div></div></div>${badges?`<div style="display:flex;gap:6px;flex-wrap:wrap">${badges}</div>`:''}${u?.registrado?`<div style="font-size:12px;color:var(--gray);margin-top:10px">Membro desde ${u.registrado}</div>`:''}</div></div>${senhaHtml}<div class="sec-title">📰 Publicações de ${esc(habbo)}</div>${postsHtml}`;
+  document.getElementById('perfil-page').innerHTML=`<div class="card" style="margin-bottom:20px;overflow:visible"><div class="perfil-banner"></div><div style="display:flex;align-items:flex-end;gap:14px;padding:0 16px;flex-wrap:wrap"><div class="perfil-av"><img src="${av(habbo)}" onerror="this.style.display='none'" alt="${esc(habbo)}"></div><div style="padding-bottom:10px;flex:1"><div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--gold)">${esc(habbo)}</div><div style="font-size:13px;color:var(--gray)">@${habbo.toLowerCase()}</div>${u?.role==='admin'?'<span class="badge-adm">Admin</span>':u?.role==='editor'?'<span class="badge-ed">Editor</span>':''}</div>${acoesHtml}</div>${botoesHtml}<div class="card-bd" style="border-top:1px solid var(--border);margin-top:10px"><div style="display:flex;gap:24px;margin-bottom:14px;flex-wrap:wrap"><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--gold)">${ps.length}</div><div style="color:var(--gray);font-size:12px">Posts</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--red)">${likes}</div><div style="color:var(--gray);font-size:12px">Curtidas</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--blue)">${seguidores}</div><div style="color:var(--gray);font-size:12px">Seguidores</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--green)">${seguindoCount}</div><div style="color:var(--gray);font-size:12px">Seguindo</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--magenta)">${emps.length}</div><div style="color:var(--gray);font-size:12px">Empresas</div></div></div>${badges?`<div style="display:flex;gap:6px;flex-wrap:wrap">${badges}</div>`:''}${u?.registrado?`<div style="font-size:12px;color:var(--gray);margin-top:10px">Membro desde ${u.registrado}</div>`:''}</div></div>${senhaHtml}<div class="sec-title">📰 Publicações de ${esc(habbo)}</div>${postsHtml}`;
   if(isOwn){
     sb.from('users').select('senha').eq('habbo',habbo).maybeSingle().then(({data})=>{
       const st=document.getElementById('perfil-senha-status');const rb=document.getElementById('btn-remover-senha');
