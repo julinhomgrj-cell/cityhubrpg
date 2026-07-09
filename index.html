@@ -641,7 +641,7 @@ function gerarLogin(){
   if(!name){toast('Digite seu nome!','err');return;}
   pLoginName=name;
   if(name.toLowerCase()===ADMIN.toLowerCase()){const pw=prompt('Senha admin:');if(pw===ADMIN_PW){loginOk(ADMIN,'admin');closeM('m-login');return;}}
-  pLoginCode=gc('CHR');document.getElementById('login-code').textContent=pLoginCode;
+  pLoginCode=gc('CIT');document.getElementById('login-code').textContent=pLoginCode;
   document.getElementById('login-s1').style.display='none';document.getElementById('login-s2').style.display='block';document.getElementById('login-alert').innerHTML='';
 }
 async function verificarLogin(){
@@ -664,7 +664,7 @@ function gerarReg(){
   const name=document.getElementById('reg-name').value.trim();
   if(!name){toast('Digite seu nome!','err');return;}
   if(D.users.find(u=>u.habbo.toLowerCase()===name.toLowerCase())){toast('Conta já existe! Faça login.','info');closeM('m-register');openM('m-login');return;}
-  pRegName=name;pRegCode=gc('CHR');document.getElementById('reg-code').textContent=pRegCode;
+  pRegName=name;pRegCode=gc('CIT');document.getElementById('reg-code').textContent=pRegCode;
   document.getElementById('reg-s1').style.display='none';document.getElementById('reg-s2').style.display='block';document.getElementById('reg-alert').innerHTML='';
 }
 async function verificarReg(){
