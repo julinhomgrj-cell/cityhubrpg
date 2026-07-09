@@ -383,7 +383,7 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 
 <!-- MODALS -->
 <div class="modal-ov" id="m-login"><div class="modal"><button class="modal-x" onclick="closeM('m-login')">✕</button><div class="modal-title">🔑 Entrar com Habbo</div>
-<div id="login-s1"><div class="alert alert-info">Digite seu nome de personagem Habbo.</div><div class="fg"><label class="fl">Nome no Habbo</label><input type="text" class="form-ctrl" id="login-name" placeholder="Ex: JulioHubb"></div><button class="btn btn-gold btn-block" onclick="gerarLogin()">Gerar Código →</button></div>
+<div id="login-s1"><div class="alert alert-info">Digite seu nome de personagem Habbo.</div><div class="fg"><label class="fl">Nome no Habbo</label><input type="text" class="form-ctrl" id="login-name" placeholder="Ex: JulioHubb"></div><div class="fg"><label class="fl">Senha (se já configurada)</label><input type="password" class="form-ctrl" id="login-senha" placeholder="Deixe em branco pra entrar por missão" onkeydown="if(event.key==='Enter')tryLoginSenha()"></div><div id="login-senha-alert"></div><button class="btn btn-gold btn-block" onclick="tryLoginSenha()" style="margin-bottom:8px"><span id="btn-login-senha">🔑 Entrar com Senha</span></button><button class="btn btn-ol btn-block" onclick="gerarLogin()">📋 Entrar por Missão →</button></div>
 <div id="login-s2" style="display:none"><div class="codebox"><div class="code" id="login-code"></div><div class="hint">Cole na sua <strong style="color:var(--magenta)">Missão/Slogan</strong> no Habbo e clique Verificar.</div></div><div id="login-alert"></div><button class="btn btn-gold btn-block" onclick="verificarLogin()" style="margin-bottom:8px"><span id="btn-login">✅ Verificar Missão</span></button><button class="btn btn-ol btn-sm btn-block" onclick="resetLogin()">← Voltar</button></div>
 </div></div>
 
@@ -510,7 +510,7 @@ async function loadAll(){
   loader(true);
   try{
     const [uR,pR,eR,nR,cR,tR,ptR]=await Promise.all([
-      sb.from('users').select('*'),
+      sb.from('users').select('id,habbo,role,empresa_id,registrado,seguindo,is_admin'),
       sb.from('posts').select('*').order('id',{ascending:false}),
       sb.from('empresas').select('*').order('id',{ascending:false}),
       sb.from('notifs').select('*').order('id',{ascending:false}).limit(60),
@@ -634,6 +634,51 @@ function handleImg(input,prevId,hidId){
 }
 function switchTab(t){document.getElementById('tab-up').classList.toggle('on',t==='up');document.getElementById('tab-url').classList.toggle('on',t==='url');document.getElementById('panel-up').style.display=t==='up'?'block':'none';document.getElementById('panel-url').style.display=t==='url'?'block':'none';}
 function switchEmpTab(t){document.getElementById('etab-up').classList.toggle('on',t==='up');document.getElementById('etab-url').classList.toggle('on',t==='url');document.getElementById('epanel-up').style.display=t==='up'?'block':'none';document.getElementById('epanel-url').style.display=t==='url'?'block':'none';}
+
+// ════════════ SENHA (HASH) ════════════
+function randSalt(){const a=new Uint8Array(16);crypto.getRandomValues(a);return Array.from(a).map(b=>b.toString(16).padStart(2,'0')).join('');}
+async function hashSenha(salt,senha){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(salt+':'+senha));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function tryLoginSenha(){
+  const name=document.getElementById('login-name').value.trim();
+  const senha=document.getElementById('login-senha').value;
+  const alrt=document.getElementById('login-senha-alert');const btn=document.getElementById('btn-login-senha');
+  alrt.innerHTML='';
+  if(!name){toast('Digite seu nome!','err');return;}
+  if(!senha){toast('Digite sua senha, ou use "Entrar por Missão".','info');return;}
+  btn.innerHTML='<span class="spinner"></span> Verificando...';
+  try{
+    const {data,error}=await sb.from('users').select('habbo,role,senha,senha_salt').ilike('habbo',name).maybeSingle();
+    if(error||!data){alrt.innerHTML='<div class="alert alert-err">Conta não encontrada.</div>';return;}
+    if(!data.senha||!data.senha_salt){alrt.innerHTML='<div class="alert alert-err">Essa conta ainda não tem senha cadastrada. Use "Entrar por Missão" e cadastre uma no seu perfil.</div>';return;}
+    const hash=await hashSenha(data.senha_salt,senha);
+    if(hash!==data.senha){alrt.innerHTML='<div class="alert alert-err">Senha incorreta.</div>';return;}
+    loginOk(data.habbo,data.role);closeM('m-login');
+  }catch(e){alrt.innerHTML='<div class="alert alert-err">Erro ao verificar senha.</div>';}
+  btn.innerHTML='🔑 Entrar com Senha';
+}
+async function salvarSenha(){
+  if(!sess)return;
+  const s1=document.getElementById('perfil-senha-nova').value;
+  const s2=document.getElementById('perfil-senha-confirma').value;
+  const alrt=document.getElementById('perfil-senha-alert');alrt.innerHTML='';
+  if(s1.length<6){alrt.innerHTML='<div class="alert alert-err">A senha deve ter no mínimo 6 caracteres.</div>';return;}
+  if(s1!==s2){alrt.innerHTML='<div class="alert alert-err">As senhas não coincidem.</div>';return;}
+  const salt=randSalt();const hash=await hashSenha(salt,s1);
+  const {error}=await sb.from('users').update({senha:hash,senha_salt:salt}).eq('habbo',sess.habbo);
+  if(error){alrt.innerHTML='<div class="alert alert-err">Erro ao salvar senha.</div>';return;}
+  toast('Senha cadastrada! Agora você pode entrar com ela.');
+  openPerfil(sess.habbo);
+}
+async function removerSenha(){
+  if(!sess)return;
+  if(!confirm('Remover senha? Você vai precisar entrar por missão de novo.'))return;
+  await sb.from('users').update({senha:null,senha_salt:null}).eq('habbo',sess.habbo);
+  toast('Senha removida.');
+  openPerfil(sess.habbo);
+}
 
 // ════════════ AUTH ════════════
 function gerarLogin(){
@@ -1086,7 +1131,26 @@ function openPerfil(habbo){
   const likes=ps.reduce((a,p)=>a+(p.likes||[]).length,0);
   const badges=emps.map(e=>{const m=(e.membros||[]).find(x=>x.habbo===habbo);return`<span class="tag tm" style="cursor:pointer" onclick="openEmpPage(${e.id})">${e.emoji} ${esc(e.nome)} · ${esc(m?.cargo||'Membro')}</span>`;}).join(' ');
   const postsHtml=ps.length?ps.map(p=>postCard(p)).join(''):'<div class="empty"><div class="empty-icon">📰</div><div>Nenhuma publicação.</div></div>';
-  document.getElementById('perfil-page').innerHTML=`<div class="card" style="margin-bottom:20px;overflow:visible"><div class="perfil-banner"></div><div style="display:flex;align-items:flex-end;gap:14px;padding:0 16px"><div class="perfil-av"><img src="${av(habbo)}" onerror="this.style.display='none'" alt="${esc(habbo)}"></div><div style="padding-bottom:10px;flex:1"><div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--gold)">${esc(habbo)}</div><div style="font-size:13px;color:var(--gray)">@${habbo.toLowerCase()}</div>${u?.role==='admin'?'<span class="badge-adm">Admin</span>':u?.role==='editor'?'<span class="badge-ed">Editor</span>':''}</div></div><div class="card-bd" style="border-top:1px solid var(--border);margin-top:10px"><div style="display:flex;gap:24px;margin-bottom:14px;flex-wrap:wrap"><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--gold)">${ps.length}</div><div style="color:var(--gray);font-size:12px">Posts</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--red)">${likes}</div><div style="color:var(--gray);font-size:12px">Curtidas</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--magenta)">${emps.length}</div><div style="color:var(--gray);font-size:12px">Empresas</div></div></div>${badges?`<div style="display:flex;gap:6px;flex-wrap:wrap">${badges}</div>`:''}${u?.registrado?`<div style="font-size:12px;color:var(--gray);margin-top:10px">Membro desde ${u.registrado}</div>`:''}</div></div><div class="sec-title">📰 Publicações de ${esc(habbo)}</div>${postsHtml}`;
+  const isOwn=sess&&sess.habbo===habbo;
+  const senhaHtml=isOwn?`<div class="card" style="margin-bottom:24px"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">🔒 Senha de Acesso</span></div><div class="card-bd">
+    <div class="alert alert-info">Cadastre uma senha pra entrar direto, sem precisar verificar a missão do Habbo toda vez.</div>
+    <div id="perfil-senha-status"></div>
+    <div class="frow"><div class="fg"><label class="fl">Nova Senha</label><input type="password" class="form-ctrl" id="perfil-senha-nova" placeholder="Mínimo 6 caracteres"></div><div class="fg"><label class="fl">Confirmar Senha</label><input type="password" class="form-ctrl" id="perfil-senha-confirma" placeholder="Repita a senha"></div></div>
+    <div id="perfil-senha-alert"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-gold btn-sm" onclick="salvarSenha()">💾 Salvar Senha</button>
+      <button class="btn btn-danger btn-sm" id="btn-remover-senha" style="display:none" onclick="removerSenha()">🗑️ Remover Senha</button>
+    </div>
+  </div></div>`:'';
+  document.getElementById('perfil-page').innerHTML=`<div class="card" style="margin-bottom:20px;overflow:visible"><div class="perfil-banner"></div><div style="display:flex;align-items:flex-end;gap:14px;padding:0 16px"><div class="perfil-av"><img src="${av(habbo)}" onerror="this.style.display='none'" alt="${esc(habbo)}"></div><div style="padding-bottom:10px;flex:1"><div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--gold)">${esc(habbo)}</div><div style="font-size:13px;color:var(--gray)">@${habbo.toLowerCase()}</div>${u?.role==='admin'?'<span class="badge-adm">Admin</span>':u?.role==='editor'?'<span class="badge-ed">Editor</span>':''}</div></div><div class="card-bd" style="border-top:1px solid var(--border);margin-top:10px"><div style="display:flex;gap:24px;margin-bottom:14px;flex-wrap:wrap"><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--gold)">${ps.length}</div><div style="color:var(--gray);font-size:12px">Posts</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--red)">${likes}</div><div style="color:var(--gray);font-size:12px">Curtidas</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--magenta)">${emps.length}</div><div style="color:var(--gray);font-size:12px">Empresas</div></div></div>${badges?`<div style="display:flex;gap:6px;flex-wrap:wrap">${badges}</div>`:''}${u?.registrado?`<div style="font-size:12px;color:var(--gray);margin-top:10px">Membro desde ${u.registrado}</div>`:''}</div></div>${senhaHtml}<div class="sec-title">📰 Publicações de ${esc(habbo)}</div>${postsHtml}`;
+  if(isOwn){
+    sb.from('users').select('senha').eq('habbo',habbo).maybeSingle().then(({data})=>{
+      const st=document.getElementById('perfil-senha-status');const rb=document.getElementById('btn-remover-senha');
+      if(!st)return;
+      if(data&&data.senha){st.innerHTML='<div class="alert alert-ok">✅ Você já tem senha cadastrada. Pode entrar direto com ela na tela de login.</div>';if(rb)rb.style.display='inline-flex';}
+      else st.innerHTML='';
+    });
+  }
   go('perfil');
 }
 
