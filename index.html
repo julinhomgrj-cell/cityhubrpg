@@ -345,7 +345,7 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 <tr><td>🗑️ Apagar</td><td>✅</td><td>✅</td><td>—</td><td>✅</td></tr>
 </tbody></table></div>
 
-<div class="card" style="max-width:720px;margin-bottom:30px"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">🔗 Prévia de links</span></div><div class="card-bd"><p style="color:var(--gray);line-height:1.6;margin:0">Quando alguém cola um link de vídeo do YouTube, ele já aparece incorporado direto no post. Qualquer outro link colado no texto de um post ou comentário (notícia, Instagram, TikTok, etc.) também ganha um cartão de prévia automático — com imagem, título e descrição do site, igual acontece no WhatsApp e no Discord.</p></div></div>
+<div class="card" style="max-width:720px;margin-bottom:30px"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">🔗 Prévia de links</span></div><div class="card-bd"><p style="color:var(--gray);line-height:1.6;margin:0">Um link de vídeo do YouTube colado no texto de um post ou de um <strong style="color:var(--white)">comentário</strong> aparece incorporado direto, com miniatura e play — não precisa do campo dedicado de vídeo pra isso funcionar no comentário. Qualquer outro link (notícia, Instagram, TikTok, etc.) ganha um cartão de prévia automático — com imagem, título e descrição do site, igual acontece no WhatsApp e no Discord. Isso não vale pros botões personalizados de perfil/empresa, que continuam sendo só um botão com o link.</p></div></div>
 
 <div class="sec-title">⭐ VIPs e Tags</div>
 <div class="card" style="max-width:720px;margin-bottom:30px"><div class="card-bd"><p style="color:var(--gray);line-height:1.6;margin:0">O admin cria tags (ex: ⭐ VIP, 💰 Patrocinador) com nome, emoji, cores próprias e um <strong style="color:var(--white)">código</strong> opcional (0 em diante, livre pra uso futuro), e atribui a jogadores por nick. Tags já criadas podem ser editadas a qualquer momento com o botão ✏️ ao lado delas. Aparecem na aba pública <strong style="color:var(--white)">⭐ VIPs</strong>, com filtro por tag, e no perfil de quem foi marcado.</p></div></div>
@@ -1024,7 +1024,7 @@ function postCard(p){
   const topEmojis=Object.keys(contagem).sort((a,b)=>contagem[b]-contagem[a]).slice(0,3);
   const summaryHtml=reacoes.length?`<span class="react-summary">${topEmojis.map(e=>`<span>${e}</span>`).join('')} <span style="color:var(--gray);font-size:12px;margin-left:2px">${reacoes.length}</span></span>`:'';
   const nComments=D.comentarios.filter(c=>c.post_id===p.id).length;
-  const ytHtml=p.yt_id?`<div class="yt-wrap" id="yw-${p.id}"><div class="yt-thumb" onclick="playYT(${p.id},'${p.yt_id}')"><img src="https://img.youtube.com/vi/${p.yt_id}/hqdefault.jpg" alt=""><div class="yt-play"><div class="yt-icon"></div></div></div></div>`:'';
+  const ytHtml=p.yt_id?`<div class="yt-wrap" id="yw-p-${p.id}"><div class="yt-thumb" onclick="playYT('yw-p-${p.id}','${p.yt_id}')"><img src="https://img.youtube.com/vi/${p.yt_id}/hqdefault.jpg" alt=""><div class="yt-play"><div class="yt-icon"></div></div></div></div>`:'';
   const imgHtml=(p.imagem&&!p.yt_id)?`<img class="post-img" src="${esc(p.imagem)}" alt="" onerror="this.style.display='none'">`:'';
   const logo=p.empresa_logo?`<img src="${esc(p.empresa_logo)}" style="width:18px;height:18px;border-radius:3px;object-fit:cover;">`:p.empresa_emoji;
   const badgeHtml=p.empresa_id?`<span class="emp-badge" onclick="openEmpPage(${p.empresa_id})">${logo} ${esc(p.empresa_nome)}</span>`:`<span class="emp-badge" style="background:linear-gradient(135deg,var(--gold2),var(--gold));color:#000" onclick="openPerfil('${p.autor}')">👤 Perfil Pessoal</span>`;
@@ -1076,7 +1076,8 @@ async function togglePin(postId){
   toast(post.pinned?'📌 Publicação fixada!':'Publicação desafixada.');
   renderPosts();
 }
-function playYT(pId,yId){const w=document.getElementById('yw-'+pId);if(w)w.innerHTML=`<iframe src="https://www.youtube.com/embed/${yId}?autoplay=1" frameborder="0" allowfullscreen allow="autoplay" style="position:absolute;inset:0;width:100%;height:100%"></iframe>`;}
+function playYT(elId,yId){const w=document.getElementById(elId);if(w)w.innerHTML=`<iframe src="https://www.youtube.com/embed/${yId}?autoplay=1" frameborder="0" allowfullscreen allow="autoplay" style="position:absolute;inset:0;width:100%;height:100%"></iframe>`;}
+function ytEmbedHtml(elId,yId){return `<div class="yt-wrap" id="${elId}" style="border-radius:8px;overflow:hidden;margin-top:8px"><div class="yt-thumb" onclick="playYT('${elId}','${yId}')"><img src="https://img.youtube.com/vi/${yId}/hqdefault.jpg" alt=""><div class="yt-play"><div class="yt-icon"></div></div></div></div>`;}
 // ════════════ REAÇÕES ════════════
 function toggleReactPicker(pId){
   if(!sess){toast('Faça login para reagir.','info');return;}
@@ -1116,14 +1117,15 @@ function renderComentarios(postId){
   el.innerHTML=cs.map(c=>{
     const canDel=sess&&(sess.role==='admin'||sess.habbo===c.habbo);
     const linkUrl=extrairPrimeiroLink(c.texto);
-    if(linkUrl)setTimeout(()=>carregarPreviaLink('lp-c-'+c.id,linkUrl),0);
+    const ytVid=linkUrl?ytId(linkUrl):null;
+    if(linkUrl&&!ytVid)setTimeout(()=>carregarPreviaLink('lp-c-'+c.id,linkUrl),0);
     return `<div class="comment-item">
       <img src="${av(c.habbo)}" onerror="this.style.display='none'">
       <div style="flex:1">
         <span style="font-weight:700;color:var(--gold);font-size:13px;cursor:pointer" onclick="openPerfil('${c.habbo}')">${esc(c.habbo)}</span>
         <span style="color:var(--gray);font-size:11px;margin-left:6px">${c.data_comentario||''}</span>
         <div style="font-size:14px;color:var(--white);margin-top:2px;word-break:break-word">${renderConteudo(c.texto)}</div>
-        ${linkUrl?`<div id="lp-c-${c.id}"></div>`:''}
+        ${ytVid?ytEmbedHtml('yw-c-'+c.id,ytVid):(linkUrl?`<div id="lp-c-${c.id}"></div>`:'')}
       </div>
       ${canDel?`<button class="btn btn-danger btn-xs" onclick="delComentario(${c.id},${postId})">✕</button>`:''}
     </div>`;
