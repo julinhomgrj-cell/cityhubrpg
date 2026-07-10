@@ -1022,7 +1022,7 @@ function postCard(p){
   const minhaReacao=sess&&reacoes.find(r=>r.habbo===sess.habbo);
   const contagem={};reacoes.forEach(r=>{contagem[r.emoji]=(contagem[r.emoji]||0)+1;});
   const topEmojis=Object.keys(contagem).sort((a,b)=>contagem[b]-contagem[a]).slice(0,3);
-  const summaryHtml=reacoes.length?`<span class="react-summary">${topEmojis.map(e=>`<span>${e}</span>`).join('')} <span style="color:var(--gray);font-size:12px;margin-left:2px">${reacoes.length}</span></span>`:'';
+  const summaryHtml=reacoes.length?`<span class="react-summary">${topEmojis.map(e=>`<span>${e}</span>`).join('')} <span style="color:var(--gray);font-size:12px;margin-left:2px">${reacoes.length}</span></span>`:`🤍 <span id="rc-${p.id}">0</span>`;
   const nComments=D.comentarios.filter(c=>c.post_id===p.id).length;
   const ytHtml=p.yt_id?`<div class="yt-wrap" id="yw-p-${p.id}"><div class="yt-thumb" onclick="playYT('yw-p-${p.id}','${p.yt_id}')"><img src="https://img.youtube.com/vi/${p.yt_id}/hqdefault.jpg" alt=""><div class="yt-play"><div class="yt-icon"></div></div></div></div>`:'';
   const imgHtml=(p.imagem&&!p.yt_id)?`<img class="post-img" src="${esc(p.imagem)}" alt="" onerror="this.style.display='none'">`:'';
@@ -1049,7 +1049,7 @@ function postCard(p){
     </div>
     <div class="post-actions">
       <div class="react-wrap">
-        <button class="like-btn ${minhaReacao?'liked':''}" onclick="toggleReactPicker(${p.id})">${minhaReacao?minhaReacao.emoji:'🤍'} ${summaryHtml||`<span id="rc-${p.id}">0</span>`}</button>
+        <button class="like-btn ${minhaReacao?'liked':''}" onclick="toggleReactPicker(${p.id})">${summaryHtml}</button>
         <div class="react-picker" id="rp-${p.id}">${REACOES.map(r=>`<button class="react-opt" title="${r.label}" onclick="setReacao(${p.id},'${r.emoji}')">${r.emoji}</button>`).join('')}</div>
       </div>
       <button class="like-btn" onclick="toggleComments(${p.id})">💬 <span class="cmt-count">${nComments}</span></button>
