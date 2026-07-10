@@ -1160,7 +1160,7 @@ function renderComentarios(postId){
             <button class="like-btn ${minhaReacao?'liked':''}" style="padding:3px 10px;font-size:12px" onclick="toggleReactPickerComentario(${c.id})">${reactSummary}</button>
             <div class="react-picker" id="rpc-${c.id}">${REACOES.map(r=>`<button class="react-opt" title="${r.label}" onclick="setReacaoComentario(${c.id},'${r.emoji}')">${r.emoji}</button>`).join('')}</div>
           </div>
-          ${canManage?`<div class="react-wrap">
+          ${canManage?`<div class="react-wrap" style="margin-left:auto">
             <button class="btn btn-ol btn-xs" onclick="toggleGearComentario(${c.id})" title="Opções">⚙️</button>
             <div class="react-picker" id="gear-c-${c.id}" style="flex-direction:column;align-items:stretch;left:auto;right:0;border-radius:8px;padding:6px;min-width:130px">
               <button class="btn btn-ol btn-xs" style="justify-content:flex-start" onclick="abrirEditComentario(${c.id})">✏️ Editar</button>
