@@ -81,7 +81,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .post-comments.on{display:block}
 .comment-item{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
 .comment-item:last-child{border-bottom:none}
-.comment-item img{width:26px;height:34px;image-rendering:pixelated;border-radius:4px;object-fit:contain;flex-shrink:0}
+.comment-item img{width:42px;height:42px;image-rendering:pixelated;border-radius:8px;object-fit:cover;flex-shrink:0;cursor:pointer;border:2px solid var(--border)}
 .yt-wrap{position:relative;width:100%;padding-bottom:56.25%;background:#000;overflow:hidden;border-bottom:1px solid var(--border)}
 .yt-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
 .yt-thumb{position:absolute;inset:0;cursor:pointer}
@@ -204,7 +204,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.02)
 .follow-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:2px solid var(--magenta);color:var(--magenta);background:transparent;transition:all .15s;font-family:'Rajdhani',sans-serif;text-transform:uppercase}
 .follow-btn.on{background:var(--magenta);color:#fff}
 .user-sess{display:flex;align-items:center;gap:8px}
-.user-sess img{width:34px;height:34px;image-rendering:pixelated;border:2px solid var(--gold);border-radius:4px;cursor:pointer;object-fit:contain}
+.user-sess img{width:40px;height:40px;image-rendering:pixelated;border:2px solid var(--gold);border-radius:8px;cursor:pointer;object-fit:cover}
 .uname{font-weight:700;font-size:13px;color:var(--gold);cursor:pointer}
 .urole{font-size:11px;color:var(--gray)}
 .ticker-wrap{background:rgba(245,197,24,.06);border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);overflow:hidden;padding:5px 0;display:flex;align-items:center;position:relative;z-index:1}
@@ -344,6 +344,8 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 <tr><td>📌 Fixar no topo</td><td>—</td><td>✅</td><td>—</td><td>✅</td></tr>
 <tr><td>🗑️ Apagar</td><td>✅</td><td>✅</td><td>—</td><td>✅</td></tr>
 </tbody></table></div>
+
+<div class="card" style="max-width:720px;margin-bottom:14px"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">💬 Comentários</span></div><div class="card-bd"><p style="color:var(--gray);line-height:1.6;margin:0">Comentários também têm as 6 reações. Quem comentou (ou o admin do site) vê um botão <strong style="color:var(--white)">⚙️</strong> ao lado do comentário com as opções "✏️ Editar" e "🗑️ Apagar".</p></div></div>
 
 <div class="card" style="max-width:720px;margin-bottom:14px"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">📖 Ler mais</span></div><div class="card-bd"><p style="color:var(--gray);line-height:1.6;margin:0">Post com texto muito longo (mais de 300 caracteres) é cortado automaticamente com um link <strong style="color:var(--white)">"Ler mais"</strong> no final, igual ao Facebook. Clicando, o texto completo aparece, com a opção "Ler menos" pra recolher de novo.</p></div></div>
 
@@ -665,6 +667,7 @@ let pLoginCode='',pLoginName='',pRegCode='',pRegName='';
 const gc=(p)=>{const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let r=p+'-';for(let i=0;i<6;i++)r+=c[Math.floor(Math.random()*c.length)];return r;}
 const av=(n)=>`https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(n)}&direction=2&head_direction=2&size=m&action=std`;
 const avL=(n)=>`https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(n)}&direction=2&head_direction=2&size=l&action=std`;
+const avHead=(n)=>`https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(n)}&direction=2&head_direction=2&headonly=1&size=l&action=std`;
 const ds=()=>new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
 const esc=(s)=>{if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');};
 const ytId=(u)=>{if(!u)return null;const m=u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/);return m?m[1]:null;}
@@ -959,7 +962,7 @@ function updateNav(){
   const nr=document.getElementById('nav-right'),np=document.getElementById('nav-post'),na=document.getElementById('nav-adm'),bp=document.getElementById('btn-pub');
   if(sess){
     const cp=true;
-    nr.innerHTML=`<div class="user-sess"><img src="${av(sess.habbo)}" onclick="openPerfil('${sess.habbo}')" onerror="this.style.display='none'"><div><div class="uname" onclick="openPerfil('${sess.habbo}')">${esc(sess.habbo)}</div><div class="urole">${sess.role==='admin'?'⭐ Admin':sess.role==='editor'?'✏️ Editor':'👤 Membro'}</div></div><button class="btn btn-ol btn-sm" onclick="logout()">Sair</button></div>`;
+    nr.innerHTML=`<div class="user-sess"><img src="${avHead(sess.habbo)}" onclick="openPerfil('${sess.habbo}')" onerror="this.style.display='none'"><div><div class="uname" onclick="openPerfil('${sess.habbo}')">${esc(sess.habbo)}</div><div class="urole">${sess.role==='admin'?'⭐ Admin':sess.role==='editor'?'✏️ Editor':'👤 Membro'}</div></div><button class="btn btn-ol btn-sm" onclick="logout()">Sair</button></div>`;
     np.style.display=cp?'block':'none';if(bp)bp.style.display=cp?'inline-flex':'none';
     na.style.display=sess.role==='admin'?'block':'none';
   }else{
@@ -1134,19 +1137,38 @@ function renderComentarios(postId){
   const cs=D.comentarios.filter(c=>c.post_id===postId);
   if(!cs.length){el.innerHTML='<div style="color:var(--gray);font-size:13px;padding:6px 0">Nenhum comentário ainda.</div>';return;}
   el.innerHTML=cs.map(c=>{
-    const canDel=sess&&(sess.role==='admin'||sess.habbo===c.habbo);
+    const canManage=sess&&(sess.role==='admin'||sess.habbo===c.habbo);
     const linkUrl=extrairPrimeiroLink(c.texto);
     const ytVid=linkUrl?ytId(linkUrl):null;
     if(linkUrl&&!ytVid)setTimeout(()=>carregarPreviaLink('lp-c-'+c.id,linkUrl),0);
+    const reacoes=c.reacoes||[];
+    const minhaReacao=sess&&reacoes.find(r=>r.habbo===sess.habbo);
+    const contagem={};reacoes.forEach(r=>{contagem[r.emoji]=(contagem[r.emoji]||0)+1;});
+    const topEmojis=Object.keys(contagem).sort((a,b)=>contagem[b]-contagem[a]).slice(0,3);
+    const reactSummary=reacoes.length?`${topEmojis.join('')} ${reacoes.length}`:(minhaReacao?minhaReacao.emoji:'🤍');
     return `<div class="comment-item">
-      <img src="${av(c.habbo)}" onerror="this.style.display='none'">
-      <div style="flex:1">
+      <img src="${avHead(c.habbo)}" onclick="openPerfil('${c.habbo}')" onerror="this.style.display='none'">
+      <div style="flex:1;min-width:0">
         <span style="font-weight:700;color:var(--gold);font-size:13px;cursor:pointer" onclick="openPerfil('${c.habbo}')">${esc(c.habbo)}</span>
         <span style="color:var(--gray);font-size:11px;margin-left:6px">${c.data_comentario||''}</span>
-        <div style="font-size:14px;color:var(--white);margin-top:2px;word-break:break-word">${renderConteudo(c.texto)}</div>
-        ${ytVid?ytEmbedHtml('yw-c-'+c.id,ytVid):(linkUrl?`<div id="lp-c-${c.id}"></div>`:'')}
+        <div id="ctxt-${c.id}">
+          <div style="font-size:14px;color:var(--white);margin-top:2px;word-break:break-word">${renderConteudo(c.texto)}</div>
+          ${ytVid?ytEmbedHtml('yw-c-'+c.id,ytVid):(linkUrl?`<div id="lp-c-${c.id}"></div>`:'')}
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+          <div class="react-wrap">
+            <button class="like-btn ${minhaReacao?'liked':''}" style="padding:3px 10px;font-size:12px" onclick="toggleReactPickerComentario(${c.id})">${reactSummary}</button>
+            <div class="react-picker" id="rpc-${c.id}">${REACOES.map(r=>`<button class="react-opt" title="${r.label}" onclick="setReacaoComentario(${c.id},'${r.emoji}')">${r.emoji}</button>`).join('')}</div>
+          </div>
+          ${canManage?`<div class="react-wrap">
+            <button class="btn btn-ol btn-xs" onclick="toggleGearComentario(${c.id})" title="Opções">⚙️</button>
+            <div class="react-picker" id="gear-c-${c.id}" style="flex-direction:column;align-items:stretch;left:auto;right:0;border-radius:8px;padding:6px;min-width:130px">
+              <button class="btn btn-ol btn-xs" style="justify-content:flex-start" onclick="abrirEditComentario(${c.id})">✏️ Editar</button>
+              <button class="btn btn-danger btn-xs" style="justify-content:flex-start;margin-top:4px" onclick="delComentario(${c.id},${postId})">🗑️ Apagar</button>
+            </div>
+          </div>`:''}
+        </div>
       </div>
-      ${canDel?`<button class="btn btn-danger btn-xs" onclick="delComentario(${c.id},${postId})">✕</button>`:''}
     </div>`;
   }).join('');
 }
@@ -1173,6 +1195,43 @@ async function delComentario(id,postId){
   renderComentarios(postId);
   const btn=document.querySelector(`#pc-${postId} .cmt-count`);if(btn)btn.textContent=D.comentarios.filter(c=>c.post_id===postId).length;
   toast('Comentário removido.');
+}
+function toggleReactPickerComentario(cId){
+  if(!sess){toast('Faça login para reagir.','info');return;}
+  document.querySelectorAll('.react-picker.on').forEach(el=>{if(el.id!=='rpc-'+cId)el.classList.remove('on');});
+  const rp=document.getElementById('rpc-'+cId);if(rp)rp.classList.toggle('on');
+}
+async function setReacaoComentario(cId,emoji){
+  if(!sess){toast('Faça login para reagir.','info');return;}
+  const c=D.comentarios.find(x=>x.id===cId);if(!c)return;
+  c.reacoes=c.reacoes||[];
+  const idx=c.reacoes.findIndex(r=>r.habbo===sess.habbo);
+  const jaEra=idx>-1?c.reacoes[idx].emoji:null;
+  if(idx>-1)c.reacoes.splice(idx,1);
+  if(jaEra!==emoji)c.reacoes.push({habbo:sess.habbo,emoji});
+  await sb.from('comentarios').update({reacoes:c.reacoes}).eq('id',cId);
+  document.querySelectorAll('.react-picker.on').forEach(el=>el.classList.remove('on'));
+  renderComentarios(c.post_id);
+}
+function toggleGearComentario(cId){
+  document.querySelectorAll('.react-picker.on').forEach(el=>{if(el.id!=='gear-c-'+cId)el.classList.remove('on');});
+  const el=document.getElementById('gear-c-'+cId);if(el)el.classList.toggle('on');
+}
+function abrirEditComentario(cId){
+  document.querySelectorAll('.react-picker.on').forEach(el=>el.classList.remove('on'));
+  const c=D.comentarios.find(x=>x.id===cId);if(!c)return;
+  const el=document.getElementById('ctxt-'+cId);if(!el)return;
+  el.innerHTML=`<textarea class="form-ctrl" id="cedit-${cId}" rows="2" style="font-size:14px;margin-top:4px">${esc(c.texto)}</textarea><div style="display:flex;gap:6px;margin-top:6px"><button class="btn btn-gold btn-xs" onclick="salvarEditComentario(${cId})">💾 Salvar</button><button class="btn btn-ol btn-xs" onclick="renderComentarios(${c.post_id})">Cancelar</button></div>`;
+}
+async function salvarEditComentario(cId){
+  const c=D.comentarios.find(x=>x.id===cId);if(!c)return;
+  const inp=document.getElementById('cedit-'+cId);if(!inp)return;
+  const novo=inp.value.trim();
+  if(!novo){toast('O comentário não pode ficar vazio.','err');return;}
+  await sb.from('comentarios').update({texto:novo}).eq('id',cId);
+  c.texto=novo;
+  renderComentarios(c.post_id);
+  toast('Comentário editado!');
 }
 async function delPost(id){
   if(!confirm('Deletar?'))return;
