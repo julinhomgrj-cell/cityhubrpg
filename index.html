@@ -1032,7 +1032,7 @@ function postCard(p){
   const emp=D.empresas.find(e=>e.id==p.empresa_id);
   const canMng=sess&&(sess.role==='admin'||(emp&&(emp.editor_habbo===sess.habbo||emp.editor===sess.habbo||(emp.editores||[]).includes(sess.habbo)||(emp.admins||[]).includes(sess.habbo))));
   const canDel=sess&&(sess.role==='admin'||sess.habbo===p.autor||canMng);
-  const pinBtn=canMng?`<button class="btn btn-xs ${p.pinned?'btn-gold':'btn-ol'}" onclick="togglePin(${p.id})" title="${p.pinned?'Desafixar':'Fixar publicação'}">📌 ${p.pinned?'Fixado':'Fixar'}</button>`:'';
+  const pinBtn=canMng?`<button class="btn btn-xs ${p.pinned?'btn-gold':'btn-ol'}" onclick="togglePin(${p.id})" title="${p.pinned?'Desafixar':'Fixar publicação'}">📌 ${p.pinned?'Desafixar':'Fixar'}</button>`:'';
   const pinnedBadge=p.pinned?`<span class="pin-badge">📌 Fixado</span>`:'';
   const previaLinkUrl=!p.yt_id?extrairPrimeiroLink(p.conteudo):null;
   if(previaLinkUrl)setTimeout(()=>carregarPreviaLink('lp-p-'+p.id,previaLinkUrl),0);
