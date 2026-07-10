@@ -345,6 +345,8 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 <tr><td>🗑️ Apagar</td><td>✅</td><td>✅</td><td>—</td><td>✅</td></tr>
 </tbody></table></div>
 
+<div class="card" style="max-width:720px;margin-bottom:30px"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">🔗 Prévia de links</span></div><div class="card-bd"><p style="color:var(--gray);line-height:1.6;margin:0">Quando alguém cola um link de vídeo do YouTube, ele já aparece incorporado direto no post. Qualquer outro link colado no texto de um post ou comentário (notícia, Instagram, TikTok, etc.) também ganha um cartão de prévia automático — com imagem, título e descrição do site, igual acontece no WhatsApp e no Discord.</p></div></div>
+
 <div class="sec-title">⭐ VIPs e Tags</div>
 <div class="card" style="max-width:720px;margin-bottom:30px"><div class="card-bd"><p style="color:var(--gray);line-height:1.6;margin:0">O admin cria tags (ex: ⭐ VIP, 💰 Patrocinador) com nome, emoji, cores próprias e um <strong style="color:var(--white)">código</strong> opcional (0 em diante, livre pra uso futuro), e atribui a jogadores por nick. Tags já criadas podem ser editadas a qualquer momento com o botão ✏️ ao lado delas. Aparecem na aba pública <strong style="color:var(--white)">⭐ VIPs</strong>, com filtro por tag, e no perfil de quem foi marcado.</p></div></div>
 
@@ -1032,6 +1034,8 @@ function postCard(p){
   const canDel=sess&&(sess.role==='admin'||sess.habbo===p.autor||canMng);
   const pinBtn=canMng?`<button class="btn btn-xs ${p.pinned?'btn-gold':'btn-ol'}" onclick="togglePin(${p.id})" title="${p.pinned?'Desafixar':'Fixar publicação'}">📌 ${p.pinned?'Fixado':'Fixar'}</button>`:'';
   const pinnedBadge=p.pinned?`<span class="pin-badge">📌 Fixado</span>`:'';
+  const previaLinkUrl=!p.yt_id?extrairPrimeiroLink(p.conteudo):null;
+  if(previaLinkUrl)setTimeout(()=>carregarPreviaLink('lp-p-'+p.id,previaLinkUrl),0);
   return `<div class="post-card ${p.pinned?'pinned-post':''}" id="pc-${p.id}">
     ${ytHtml}${imgHtml}
     <div class="post-bd">
@@ -1041,6 +1045,7 @@ function postCard(p){
       </div>
       <div class="post-title">${esc(p.titulo)}</div>
       <div class="post-txt">${renderConteudo(p.conteudo)}</div>
+      ${previaLinkUrl?`<div id="lp-p-${p.id}"></div>`:''}
     </div>
     <div class="post-actions">
       <div class="react-wrap">
@@ -1110,12 +1115,15 @@ function renderComentarios(postId){
   if(!cs.length){el.innerHTML='<div style="color:var(--gray);font-size:13px;padding:6px 0">Nenhum comentário ainda.</div>';return;}
   el.innerHTML=cs.map(c=>{
     const canDel=sess&&(sess.role==='admin'||sess.habbo===c.habbo);
+    const linkUrl=extrairPrimeiroLink(c.texto);
+    if(linkUrl)setTimeout(()=>carregarPreviaLink('lp-c-'+c.id,linkUrl),0);
     return `<div class="comment-item">
       <img src="${av(c.habbo)}" onerror="this.style.display='none'">
       <div style="flex:1">
         <span style="font-weight:700;color:var(--gold);font-size:13px;cursor:pointer" onclick="openPerfil('${c.habbo}')">${esc(c.habbo)}</span>
         <span style="color:var(--gray);font-size:11px;margin-left:6px">${c.data_comentario||''}</span>
-        <div style="font-size:14px;color:var(--white);margin-top:2px;word-break:break-word">${esc(c.texto)}</div>
+        <div style="font-size:14px;color:var(--white);margin-top:2px;word-break:break-word">${renderConteudo(c.texto)}</div>
+        ${linkUrl?`<div id="lp-c-${c.id}"></div>`:''}
       </div>
       ${canDel?`<button class="btn btn-danger btn-xs" onclick="delComentario(${c.id},${postId})">✕</button>`:''}
     </div>`;
@@ -1761,6 +1769,36 @@ function renderConteudo(txt){
     const realUrl=url.replace(/&amp;/g,'&');
     return `<a href="${realUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--gold);text-decoration:underline;word-break:break-all">${url}</a>`;
   }).replace(/\n/g,'<br>');
+}
+
+// ════════════ PRÉVIA DE LINKS ════════════
+function extrairPrimeiroLink(texto){
+  if(!texto)return null;
+  const m=texto.match(/https?:\/\/[^\s<>"]+/);
+  if(!m)return null;
+  return m[0].replace(/[.,;:!?)]+$/,'');
+}
+let _linkPreviewCache={};
+async function carregarPreviaLink(elId,url){
+  if(!url)return;
+  const el=document.getElementById(elId);if(!el||el.dataset.loaded)return;
+  el.dataset.loaded='1';
+  if(_linkPreviewCache[url]){renderPreviewCard(el,_linkPreviewCache[url],url);return;}
+  try{
+    const res=await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`);
+    if(!res.ok)return;
+    const json=await res.json();
+    if(json.status!=='success'||!json.data)return;
+    _linkPreviewCache[url]=json.data;
+    renderPreviewCard(el,json.data,url);
+  }catch(e){/* falha silenciosa — o link continua clicável no texto */}
+}
+function renderPreviewCard(el,data,url){
+  if(!el)return;
+  if(!data.title&&!(data.image&&data.image.url))return;
+  let site='';try{site=data.publisher||new URL(url).hostname.replace(/^www\./,'');}catch(e){site=data.publisher||'';}
+  const img=(data.image&&data.image.url)?`<img src="${esc(data.image.url)}" style="width:100%;max-height:220px;object-fit:cover;display:block" onerror="this.style.display='none'">`:'';
+  el.innerHTML=`<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" style="display:block;border:1px solid var(--border);border-radius:8px;overflow:hidden;text-decoration:none;background:#0a0a14;margin-top:8px">${img}<div style="padding:10px 14px">${site?`<div style="font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">${esc(site)}</div>`:''}<div style="font-weight:700;color:var(--white);font-size:14px;margin-bottom:3px">${esc(data.title||'')}</div>${data.description?`<div style="font-size:12.5px;color:var(--gray);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${esc(data.description)}</div>`:''}</div></a>`;
 }
 
 // ════════════ CONTEXTOS DE CÓDIGO (emprego) ════════════
