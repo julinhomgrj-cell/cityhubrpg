@@ -346,7 +346,7 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 </tbody></table></div>
 
 <div class="sec-title">⭐ VIPs e Tags</div>
-<div class="card" style="max-width:720px;margin-bottom:30px"><div class="card-bd"><p style="color:var(--gray);line-height:1.6;margin:0">O admin cria tags (ex: ⭐ VIP, 💰 Patrocinador) com cores próprias e atribui a jogadores por nick. Aparecem na aba pública <strong style="color:var(--white)">⭐ VIPs</strong>, com filtro por tag, e no perfil de quem foi marcado.</p></div></div>
+<div class="card" style="max-width:720px;margin-bottom:30px"><div class="card-bd"><p style="color:var(--gray);line-height:1.6;margin:0">O admin cria tags (ex: ⭐ VIP, 💰 Patrocinador) com nome, emoji, cores próprias e um <strong style="color:var(--white)">código</strong> opcional (0 em diante, livre pra uso futuro), e atribui a jogadores por nick. Tags já criadas podem ser editadas a qualquer momento com o botão ✏️ ao lado delas. Aparecem na aba pública <strong style="color:var(--white)">⭐ VIPs</strong>, com filtro por tag, e no perfil de quem foi marcado.</p></div></div>
 
 <div class="sec-title">📱 Celular e App</div>
 <div class="g3" style="margin-bottom:30px">
@@ -373,8 +373,9 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 <div id="adm-vips" class="adm-panel">
   <div class="g2" style="margin-bottom:24px">
     <div class="card">
-      <div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">🏷️ Criar Tag</span></div>
+      <div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)" id="tag-form-title">🏷️ Criar Tag</span></div>
       <div class="card-bd">
+        <input type="hidden" id="tag-edit-id">
         <div class="frow">
           <div class="fg"><label class="fl">Nome da Tag</label><input type="text" class="form-ctrl" id="tag-nome" placeholder="Ex: Patrocinador, VIP..."></div>
           <div class="fg"><label class="fl">Emoji</label><input type="text" class="form-ctrl" id="tag-emoji" placeholder="⭐" maxlength="4" value="⭐"></div>
@@ -383,8 +384,12 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
           <div class="fg"><label class="fl">Cor de Fundo</label><input type="color" class="form-ctrl" id="tag-cor" value="#f5c518" style="height:40px;padding:4px;cursor:pointer"></div>
           <div class="fg"><label class="fl">Cor do Texto</label><input type="color" class="form-ctrl" id="tag-cor-txt" value="#000000" style="height:40px;padding:4px;cursor:pointer"></div>
         </div>
+        <div class="fg"><label class="fl">Código</label><input type="number" class="form-ctrl" id="tag-codigo" min="0" placeholder="Ex: 1 (opcional)"></div>
         <div id="tag-preview" style="margin:10px 0"></div>
-        <button class="btn btn-gold btn-sm" onclick="criarTag()">+ Criar Tag</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-gold btn-sm" id="tag-save-btn" onclick="salvarTag()">+ Criar Tag</button>
+          <button class="btn btn-ol btn-sm" id="tag-cancel-btn" style="display:none" onclick="cancelarEdicaoTag()">Cancelar</button>
+        </div>
       </div>
     </div>
     <div class="card">
@@ -1818,18 +1823,58 @@ function tagBadgeHtml(tag){
   return `<span style="display:inline-flex;align-items:center;gap:4px;background:${tag.cor};color:${tag.cor_texto};font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase">${tag.emoji} ${esc(tag.nome)}</span>`;
 }
 
-async function criarTag(){
+async function salvarTag(){
+  const editId=document.getElementById('tag-edit-id').value;
   const nome=document.getElementById('tag-nome').value.trim();
   const emoji=document.getElementById('tag-emoji').value.trim()||'⭐';
   const cor=document.getElementById('tag-cor').value;
   const corTxt=document.getElementById('tag-cor-txt').value;
+  const codEl=document.getElementById('tag-codigo');
+  const codigo=codEl.value!==''?parseInt(codEl.value):null;
   if(!nome){toast('Digite o nome da tag!','err');return;}
-  const tag={id:Date.now(),nome,emoji,cor,cor_texto:corTxt,criado:ds()};
-  const {data:ins,error}=await sb.from('tags').insert(tag).select().single();
-  if(error){toast('Erro ao criar tag.','err');return;}
-  D_tags.unshift(ins);
+  if(editId){
+    const tag=D_tags.find(t=>t.id==editId);if(!tag)return;
+    const upd={nome,emoji,cor,cor_texto:corTxt,codigo};
+    const {error}=await sb.from('tags').update(upd).eq('id',editId);
+    if(error){toast('Erro ao salvar tag.','err');return;}
+    Object.assign(tag,upd);
+    cancelarEdicaoTag();
+    renderTagsAdm();renderVipTagSelect();renderVips();toast('Tag atualizada!');
+  }else{
+    const tag={id:Date.now(),nome,emoji,cor,cor_texto:corTxt,codigo,criado:ds()};
+    const {data:ins,error}=await sb.from('tags').insert(tag).select().single();
+    if(error){toast('Erro ao criar tag.','err');return;}
+    D_tags.unshift(ins);
+    document.getElementById('tag-nome').value='';
+    document.getElementById('tag-codigo').value='';
+    renderTagsAdm();renderVipTagSelect();renderVips();toast('Tag criada!');
+  }
+}
+function editarTag(id){
+  const tag=D_tags.find(t=>t.id===id);if(!tag)return;
+  document.getElementById('tag-edit-id').value=id;
+  document.getElementById('tag-nome').value=tag.nome;
+  document.getElementById('tag-emoji').value=tag.emoji;
+  document.getElementById('tag-cor').value=tag.cor;
+  document.getElementById('tag-cor-txt').value=tag.cor_texto;
+  document.getElementById('tag-codigo').value=tag.codigo!=null?tag.codigo:'';
+  document.getElementById('tag-form-title').textContent='✏️ Editar Tag';
+  document.getElementById('tag-save-btn').textContent='💾 Salvar Alterações';
+  document.getElementById('tag-cancel-btn').style.display='inline-flex';
+  renderTagsAdm();
+  document.getElementById('tag-nome').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function cancelarEdicaoTag(){
+  document.getElementById('tag-edit-id').value='';
   document.getElementById('tag-nome').value='';
-  renderTagsAdm();renderVipTagSelect();renderVips();toast('Tag criada!');
+  document.getElementById('tag-emoji').value='⭐';
+  document.getElementById('tag-cor').value='#f5c518';
+  document.getElementById('tag-cor-txt').value='#000000';
+  document.getElementById('tag-codigo').value='';
+  document.getElementById('tag-form-title').textContent='🏷️ Criar Tag';
+  document.getElementById('tag-save-btn').textContent='+ Criar Tag';
+  document.getElementById('tag-cancel-btn').style.display='none';
+  renderTagsAdm();
 }
 
 async function deletarTag(id){
@@ -1890,7 +1935,7 @@ function renderVipTagSelect(){
 function renderTagsAdm(){
   const el=document.getElementById('tags-list-adm');if(!el)return;
   if(!D_tags.length){el.innerHTML='<div style="color:var(--gray);font-size:13px">Nenhuma tag criada.</div>';return;}
-  el.innerHTML=D_tags.map(t=>`<div style="display:inline-flex;align-items:center;gap:6px;background:#0a0a14;border:1px solid var(--border);border-radius:8px;padding:6px 12px">${tagBadgeHtml(t)}<button class="btn btn-danger btn-xs" onclick="deletarTag(${t.id})">✕</button></div>`).join('');
+  el.innerHTML=D_tags.map(t=>`<div style="display:inline-flex;align-items:center;gap:6px;background:#0a0a14;border:1px solid var(--border);border-radius:8px;padding:6px 12px">${tagBadgeHtml(t)}${t.codigo!=null?`<span style="font-family:ui-monospace,monospace;font-size:11px;color:var(--gray)">#${t.codigo}</span>`:''}<button class="btn btn-ol btn-xs" onclick="editarTag(${t.id})">✏️</button><button class="btn btn-danger btn-xs" onclick="deletarTag(${t.id})">✕</button></div>`).join('');
   // Preview ao criar
   const pv=document.getElementById('tag-preview');if(pv){
     const n=document.getElementById('tag-nome').value||'Prévia';const e2=document.getElementById('tag-emoji').value||'⭐';const c=document.getElementById('tag-cor').value;const ct=document.getElementById('tag-cor-txt').value;
