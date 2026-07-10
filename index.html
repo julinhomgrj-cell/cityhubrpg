@@ -345,6 +345,8 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 <tr><td>🗑️ Apagar</td><td>✅</td><td>✅</td><td>—</td><td>✅</td></tr>
 </tbody></table></div>
 
+<div class="card" style="max-width:720px;margin-bottom:14px"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">📖 Ler mais</span></div><div class="card-bd"><p style="color:var(--gray);line-height:1.6;margin:0">Post com texto muito longo (mais de 300 caracteres) é cortado automaticamente com um link <strong style="color:var(--white)">"Ler mais"</strong> no final, igual ao Facebook. Clicando, o texto completo aparece, com a opção "Ler menos" pra recolher de novo.</p></div></div>
+
 <div class="card" style="max-width:720px;margin-bottom:30px"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">🔗 Prévia de links</span></div><div class="card-bd"><p style="color:var(--gray);line-height:1.6;margin:0">Um link de vídeo do YouTube colado no texto de um post ou de um <strong style="color:var(--white)">comentário</strong> aparece incorporado direto, com miniatura e play — não precisa do campo dedicado de vídeo pra isso funcionar no comentário. Qualquer outro link (notícia, Instagram, TikTok, etc.) ganha um cartão de prévia automático — com imagem, título e descrição do site, igual acontece no WhatsApp e no Discord. Isso não vale pros botões personalizados de perfil/empresa, que continuam sendo só um botão com o link.</p></div></div>
 
 <div class="sec-title">⭐ VIPs e Tags</div>
@@ -1036,6 +1038,15 @@ function postCard(p){
   const pinnedBadge=p.pinned?`<span class="pin-badge">📌 Fixado</span>`:'';
   const previaLinkUrl=!p.yt_id?extrairPrimeiroLink(p.conteudo):null;
   if(previaLinkUrl)setTimeout(()=>carregarPreviaLink('lp-p-'+p.id,previaLinkUrl),0);
+  const LIMITE_TXT=300;
+  const conteudo=p.conteudo||'';
+  let conteudoHtml=renderConteudo(conteudo);
+  if(conteudo.length>LIMITE_TXT){
+    let curto=conteudo.slice(0,LIMITE_TXT);
+    const ultEspaco=curto.lastIndexOf(' ');
+    if(ultEspaco>0)curto=curto.slice(0,ultEspaco);
+    conteudoHtml=`<span id="pt-short-${p.id}">${renderConteudo(curto+'…')} <a href="javascript:void(0)" onclick="togglePostTexto(${p.id})" style="color:var(--gold);font-weight:700;white-space:nowrap">Ler mais</a></span><span id="pt-full-${p.id}" style="display:none">${renderConteudo(conteudo)} <a href="javascript:void(0)" onclick="togglePostTexto(${p.id})" style="color:var(--gold);font-weight:700;white-space:nowrap">Ler menos</a></span>`;
+  }
   return `<div class="post-card ${p.pinned?'pinned-post':''}" id="pc-${p.id}">
     ${ytHtml}${imgHtml}
     <div class="post-bd">
@@ -1044,7 +1055,7 @@ function postCard(p){
         ${pinnedBadge}
       </div>
       <div class="post-title">${esc(p.titulo)}</div>
-      <div class="post-txt">${renderConteudo(p.conteudo)}</div>
+      <div class="post-txt">${conteudoHtml}</div>
       ${previaLinkUrl?`<div id="lp-p-${p.id}"></div>`:''}
     </div>
     <div class="post-actions">
@@ -1078,6 +1089,14 @@ async function togglePin(postId){
 }
 function playYT(elId,yId){const w=document.getElementById(elId);if(w)w.innerHTML=`<iframe src="https://www.youtube.com/embed/${yId}?autoplay=1" frameborder="0" allowfullscreen allow="autoplay" style="position:absolute;inset:0;width:100%;height:100%"></iframe>`;}
 function ytEmbedHtml(elId,yId){return `<div class="yt-wrap" id="${elId}" style="border-radius:8px;overflow:hidden;margin-top:8px"><div class="yt-thumb" onclick="playYT('${elId}','${yId}')"><img src="https://img.youtube.com/vi/${yId}/hqdefault.jpg" alt=""><div class="yt-play"><div class="yt-icon"></div></div></div></div>`;}
+function togglePostTexto(pId){
+  const s=document.getElementById('pt-short-'+pId);
+  const f=document.getElementById('pt-full-'+pId);
+  if(!s||!f)return;
+  const mostrandoCompleto=f.style.display!=='none';
+  s.style.display=mostrandoCompleto?'inline':'none';
+  f.style.display=mostrandoCompleto?'none':'inline';
+}
 // ════════════ REAÇÕES ════════════
 function toggleReactPicker(pId){
   if(!sess){toast('Faça login para reagir.','info');return;}
