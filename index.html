@@ -800,6 +800,11 @@ function go(page,opts){
     document.documentElement.style.removeProperty('--emp-bg');
     window._empColorsActive=false;
   }
+  // Limpar containers de posts de outras páginas p/ evitar IDs duplicados no DOM
+  if(page!=='home'){const c=document.getElementById('home-posts');if(c)c.innerHTML='';}
+  if(page!=='feed'){const c=document.getElementById('posts-list');if(c)c.innerHTML='';}
+  if(page!=='empresa'){const c=document.getElementById('emp-page');if(c)c.innerHTML='';}
+  if(page!=='perfil'){const c=document.getElementById('perfil-page');if(c)c.innerHTML='';}
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const pg=document.getElementById('page-'+page);if(pg)pg.classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('on',b.dataset.p===page));
@@ -1021,6 +1026,13 @@ function renderPosts(cEl,max){
   if(!posts.length){el.innerHTML='<div class="empty"><div class="empty-icon">📰</div><div class="empty-title">Nenhuma publicação ainda</div></div>';return;}
   el.innerHTML=posts.map(p=>postCard(p)).join('');
 }
+// Reatualiza a listagem de posts na página atualmente visível (Início/Feed/Empresa/Perfil)
+function refreshPostViews(){
+  if(document.getElementById('page-home')?.classList.contains('active'))renderHome();
+  else if(document.getElementById('page-feed')?.classList.contains('active'))renderPosts();
+  else if(document.getElementById('page-empresa')?.classList.contains('active')&&window._empId!=null)openEmpPage(window._empId,true);
+  else if(document.getElementById('page-perfil')?.classList.contains('active')&&window._perfilHabbo)openPerfil(window._perfilHabbo,true);
+}
 const REACOES=[{emoji:'❤️',label:'Amei'},{emoji:'👍',label:'Curtir'},{emoji:'😂',label:'Haha'},{emoji:'😮',label:'Uau'},{emoji:'😢',label:'Triste'},{emoji:'😡',label:'Grr'}];
 function postCard(p){
   const reacoes=p.reacoes||[];
@@ -1088,7 +1100,7 @@ async function togglePin(postId){
   post.pinned=!post.pinned;
   await sb.from('posts').update({pinned:post.pinned}).eq('id',postId);
   toast(post.pinned?'📌 Publicação fixada!':'Publicação desafixada.');
-  renderPosts();
+  refreshPostViews();
 }
 function playYT(elId,yId){const w=document.getElementById(elId);if(w)w.innerHTML=`<iframe src="https://www.youtube.com/embed/${yId}?autoplay=1" frameborder="0" allowfullscreen allow="autoplay" style="position:absolute;inset:0;width:100%;height:100%"></iframe>`;}
 function ytEmbedHtml(elId,yId){return `<div class="yt-wrap" id="${elId}" style="border-radius:8px;overflow:hidden;margin-top:8px"><div class="yt-thumb" onclick="playYT('${elId}','${yId}')"><img src="https://img.youtube.com/vi/${yId}/hqdefault.jpg" alt=""><div class="yt-play"><div class="yt-icon"></div></div></div></div>`;}
@@ -1237,7 +1249,7 @@ async function delPost(id){
   if(!confirm('Deletar?'))return;
   await Promise.all([sb.from('posts').delete().eq('id',id),sb.from('comentarios').delete().eq('post_id',id)]);
   D.posts=D.posts.filter(p=>p.id!==id);D.comentarios=D.comentarios.filter(c=>c.post_id!==id);
-  renderPosts();renderAdmin();updateStats();toast('Post removido.');
+  refreshPostViews();renderAdmin();updateStats();toast('Post removido.');
 }
 
 // ════════════ EDITAR PUBLICAÇÃO ════════════
@@ -1281,7 +1293,7 @@ async function salvarEditPost(){
   if(error){alrt.innerHTML='<div class="alert alert-err">Erro ao salvar.</div>';return;}
   Object.assign(p,upd);
   closeM('m-edit-post');
-  renderPosts();renderAdmin();
+  refreshPostViews();renderAdmin();
   toast('Publicação atualizada!');
 }
 function renderFilterSel(){const sel=document.getElementById('filter-emp');if(!sel)return;sel.innerHTML='<option value="">Todas as empresas</option>'+D.empresas.map(e=>`<option value="${e.id}">${e.emoji} ${esc(e.nome)}</option>`).join('');}
@@ -1754,6 +1766,7 @@ function renderSide(){
 
 // ════════════ PERFIL ════════════
 function openPerfil(habbo,fromHistory){
+  window._perfilHabbo=habbo;
   const u=D.users.find(x=>x.habbo===habbo);
   const emps=D.empresas.filter(e=>(e.membros||[]).some(m=>m.habbo===habbo));
   const ps=D.posts.filter(p=>p.autor===habbo);
