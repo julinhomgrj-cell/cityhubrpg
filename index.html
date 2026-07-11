@@ -54,6 +54,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .sec-title::after{content:'';flex:1;height:2px;background:linear-gradient(90deg,var(--gold),transparent)}
 .g2{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:18px}
 .g3{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px}
+.g2>*,.g3>*{min-width:0}
 .card{background:var(--site-card);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:border-color .2s,box-shadow .2s}
 .card:hover{border-color:var(--gold);box-shadow:0 0 20px rgba(245,197,24,.1)}
 .card-hd{background:linear-gradient(90deg,rgba(245,197,24,.08),transparent);border-bottom:1px solid var(--border);padding:13px 16px;display:flex;align-items:center;gap:10px}
