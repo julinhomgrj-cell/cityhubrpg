@@ -1486,7 +1486,7 @@ function openEmpPage(id,fromHistory){
   const postsHtml=ps.length?ps.map(p=>postCard(p)).join(''):'<div class="empty"><div class="empty-icon">📰</div><div>Nenhuma publicação.</div></div>';
   let abtns='';
   if(sess&&!isMem){if(e.privacidade==='private'){const jaS=(e.solicitacoes||[]).includes(sess.habbo);abtns=jaS?'<button class="btn btn-gray btn-sm" disabled>⏳ Solicitação enviada</button>':`<button class="btn btn-mag btn-sm" onclick="solicitarEmp(${e.id})">📩 Solicitar Entrada</button>`;}else abtns=`<button class="btn btn-green btn-sm" onclick="entrarEmp(${e.id})">✅ Entrar</button>`;}
-  else if(sess&&isMem&&!isEd&&!isAdm)abtns=`<button class="btn btn-danger btn-sm" onclick="sairEmp(${e.id})">🚪 Sair</button>`;
+  else if(sess&&isMem&&!isEd)abtns=`<button class="btn btn-danger btn-sm" onclick="sairEmp(${e.id})">🚪 Sair</button>`;
   if(sess)abtns+=` <button class="follow-btn ${isF?'on':''}" onclick="toggleSeg(${e.id})" style="display:inline-flex">${isF?'✓ Seguindo':'+ Seguir'}</button>`;
   if(canMng)abtns+=` <button class="btn btn-ol btn-sm" onclick="editEmp(${e.id})">✏️ Editar</button>`;
   const solHtml=canMng&&(e.solicitacoes||[]).length?`<div class="sec-title" style="margin-top:28px">📩 Solicitações Pendentes</div><div class="card" style="margin-bottom:20px">${(e.solicitacoes||[]).map(h=>`<div class="sol-item"><img src="${av(h)}" onerror="this.style.display='none'" style="width:40px;height:52px;image-rendering:pixelated;border-radius:4px"><div><strong style="color:var(--gold)">${esc(h)}</strong></div><div class="sol-actions"><button class="btn btn-green btn-xs" onclick="aprovarSol(${e.id},'${h}')">✅ Aprovar</button><button class="btn btn-danger btn-xs" onclick="rejeitarSol(${e.id},'${h}')">✕ Rejeitar</button></div></div>`).join('')}</div>`:'';
