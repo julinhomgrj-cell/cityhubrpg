@@ -66,7 +66,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .post-txt{color:var(--gray);line-height:1.65;font-size:15px;margin-bottom:12px;white-space:pre-wrap;word-break:break-word}
 .post-meta{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--gray);padding:10px 16px;border-top:1px solid var(--border);background:rgba(0,0,0,.2);flex-wrap:wrap}
 .post-author{display:flex;align-items:center;gap:8px;color:var(--gold);font-weight:700;cursor:pointer}
-.post-author img{width:30px;height:30px;border-radius:50%;border:2px solid var(--gold);image-rendering:pixelated;object-fit:contain}
+.post-author .avh{width:30px;height:30px;border-radius:50%;border:2px solid var(--gold)}
 .emp-badge{background:linear-gradient(135deg,var(--magenta2),var(--magenta));color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
 .post-actions{display:flex;align-items:center;gap:8px;padding:10px 16px;border-top:1px solid var(--border)}
 .like-btn{display:flex;align-items:center;gap:5px;background:none;border:1px solid var(--border);color:var(--gray);padding:5px 12px;border-radius:20px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;transition:all .15s}
@@ -81,7 +81,9 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .post-comments.on{display:block}
 .comment-item{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
 .comment-item:last-child{border-bottom:none}
-.comment-item img{width:42px;height:42px;image-rendering:pixelated;border-radius:8px;object-fit:cover;flex-shrink:0;cursor:pointer;border:2px solid var(--border)}
+.comment-item .avh{width:42px;height:42px;border-radius:8px;border:2px solid var(--border)}
+.avh{position:relative;overflow:hidden;flex-shrink:0;cursor:pointer;display:inline-block}
+.avh img{position:absolute;left:50%;top:34%;transform:translate(-50%,-50%);width:230%;height:230%;max-width:none;image-rendering:pixelated}
 .yt-wrap{position:relative;width:100%;padding-bottom:56.25%;background:#000;overflow:hidden;border-bottom:1px solid var(--border)}
 .yt-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
 .yt-thumb{position:absolute;inset:0;cursor:pointer}
@@ -188,8 +190,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.02)
 .notif-item:hover{background:rgba(255,255,255,.02)}
 .notif-item.unread{background:rgba(245,197,24,.04);color:var(--white)}
 .perfil-banner{width:100%;height:160px;background:linear-gradient(135deg,#0d0012,#1a0030);border-radius:8px 8px 0 0;display:block}
-.perfil-av{margin:-50px 0 0 16px;position:relative;z-index:1;display:inline-block}
-.perfil-av img{width:90px;height:90px;image-rendering:pixelated;border:4px solid var(--gold);border-radius:8px;display:block;background:var(--card);object-fit:contain}
+.perfil-av{margin:-50px 0 0 16px;position:relative;z-index:1;display:inline-block;width:90px;height:90px;border:4px solid var(--gold);border-radius:8px;background:var(--card)}
 .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:30px}
 .stat-card{background:var(--site-card);border:1px solid var(--border);border-radius:8px;padding:18px;text-align:center}
 .stat-num{font-family:'Press Start 2P',monospace;font-size:20px;margin-bottom:6px}
@@ -204,7 +205,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.02)
 .follow-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:2px solid var(--magenta);color:var(--magenta);background:transparent;transition:all .15s;font-family:'Rajdhani',sans-serif;text-transform:uppercase}
 .follow-btn.on{background:var(--magenta);color:#fff}
 .user-sess{display:flex;align-items:center;gap:8px}
-.user-sess img{width:40px;height:40px;image-rendering:pixelated;border:2px solid var(--gold);border-radius:8px;cursor:pointer;object-fit:cover}
+.user-sess .avh{width:40px;height:40px;border:2px solid var(--gold);border-radius:8px}
 .uname{font-weight:700;font-size:13px;color:var(--gold);cursor:pointer}
 .urole{font-size:11px;color:var(--gray)}
 .ticker-wrap{background:rgba(245,197,24,.06);border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);overflow:hidden;padding:5px 0;display:flex;align-items:center;position:relative;z-index:1}
@@ -668,6 +669,7 @@ const gc=(p)=>{const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let r=p+'-';for(let i=
 const av=(n)=>`https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(n)}&direction=2&head_direction=2&size=m&action=std`;
 const avL=(n)=>`https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(n)}&direction=2&head_direction=2&size=l&action=std`;
 const avHead=(n)=>`https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(n)}&direction=2&head_direction=2&size=l&headonly=1`;
+const avHeadImg=(n)=>`<img src="${avHead(n)}" onerror="if(this.src!=='${av(n)}'){this.src='${av(n)}';this.style.cssText='position:static;width:100%;height:100%;object-fit:contain;image-rendering:pixelated';}else{this.parentElement.style.display='none';}">`;
 const ds=()=>new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
 const esc=(s)=>{if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');};
 const ytId=(u)=>{if(!u)return null;const m=u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/);return m?m[1]:null;}
@@ -967,7 +969,7 @@ function updateNav(){
   const nr=document.getElementById('nav-right'),np=document.getElementById('nav-post'),na=document.getElementById('nav-adm'),bp=document.getElementById('btn-pub');
   if(sess){
     const cp=true;
-    nr.innerHTML=`<div class="user-sess"><img src="${avHead(sess.habbo)}" onclick="openPerfil('${sess.habbo}')" onerror="if(this.src!=='${av(sess.habbo)}'){this.src='${av(sess.habbo)}';}else{this.style.display='none';}"><div><div class="uname" onclick="openPerfil('${sess.habbo}')">${esc(sess.habbo)}</div><div class="urole">${sess.role==='admin'?'⭐ Admin':sess.role==='editor'?'✏️ Editor':'👤 Membro'}</div></div><button class="btn btn-ol btn-sm" onclick="logout()">Sair</button></div>`;
+    nr.innerHTML=`<div class="user-sess"><div class="avh" onclick="openPerfil('${sess.habbo}')">${avHeadImg(sess.habbo)}</div><div><div class="uname" onclick="openPerfil('${sess.habbo}')">${esc(sess.habbo)}</div><div class="urole">${sess.role==='admin'?'⭐ Admin':sess.role==='editor'?'✏️ Editor':'👤 Membro'}</div></div><button class="btn btn-ol btn-sm" onclick="logout()">Sair</button></div>`;
     np.style.display=cp?'block':'none';if(bp)bp.style.display=cp?'inline-flex':'none';
     na.style.display=sess.role==='admin'?'block':'none';
   }else{
@@ -1086,7 +1088,7 @@ function postCard(p){
       </div>
     </div>
     <div class="post-meta">
-      <div class="post-author" onclick="openPerfil('${p.autor}')"><img src="${avHead(p.autor)}" onerror="if(this.src!=='${av(p.autor)}'){this.src='${av(p.autor)}';}else{this.style.display='none';}"><div style="font-size:13px">${esc(p.autor)}</div></div>
+      <div class="post-author" onclick="openPerfil('${p.autor}')"><div class="avh">${avHeadImg(p.autor)}</div><div style="font-size:13px">${esc(p.autor)}</div></div>
       <div style="margin-left:auto;font-size:12px">${p.data_post||''}</div>
     </div>
     <div class="post-comments" id="comments-${p.id}">
@@ -1159,7 +1161,7 @@ function renderComentarios(postId){
     const topEmojis=Object.keys(contagem).sort((a,b)=>contagem[b]-contagem[a]).slice(0,3);
     const reactSummary=reacoes.length?`${topEmojis.join('')} ${reacoes.length}`:(minhaReacao?minhaReacao.emoji:'🤍');
     return `<div class="comment-item">
-      <img src="${avHead(c.habbo)}" onclick="openPerfil('${c.habbo}')" onerror="if(this.src!=='${av(c.habbo)}'){this.src='${av(c.habbo)}';}else{this.style.display='none';}">
+      <div class="avh" onclick="openPerfil('${c.habbo}')">${avHeadImg(c.habbo)}</div>
       <div style="flex:1;min-width:0">
         <span style="font-weight:700;color:var(--gold);font-size:13px;cursor:pointer" onclick="openPerfil('${c.habbo}')">${esc(c.habbo)}</span>
         <span style="color:var(--gray);font-size:11px;margin-left:6px">${c.data_comentario||''}</span>
@@ -1779,7 +1781,7 @@ function openPerfil(habbo,fromHistory){
   const jaSegue=sess&&(u?.seguidores||[]).includes(sess.habbo);
   const acoesHtml=`<div style="padding-bottom:10px;display:flex;gap:6px;flex-wrap:wrap">${!isOwn&&sess?`<button class="follow-btn ${jaSegue?'on':''}" onclick="toggleSegPlayer('${habbo}')">${jaSegue?'✓ Seguindo':'+ Seguir'}</button>`:''}${isOwn?`<button class="btn btn-ol btn-sm" onclick="abrirPerfilCfg()" title="Configurações do perfil">⚙️ Configurações</button>`:''}</div>`;
   const botoesHtml=(u?.botoes||[]).length?`<div style="display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 16px">${u.botoes.map(b=>`<a href="${esc(b.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm" style="background:${b.cor||'var(--magenta)'};color:#fff">${esc(b.nome)}</a>`).join('')}</div>`:'';
-  document.getElementById('perfil-page').innerHTML=`<div class="card" style="margin-bottom:20px;overflow:visible"><div class="perfil-banner"></div><div style="display:flex;align-items:flex-end;gap:14px;padding:0 16px;flex-wrap:wrap"><div class="perfil-av"><img src="${avHead(habbo)}" onerror="if(this.src!=='${av(habbo)}'){this.src='${av(habbo)}';}else{this.style.display='none';}" alt="${esc(habbo)}"></div><div style="padding-bottom:10px;flex:1"><div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--gold)">${esc(habbo)}</div><div style="font-size:13px;color:var(--gray)">@${habbo.toLowerCase()}</div>${u?.role==='admin'?'<span class="badge-adm">Admin</span>':u?.role==='editor'?'<span class="badge-ed">Editor</span>':''}</div>${acoesHtml}</div>${botoesHtml}<div class="card-bd" style="border-top:1px solid var(--border);margin-top:10px"><div style="display:flex;gap:24px;margin-bottom:14px;flex-wrap:wrap"><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--gold)">${ps.length}</div><div style="color:var(--gray);font-size:12px">Posts</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--red)">${likes}</div><div style="color:var(--gray);font-size:12px">Curtidas</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--blue)">${seguidores}</div><div style="color:var(--gray);font-size:12px">Seguidores</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--green)">${seguindoCount}</div><div style="color:var(--gray);font-size:12px">Seguindo</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--magenta)">${emps.length}</div><div style="color:var(--gray);font-size:12px">Empresas</div></div></div>${badges?`<div style="display:flex;gap:6px;flex-wrap:wrap">${badges}</div>`:''}${u?.registrado?`<div style="font-size:12px;color:var(--gray);margin-top:10px">Membro desde ${u.registrado}</div>`:''}</div></div><div class="sec-title">📰 Publicações de ${esc(habbo)}</div>${postsHtml}`;
+  document.getElementById('perfil-page').innerHTML=`<div class="card" style="margin-bottom:20px;overflow:visible"><div class="perfil-banner"></div><div style="display:flex;align-items:flex-end;gap:14px;padding:0 16px;flex-wrap:wrap"><div class="perfil-av avh">${avHeadImg(habbo)}</div><div style="padding-bottom:10px;flex:1"><div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--gold)">${esc(habbo)}</div><div style="font-size:13px;color:var(--gray)">@${habbo.toLowerCase()}</div>${u?.role==='admin'?'<span class="badge-adm">Admin</span>':u?.role==='editor'?'<span class="badge-ed">Editor</span>':''}</div>${acoesHtml}</div>${botoesHtml}<div class="card-bd" style="border-top:1px solid var(--border);margin-top:10px"><div style="display:flex;gap:24px;margin-bottom:14px;flex-wrap:wrap"><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--gold)">${ps.length}</div><div style="color:var(--gray);font-size:12px">Posts</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--red)">${likes}</div><div style="color:var(--gray);font-size:12px">Curtidas</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--blue)">${seguidores}</div><div style="color:var(--gray);font-size:12px">Seguidores</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--green)">${seguindoCount}</div><div style="color:var(--gray);font-size:12px">Seguindo</div></div><div style="text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--magenta)">${emps.length}</div><div style="color:var(--gray);font-size:12px">Empresas</div></div></div>${badges?`<div style="display:flex;gap:6px;flex-wrap:wrap">${badges}</div>`:''}${u?.registrado?`<div style="font-size:12px;color:var(--gray);margin-top:10px">Membro desde ${u.registrado}</div>`:''}</div></div><div class="sec-title">📰 Publicações de ${esc(habbo)}</div>${postsHtml}`;
   go('perfil',{skipPush:true});
   if(!fromHistory)pushRoute('#/perfil/'+encodeURIComponent(habbo));
 }
@@ -1809,7 +1811,7 @@ function renderAdmin(){
   else tp.innerHTML=D.posts.map(p=>`<tr><td><strong>${esc(p.titulo)}</strong></td><td style="cursor:pointer;color:var(--gold)" onclick="openPerfil('${p.autor}')">${esc(p.autor)}</td><td>${p.empresa_emoji} ${esc(p.empresa_nome)}</td><td>❤️ ${(p.reacoes||[]).length}</td><td style="font-size:11px;color:var(--gray)">${p.data_post||''}</td><td><button class="btn btn-danger btn-xs" onclick="delPost(${p.id})">🗑️</button></td></tr>`).join('');}
   const tu=document.getElementById('tb-users');
   if(tu){if(!D.users.length)tu.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--gray);padding:24px">Nenhum membro.</td></tr>';
-  else tu.innerHTML=D.users.map(u=>{const emps=D.empresas.filter(e=>(e.membros||[]).some(m=>m.habbo===u.habbo));return`<tr><td><img src="${avHead(u.habbo)}" style="width:34px;height:34px;image-rendering:pixelated;border-radius:4px;object-fit:contain" onerror="if(this.src!=='${av(u.habbo)}'){this.src='${av(u.habbo)}';}else{this.style.display='none';}"></td><td style="cursor:pointer;color:var(--gold);font-weight:700" onclick="openPerfil('${u.habbo}')">${esc(u.habbo)}</td><td style="font-size:12px">${emps.map(e=>e.nome).join(', ')||'—'}</td><td>${u.role==='admin'?'<span class="badge-adm">Admin</span>':u.role==='editor'?'<span class="badge-ed">Editor</span>':'<span style="color:var(--gray)">Membro</span>'}</td><td style="display:flex;gap:4px;flex-wrap:wrap">${u.role!=='admin'?`${u.role!=='editor'?`<button class="btn btn-ol btn-xs" onclick="promover('${u.habbo}')">✏️ Editor</button>`:`<button class="btn btn-ol btn-xs" onclick="rebaixar('${u.habbo}')">👤 Membro</button>`}<button class="btn btn-danger btn-xs" onclick="delUser('${u.habbo}')">🗑️</button>`:'<span style="color:var(--gold)">Admin</span>'}</td></tr>`;}).join('');}
+  else tu.innerHTML=D.users.map(u=>{const emps=D.empresas.filter(e=>(e.membros||[]).some(m=>m.habbo===u.habbo));return`<tr><td><div class="avh" style="width:34px;height:34px;border-radius:4px">${avHeadImg(u.habbo)}</div></td><td style="cursor:pointer;color:var(--gold);font-weight:700" onclick="openPerfil('${u.habbo}')">${esc(u.habbo)}</td><td style="font-size:12px">${emps.map(e=>e.nome).join(', ')||'—'}</td><td>${u.role==='admin'?'<span class="badge-adm">Admin</span>':u.role==='editor'?'<span class="badge-ed">Editor</span>':'<span style="color:var(--gray)">Membro</span>'}</td><td style="display:flex;gap:4px;flex-wrap:wrap">${u.role!=='admin'?`${u.role!=='editor'?`<button class="btn btn-ol btn-xs" onclick="promover('${u.habbo}')">✏️ Editor</button>`:`<button class="btn btn-ol btn-xs" onclick="rebaixar('${u.habbo}')">👤 Membro</button>`}<button class="btn btn-danger btn-xs" onclick="delUser('${u.habbo}')">🗑️</button>`:'<span style="color:var(--gold)">Admin</span>'}</td></tr>`;}).join('');}
   const sg=document.getElementById('sol-list');
   if(sg){const hasS=D.empresas.some(e=>(e.solicitacoes||[]).length>0);if(!hasS)sg.innerHTML='<div class="empty"><div class="empty-icon">📩</div><div class="empty-title">Sem solicitações pendentes</div></div>';
   else sg.innerHTML=D.empresas.filter(e=>(e.solicitacoes||[]).length).map(e=>`<div style="margin-bottom:20px"><div class="sec-title">${e.emoji} ${esc(e.nome)}</div><div class="card">${(e.solicitacoes||[]).map(h=>`<div class="sol-item"><img src="${av(h)}" onerror="this.style.display='none'" style="width:40px;height:52px;image-rendering:pixelated;border-radius:4px"><strong style="color:var(--gold)">${esc(h)}</strong><div class="sol-actions"><button class="btn btn-green btn-xs" onclick="aprovarSol(${e.id},'${h}')">✅ Aprovar</button><button class="btn btn-danger btn-xs" onclick="rejeitarSol(${e.id},'${h}')">✕ Rejeitar</button></div></div>`).join('')}</div></div>`).join('');}
@@ -2081,7 +2083,7 @@ function renderAdminVips(){
   el.innerHTML=D_playerTags.map(pt=>{
     const tag=D_tags.find(t=>t.id===pt.tag_id);
     return`<tr>
-      <td><img src="${avHead(pt.habbo)}" style="width:34px;height:34px;image-rendering:pixelated;border-radius:4px;object-fit:contain" onerror="if(this.src!=='${av(pt.habbo)}'){this.src='${av(pt.habbo)}';}else{this.style.display='none';}"></td>
+      <td><div class="avh" style="width:34px;height:34px;border-radius:4px">${avHeadImg(pt.habbo)}</div></td>
       <td style="cursor:pointer;color:var(--gold);font-weight:700" onclick="openPerfil('${pt.habbo}')">${esc(pt.habbo)}</td>
       <td>${tag?tagBadgeHtml(tag):'<span style="color:var(--gray)">—</span>'}</td>
       <td style="font-size:12px;color:var(--gray)">${pt.atribuido||''}</td>
@@ -2110,7 +2112,7 @@ function renderVips(){
   el.innerHTML=list.map(pt=>{
     const tag=D_tags.find(t=>t.id===pt.tag_id);
     return`<div class="card" style="text-align:center;padding:20px;cursor:pointer" onclick="openPerfil('${pt.habbo}')">
-      <img src="${avHead(pt.habbo)}" style="width:64px;height:80px;image-rendering:pixelated;border-radius:8px;margin:0 auto 10px;display:block;border:3px solid ${tag?tag.cor:'var(--gold)'};object-fit:contain" onerror="if(this.src!=='${av(pt.habbo)}'){this.src='${av(pt.habbo)}';}else{this.style.display='none';}">
+      <div class="avh" style="display:block;width:64px;height:80px;border-radius:8px;margin:0 auto 10px;border:3px solid ${tag?tag.cor:'var(--gold)'}">${avHeadImg(pt.habbo)}</div>
       <div style="font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:8px">${esc(pt.habbo)}</div>
       ${tag?tagBadgeHtml(tag):''}
     </div>`;
