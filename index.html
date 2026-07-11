@@ -108,6 +108,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .pub-priv{background:rgba(255,23,68,.15);color:var(--red);border:1px solid var(--red)}
 .cargo-sec{margin-bottom:14px}
 .cargo-title{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:var(--magenta);text-transform:uppercase;letter-spacing:1px;padding:10px 14px;background:rgba(224,64,251,.06);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.cargo-desc{padding:10px 14px;color:var(--gray);font-size:13px;line-height:1.55;border-bottom:1px solid var(--border)}
 .cargo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;padding:14px}
 .cargo-member{background:#0a0a14;border:1px solid var(--border);border-radius:8px;padding:12px 8px;text-align:center;transition:border-color .2s;cursor:pointer}
 .cargo-member:hover{border-color:var(--gold);box-shadow:0 0 14px rgba(245,197,24,.15)}
@@ -335,7 +336,7 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
   <div class="card"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">🌍 Pública ou 🔒 privada</span></div><div class="card-bd"><p style="color:var(--gray);line-height:1.6;margin:0">Empresa pública: qualquer jogador entra direto. Privada: manda solicitação, que fica pendente até um responsável aprovar ou rejeitar.</p></div></div>
   <div class="card"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">👤 Editor vs. 👑 Administradores</span></div><div class="card-bd"><p style="color:var(--gray);line-height:1.6;margin:0">O <strong style="color:var(--white)">Editor</strong> é 1 pessoa só — buscar um novo substitui o anterior. Pra várias pessoas de confiança gerenciando junto, use <strong style="color:var(--white)">Administradores da Empresa</strong>, que aceita quantos nicks precisar.</p></div></div>
   <div class="card"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">🎨 Personalização</span></div><div class="card-bd"><p style="color:var(--gray);line-height:1.6;margin:0">Logo, banner, cores da página (principal, secundária, fundo) e botões de link próprios abaixo do banner.</p></div></div>
-  <div class="card"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">📋 Cargos e código</span></div><div class="card-bd"><p style="color:var(--gray);line-height:1.6;margin:0">Cada cargo tem nome, posição na hierarquia (1-10) e um código do emprego. O botão <strong style="color:var(--white)">✏️ Editar Cargo</strong> na página da empresa deixa mudar tudo isso e gerenciar quem está no cargo.</p></div></div>
+  <div class="card"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">📋 Cargos, código e descrição</span></div><div class="card-bd"><p style="color:var(--gray);line-height:1.6;margin:0">Cada cargo tem nome, posição na hierarquia (1-10), um código do emprego e uma <strong style="color:var(--white)">descrição opcional</strong> (objetivo, função, responsabilidades). O botão <strong style="color:var(--white)">✏️ Editar Cargo</strong> na página da empresa deixa mudar tudo isso e gerenciar quem está no cargo. A descrição aparece resumida (2-3 linhas) com um botão <strong style="color:var(--white)">Ler mais</strong> pra não poluir a página.</p></div></div>
 </div>
 
 <div class="sec-title">📰 Feed e Publicações</div>
@@ -613,6 +614,7 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
   <div class="fg"><label class="fl">Posição na Hierarquia</label><input type="number" class="form-ctrl" id="ec-posicao" min="1" max="10"></div>
 </div>
 <div class="fg"><label class="fl">Código do Emprego</label><input type="number" class="form-ctrl" id="ec-codigo" min="0" placeholder="Ex: 1"></div>
+<div class="fg"><label class="fl">Descrição do Cargo</label><textarea class="form-ctrl" id="ec-descricao" rows="4" placeholder="Objetivo, função e responsabilidades do cargo..."></textarea></div>
 <div class="hr"></div>
 <div class="fg"><label class="fl">👤 Adicionar Membro a este Cargo</label>
   <div class="nick-row"><input type="text" class="form-ctrl" id="ec-add-nick" placeholder="Nick Habbo..." onkeydown="if(event.key==='Enter')buscarEcNick()"><button class="btn btn-mag btn-sm" onclick="buscarEcNick()"><span id="ec-search-txt">🔍</span></button></div>
@@ -1116,6 +1118,14 @@ function togglePostTexto(pId){
   s.style.display=mostrandoCompleto?'inline':'none';
   f.style.display=mostrandoCompleto?'none':'inline';
 }
+function toggleCargoDesc(cargoId){
+  const s=document.getElementById('cd-short-'+cargoId);
+  const f=document.getElementById('cd-full-'+cargoId);
+  if(!s||!f)return;
+  const mostrandoCompleto=f.style.display!=='none';
+  s.style.display=mostrandoCompleto?'inline':'none';
+  f.style.display=mostrandoCompleto?'none':'inline';
+}
 // ════════════ REAÇÕES ════════════
 function toggleReactPicker(pId){
   if(!sess){toast('Faça login para reagir.','info');return;}
@@ -1509,7 +1519,20 @@ function buildCargos(e,canMng,isAdm){
     const mHtml=mems.length?`<div class="cargo-grid">${mems.map(m=>`<div class="cargo-member" onclick="openPerfil('${m.habbo}')"><img class="cargo-avatar" src="${avL(m.habbo)}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 40 52\'%3E%3Crect width=\'40\' height=\'52\' fill=\'%2316162a\'/%3E%3C/svg%3E'" alt="${esc(m.habbo)}"><div class="cargo-mname">${esc(m.habbo)}</div><div class="cargo-mrole">${esc(cargo.nome)}</div>${ctx?`<div style="font-size:9px;color:var(--blue);text-transform:uppercase;margin-top:2px">${esc(ctx)}</div>`:''}${(canMng||isAdm)?`<div class="cargo-mactions"><button class="btn btn-ol btn-xs" onclick="event.stopPropagation();openCargo('${m.habbo}',${e.id})">✏️</button><button class="btn btn-danger btn-xs" onclick="event.stopPropagation();remMembro(${e.id},'${m.habbo}')">✕</button></div>`:''}</div>`).join('')}</div>`:`<div style="padding:10px 14px;color:var(--gray);font-size:13px;font-style:italic">Nenhum membro neste cargo.</div>`;
     const addBtn=canMng?`<button class="btn btn-ol-mag btn-xs" onclick="abrirAddCargo(${e.id},'${esc(cargo.nome)}')">+ Adicionar</button>`:'';
     const editCargoBtn=canMng?`<button class="btn btn-ol btn-xs" onclick="abrirEditCargo(${e.id},${cargo.id})">✏️ Editar Cargo</button>`:'';
-    return `<div class="card cargo-sec" style="margin-bottom:14px"><div class="cargo-title"><span>📌 ${esc(cargo.nome)} <span style="color:var(--gray);font-size:11px;font-weight:400">Posição ${cargo.nivel}</span>${ctxBadge}</span><div style="display:flex;align-items:center;gap:6px"><span style="color:var(--gray);font-size:11px">${mems.length} membro(s)</span>${addBtn}${editCargoBtn}</div></div>${mHtml}</div>`;
+    const LIMITE_DESC=140;
+    let descHtml='';
+    if(cargo.descricao){
+      const d=cargo.descricao;
+      if(d.length>LIMITE_DESC){
+        let curto=d.slice(0,LIMITE_DESC);
+        const ultEspaco=curto.lastIndexOf(' ');
+        if(ultEspaco>0)curto=curto.slice(0,ultEspaco);
+        descHtml=`<div class="cargo-desc"><span id="cd-short-${cargo.id}">${renderConteudo(curto+'…')} <a href="javascript:void(0)" onclick="toggleCargoDesc(${cargo.id})" style="color:var(--gold);font-weight:700;white-space:nowrap">Ler mais</a></span><span id="cd-full-${cargo.id}" style="display:none">${renderConteudo(d)} <a href="javascript:void(0)" onclick="toggleCargoDesc(${cargo.id})" style="color:var(--gold);font-weight:700;white-space:nowrap">Ler menos</a></span></div>`;
+      }else{
+        descHtml=`<div class="cargo-desc">${renderConteudo(d)}</div>`;
+      }
+    }
+    return `<div class="card cargo-sec" style="margin-bottom:14px"><div class="cargo-title"><span>📌 ${esc(cargo.nome)} <span style="color:var(--gray);font-size:11px;font-weight:400">Posição ${cargo.nivel}</span>${ctxBadge}</span><div style="display:flex;align-items:center;gap:6px"><span style="color:var(--gray);font-size:11px">${mems.length} membro(s)</span>${addBtn}${editCargoBtn}</div></div>${descHtml}${mHtml}</div>`;
   }).join('');
 }
 
@@ -1563,6 +1586,7 @@ function abrirEditCargo(empId,cargoId){
   document.getElementById('ec-nome').value=c.nome;
   document.getElementById('ec-posicao').value=c.nivel;
   document.getElementById('ec-codigo').value=c.codigo!=null?c.codigo:'';
+  document.getElementById('ec-descricao').value=c.descricao||'';
   document.getElementById('ec-add-nick').value='';
   document.getElementById('ec-add-result').style.display='none';
   document.getElementById('ec-add-alert').innerHTML='';
@@ -1637,9 +1661,10 @@ async function salvarEditCargo(){
   const novoNome=document.getElementById('ec-nome').value.trim();
   const pos=parseInt(document.getElementById('ec-posicao').value)||1;
   const codEl=document.getElementById('ec-codigo'),cod=codEl.value!==''?parseInt(codEl.value):null;
+  const desc=document.getElementById('ec-descricao').value.trim();
   if(!novoNome){toast('Digite o nome do cargo!','err');return;}
   const nomeAntigo=c.nome;
-  c.nome=novoNome;c.nivel=pos;c.codigo=cod;
+  c.nome=novoNome;c.nivel=pos;c.codigo=cod;c.descricao=desc||null;
   if(nomeAntigo!==novoNome){(e.membros||[]).forEach(m=>{if(m.cargo===nomeAntigo)m.cargo=novoNome;});}
   await sb.from('empresas').update({cargos:e.cargos,membros:e.membros}).eq('id',empId);
   closeM('m-edit-cargo');
