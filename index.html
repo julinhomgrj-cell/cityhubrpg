@@ -667,7 +667,7 @@ let pLoginCode='',pLoginName='',pRegCode='',pRegName='';
 const gc=(p)=>{const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let r=p+'-';for(let i=0;i<6;i++)r+=c[Math.floor(Math.random()*c.length)];return r;}
 const av=(n)=>`https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(n)}&direction=2&head_direction=2&size=m&action=std`;
 const avL=(n)=>`https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(n)}&direction=2&head_direction=2&size=l&action=std`;
-const avHead=(n)=>`https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(n)}&direction=2&head_direction=2&headonly=1&size=m&action=std`;
+const avHead=(n)=>`https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(n)}&direction=2&head_direction=2&size=l&headonly=1`;
 const ds=()=>new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
 const esc=(s)=>{if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');};
 const ytId=(u)=>{if(!u)return null;const m=u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/);return m?m[1]:null;}
