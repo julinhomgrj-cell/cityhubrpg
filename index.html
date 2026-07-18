@@ -28,6 +28,16 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .nav-btn{display:flex;align-items:center;gap:6px;padding:16px 14px;color:var(--white);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:.5px;background:none;border:none;cursor:pointer;transition:all .15s;text-transform:uppercase;border-bottom:3px solid transparent;margin-bottom:-3px}
 .nav-btn:hover,.nav-btn.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(245,197,24,.05)}
 .nav-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.radio-widget{display:flex;align-items:center;gap:6px;margin-left:10px;flex-shrink:0}
+.radio-play-btn{background:none;border:2px solid var(--gold);color:var(--gold);width:34px;height:34px;border-radius:50%;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.radio-play-btn:hover{background:rgba(245,197,24,.1)}
+.radio-play-btn.playing{background:var(--gold);color:#000;box-shadow:0 0 12px rgba(245,197,24,.5)}
+.radio-menu-btn{background:none;border:1px solid var(--border);color:var(--gray);width:30px;height:30px;border-radius:6px;font-size:15px;cursor:pointer;flex-shrink:0}
+.radio-menu-btn:hover{border-color:var(--gold);color:var(--gold)}
+.radio-picker{left:auto;right:0;flex-direction:column;align-items:stretch;min-width:210px;border-radius:8px;padding:6px;max-height:320px;overflow-y:auto}
+.radio-picker-item{display:block;width:100%;text-align:left;background:none;border:none;padding:9px 10px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--white);font-family:'Rajdhani',sans-serif}
+.radio-picker-item:hover{background:rgba(245,197,24,.1)}
+.radio-picker-item.on{color:var(--gold);font-weight:700}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:4px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;cursor:pointer;border:none;transition:all .15s;text-decoration:none;white-space:nowrap}
 .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;box-shadow:0 0 12px rgba(245,197,24,.4)}
 .btn-gold:hover{box-shadow:0 0 22px rgba(245,197,24,.7);transform:translateY(-1px)}
@@ -259,6 +269,14 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
     <li id="nav-post" style="display:none"><button class="nav-btn" data-p="novo-post">✏️ <span>Publicar</span></button></li>
     <li id="nav-adm" style="display:none"><button class="nav-btn" data-p="admin">⚙️ <span>Admin</span></button></li>
   </ul>
+  <div id="radio-widget" class="radio-widget" style="display:none">
+    <button class="radio-play-btn" id="radio-play-btn" onclick="toggleRadioPlay()" title="Tocar rádio">▶️</button>
+    <div class="react-wrap">
+      <button class="radio-menu-btn" onclick="toggleRadioMenu()" title="Escolher rádio">☰</button>
+      <div class="react-picker radio-picker" id="radio-picker"></div>
+    </div>
+  </div>
+  <audio id="radio-audio" preload="none" onerror="if(radioPlaying){radioPlaying=false;updateRadioPlayBtn();toast('Erro ao carregar o stream da rádio.','err');}"></audio>
   <div id="nav-right" class="nav-right"><button class="btn btn-ol btn-sm" onclick="openM('m-login')">Entrar</button><button class="btn btn-gold btn-sm" onclick="openM('m-register')">Cadastrar</button></div>
 </nav>
 <div class="ticker-wrap"><div class="ticker-lbl">📡 NEWS</div><div style="overflow:hidden;flex:1"><div class="ticker-track"><div class="ticker-item">🌆 Bem-vindo ao <span>City Hub RPG</span>!</div><div class="ticker-item">💼 Novas vagas abertas nas empresas</div><div class="ticker-item">📰 Publique notícias e eventos do jogo</div><div class="ticker-item">🎮 Faça login com seu personagem <span>Habbo</span></div><div class="ticker-item">⭐ Junte-se à comunidade City Hub</div><div class="ticker-item">🌆 Bem-vindo ao <span>City Hub RPG</span>!</div><div class="ticker-item">💼 Novas vagas abertas nas empresas</div><div class="ticker-item">📰 Publique notícias e eventos do jogo</div><div class="ticker-item">🎮 Faça login com seu personagem <span>Habbo</span></div><div class="ticker-item">⭐ Junte-se à comunidade City Hub</div></div></div></div>
@@ -367,6 +385,13 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
   <div class="card"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">⬅️ Botão voltar</span></div><div class="card-bd"><p style="color:var(--gray);line-height:1.6;margin:0;font-size:14px">Navegar pelo site registra histórico — o botão voltar passa pelas telas visitadas em vez de sair do site direto.</p></div></div>
 </div>
 
+<div class="sec-title">📻 Rádio ao Vivo</div>
+<div class="g3" style="margin-bottom:30px">
+  <div class="card"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">▶️ Botão Play</span></div><div class="card-bd"><p style="color:var(--gray);line-height:1.6;margin:0;font-size:14px">Quando ativa, aparece no cabeçalho um botão de tocar rádio. Como é um stream ao vivo, todo mundo que estiver ouvindo escuta exatamente a mesma faixa no mesmo momento, igual rádio de verdade.</p></div></div>
+  <div class="card"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">☰ Escolher rádio</span></div><div class="card-bd"><p style="color:var(--gray);line-height:1.6;margin:0;font-size:14px">O sanduíche ao lado do Play abre a lista de rádios cadastradas — clique numa pra trocar de estação.</p></div></div>
+  <div class="card"><div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">⚙️ Controle do admin</span></div><div class="card-bd"><p style="color:var(--gray);line-height:1.6;margin:0;font-size:14px">No painel Admin → 📻 Rádio, dá pra ativar/desativar o botão no cabeçalho e adicionar ou remover rádios (nome + link do stream).</p></div></div>
+</div>
+
 <div class="sec-title">🔐 Segurança e Dados</div>
 <div class="alert alert-info" style="max-width:720px">Tudo — perfis, empresas, posts, imagens — é salvo na nuvem, então funciona em qualquer aparelho com a mesma conta.</div>
 <div class="alert alert-err" style="max-width:720px;margin-top:10px">Como a identidade é validada pela missão do Habbo (não por um sistema de senha tradicional completo), o site é adequado pra uma comunidade de fã-site — não deve guardar dados sensíveis ou financeiros.</div>
@@ -375,7 +400,7 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
 
 <!-- ADMIN -->
 <div id="page-admin" class="page"><div class="wrap"><div class="sec-title">⚙️ Painel Administrativo</div>
-<div class="adm-nav"><button class="adm-btn on" onclick="showAdm('adm-emps',this)">🏢 Empresas</button><button class="adm-btn" onclick="showAdm('adm-posts',this)">📰 Posts</button><button class="adm-btn" onclick="showAdm('adm-users',this)">👥 Membros</button><button class="adm-btn" onclick="showAdm('adm-sol',this)">📩 Solicitações</button><button class="adm-btn" onclick="showAdm('adm-vips',this)">⭐ VIPs/Tags</button><button class="adm-btn" onclick="showAdm('adm-empregos',this)">💼 Empregos</button><button class="adm-btn" onclick="showAdm('adm-site',this)">🎨 Personalizar</button></div>
+<div class="adm-nav"><button class="adm-btn on" onclick="showAdm('adm-emps',this)">🏢 Empresas</button><button class="adm-btn" onclick="showAdm('adm-posts',this)">📰 Posts</button><button class="adm-btn" onclick="showAdm('adm-users',this)">👥 Membros</button><button class="adm-btn" onclick="showAdm('adm-sol',this)">📩 Solicitações</button><button class="adm-btn" onclick="showAdm('adm-vips',this)">⭐ VIPs/Tags</button><button class="adm-btn" onclick="showAdm('adm-empregos',this)">💼 Empregos</button><button class="adm-btn" onclick="showAdm('adm-radio',this)">📻 Rádio</button><button class="adm-btn" onclick="showAdm('adm-site',this)">🎨 Personalizar</button></div>
 <div id="adm-emps" class="adm-panel on"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px"><span style="color:var(--gray);font-size:13px">Gerencie as empresas</span><button class="btn btn-gold btn-sm" onclick="openM('m-nova-emp')">+ Nova Empresa</button></div><div class="tw"><table><thead><tr><th>Logo</th><th>Nome</th><th>Cargos</th><th>Membros</th><th>Privacidade</th><th>Ações</th></tr></thead><tbody id="tb-emps"></tbody></table></div></div>
 <div id="adm-posts" class="adm-panel"><div class="tw"><table><thead><tr><th>Título</th><th>Autor</th><th>Empresa</th><th>❤️</th><th>Data</th><th>Ações</th></tr></thead><tbody id="tb-posts"></tbody></table></div></div>
 <div id="adm-users" class="adm-panel"><div class="tw"><table><thead><tr><th>Avatar</th><th>Habbo</th><th>Empresa(s)</th><th>Role</th><th>Ações</th></tr></thead><tbody id="tb-users"></tbody></table></div></div>
@@ -448,6 +473,29 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
   </div>
   <div class="alert alert-info">Código numérico (0, 1, 2, 3...) de cada cargo/emprego cadastrado pelas empresas. Esse código será usado numa futura integração com o Habbo — edite direto aqui se precisar corrigir algo.</div>
   <div class="tw"><table><thead><tr><th>Empresa</th><th>Cargo</th><th>Posição</th><th>Código</th><th>Contexto</th></tr></thead><tbody id="tb-empregos"></tbody></table></div>
+</div>
+
+<!-- RADIO ADMIN PANEL -->
+<div id="adm-radio" class="adm-panel">
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">📻 Rádio no Cabeçalho</span></div>
+    <div class="card-bd">
+      <div class="alert alert-info">Quando ativa, o botão de tocar rádio aparece no cabeçalho pra todo mundo.</div>
+      <button class="btn btn-ol btn-sm" id="radio-toggle-btn" onclick="toggleRadioAtiva()">🔇 Rádio Desativada</button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)">+ Adicionar Rádio</span></div>
+    <div class="card-bd">
+      <div class="frow">
+        <div class="fg"><label class="fl">Nome da Rádio</label><input type="text" class="form-ctrl" id="radio-nome" placeholder="Ex: Kihabbo"></div>
+        <div class="fg"><label class="fl">Link do Stream</label><input type="text" class="form-ctrl" id="radio-link" placeholder="https://..."></div>
+      </div>
+      <button class="btn btn-gold btn-sm" onclick="salvarRadio()">+ Adicionar Rádio</button>
+    </div>
+  </div>
+  <div class="sec-title">📻 Rádios Cadastradas</div>
+  <div id="radios-list-adm" style="display:flex;flex-direction:column;gap:8px"></div>
 </div>
 
 <div id="adm-site" class="adm-panel"><div class="g2">
@@ -694,7 +742,7 @@ function toast(msg,type='ok'){
 async function loadAll(){
   loader(true);
   try{
-    const [uR,pR,eR,nR,cR,tR,ptR,ctxR,cmR]=await Promise.all([
+    const [uR,pR,eR,nR,cR,tR,ptR,ctxR,cmR,rR]=await Promise.all([
       sb.from('users').select('id,habbo,role,empresa_id,registrado,seguindo,seguidores,botoes,is_admin'),
       sb.from('posts').select('*').order('id',{ascending:false}),
       sb.from('empresas').select('*').order('id',{ascending:false}),
@@ -703,10 +751,11 @@ async function loadAll(){
       sb.from('tags').select('*').order('id',{ascending:false}),
       sb.from('player_tags').select('*'),
       sb.from('contextos').select('*').order('codigo',{ascending:true}),
-      sb.from('comentarios').select('*').order('id',{ascending:true})
+      sb.from('comentarios').select('*').order('id',{ascending:true}),
+      sb.from('radios').select('*').order('id',{ascending:true})
     ]);
     D.users=uR.data||[];D.posts=pR.data||[];D.empresas=eR.data||[];D.notifs=nR.data||[];D.config=cR.data||{};
-    D_tags=tR.data||[];D_playerTags=ptR.data||[];D_contextos=ctxR.data||[];D.comentarios=cmR.data||[];
+    D_tags=tR.data||[];D_playerTags=ptR.data||[];D_contextos=ctxR.data||[];D.comentarios=cmR.data||[];D_radios=rR.data||[];
   }catch(e){console.error(e);}
   loader(false);
 }
@@ -731,8 +780,94 @@ function applyConfig(){
   if(c.logo_b64){const li=document.getElementById('logo-img');if(li)li.src=c.logo_b64;}
   const bi=document.getElementById('hero-bg');if(bi){if(c.banner_b64){bi.src=c.banner_b64;bi.style.display='block';}else bi.style.display='none';}
   const wb=document.getElementById('hero-welcome');if(wb){if(c.welcome_msg){wb.textContent=c.welcome_msg;wb.style.display='inline-block';}else wb.style.display='none';}
+  renderRadioWidget();
 }
 function prevClr(v,val){document.documentElement.style.setProperty(v,val);}
+
+// ════════════ RÁDIO ════════════
+function renderRadioWidget(){
+  const rw=document.getElementById('radio-widget');if(!rw)return;
+  const ativa=!!(D.config&&D.config.radio_ativa);
+  rw.style.display=(ativa&&D_radios.length)?'flex':'none';
+  const picker=document.getElementById('radio-picker');
+  if(picker){
+    picker.innerHTML=D_radios.length?D_radios.map(r=>`<button class="radio-picker-item ${radioAtual&&radioAtual.id===r.id?'on':''}" onclick="selecionarRadio(${r.id})">📻 ${esc(r.nome)}</button>`).join(''):'<div style="padding:10px;color:var(--gray);font-size:12px">Nenhuma rádio cadastrada.</div>';
+  }
+  updateRadioPlayBtn();
+}
+function toggleRadioMenu(){
+  document.querySelectorAll('.react-picker.on').forEach(el=>{if(el.id!=='radio-picker')el.classList.remove('on');});
+  const p=document.getElementById('radio-picker');if(p)p.classList.toggle('on');
+}
+function selecionarRadio(id){
+  const r=D_radios.find(x=>x.id===id);if(!r)return;
+  radioAtual=r;
+  const audio=document.getElementById('radio-audio');
+  audio.src=r.link;
+  audio.play().then(()=>{radioPlaying=true;updateRadioPlayBtn();}).catch(()=>{radioPlaying=false;updateRadioPlayBtn();toast('Não foi possível tocar essa rádio.','err');});
+  document.querySelectorAll('.react-picker.on').forEach(el=>el.classList.remove('on'));
+  renderRadioWidget();
+}
+function toggleRadioPlay(){
+  const audio=document.getElementById('radio-audio');
+  if(!radioAtual){
+    if(D_radios.length)selecionarRadio(D_radios[0].id);
+    else toast('Nenhuma rádio cadastrada ainda.','info');
+    return;
+  }
+  if(radioPlaying){audio.pause();radioPlaying=false;updateRadioPlayBtn();}
+  else audio.play().then(()=>{radioPlaying=true;updateRadioPlayBtn();}).catch(()=>{radioPlaying=false;updateRadioPlayBtn();toast('Não foi possível tocar essa rádio.','err');});
+}
+function updateRadioPlayBtn(){
+  const btn=document.getElementById('radio-play-btn');if(!btn)return;
+  btn.textContent=radioPlaying?'⏸️':'▶️';
+  btn.classList.toggle('playing',radioPlaying);
+  btn.title=radioAtual?(radioPlaying?'Pausar '+radioAtual.nome:'Tocar '+radioAtual.nome):'Tocar rádio';
+}
+async function toggleRadioAtiva(){
+  const novo=!(D.config&&D.config.radio_ativa);
+  await sb.from('config').update({radio_ativa:novo}).eq('id',1);
+  D.config.radio_ativa=novo;
+  updateRadioToggleBtn();
+  renderRadioWidget();
+  toast(novo?'Rádio ativada no cabeçalho!':'Rádio desativada.');
+}
+function updateRadioToggleBtn(){
+  const btn=document.getElementById('radio-toggle-btn');if(!btn)return;
+  const ativa=!!(D.config&&D.config.radio_ativa);
+  btn.textContent=ativa?'🔊 Rádio Ativa':'🔇 Rádio Desativada';
+  btn.className='btn btn-sm '+(ativa?'btn-green':'btn-ol');
+}
+async function salvarRadio(){
+  const nome=document.getElementById('radio-nome').value.trim();
+  const link=document.getElementById('radio-link').value.trim();
+  if(!nome||!link){toast('Preencha nome e link da rádio.','err');return;}
+  const r={id:Date.now(),nome,link,criado:ds()};
+  const {data:ins,error}=await sb.from('radios').insert(r).select().single();
+  if(error){toast('Erro ao adicionar rádio.','err');return;}
+  D_radios.push(ins);
+  document.getElementById('radio-nome').value='';
+  document.getElementById('radio-link').value='';
+  renderRadiosAdm();renderRadioWidget();
+  toast('Rádio adicionada!');
+}
+async function delRadio(id){
+  if(!confirm('Remover essa rádio?'))return;
+  await sb.from('radios').delete().eq('id',id);
+  D_radios=D_radios.filter(r=>r.id!==id);
+  if(radioAtual&&radioAtual.id===id){
+    radioAtual=null;radioPlaying=false;
+    const audio=document.getElementById('radio-audio');if(audio){audio.pause();audio.src='';}
+  }
+  renderRadiosAdm();renderRadioWidget();
+  toast('Rádio removida.');
+}
+function renderRadiosAdm(){
+  const el=document.getElementById('radios-list-adm');if(!el)return;
+  updateRadioToggleBtn();
+  if(!D_radios.length){el.innerHTML='<div style="color:var(--gray);font-size:13px">Nenhuma rádio cadastrada ainda.</div>';return;}
+  el.innerHTML=D_radios.map(r=>`<div style="display:flex;align-items:center;gap:8px;background:#0a0a14;border:1px solid var(--border);border-radius:6px;padding:8px 12px"><span style="flex:1;min-width:0"><strong style="color:var(--gold)">${esc(r.nome)}</strong><div style="font-size:11px;color:var(--gray);word-break:break-all">${esc(r.link)}</div></span><button class="btn btn-danger btn-xs" onclick="delRadio(${r.id})">🗑️</button></div>`).join('');
+}
 async function saveId(){const d={site_name:document.getElementById('cfg-name').value.trim()||'City Hub RPG',site_slogan:document.getElementById('cfg-slogan').value.trim(),welcome_msg:document.getElementById('cfg-welcome').value.trim(),hero_desc:document.getElementById('cfg-desc').value.trim()};await sb.from('config').update(d).eq('id',1);Object.assign(D.config,d);applyConfig();toast('Identidade salva!');}
 async function saveCores(){const d={color_gold:document.getElementById('c-gold').value,color_mag:document.getElementById('c-mag').value,color_bg:document.getElementById('c-bg').value,color_card:document.getElementById('c-card').value};await sb.from('config').update(d).eq('id',1);Object.assign(D.config,d);applyConfig();toast('Cores salvas!');}
 function resetCores(){document.documentElement.style.cssText='';toast('Cores resetadas!');}
@@ -1843,6 +1978,7 @@ function renderAdmin(){
   if(sg){const hasS=D.empresas.some(e=>(e.solicitacoes||[]).length>0);if(!hasS)sg.innerHTML='<div class="empty"><div class="empty-icon">📩</div><div class="empty-title">Sem solicitações pendentes</div></div>';
   else sg.innerHTML=D.empresas.filter(e=>(e.solicitacoes||[]).length).map(e=>`<div style="margin-bottom:20px"><div class="sec-title">${e.emoji} ${esc(e.nome)}</div><div class="card">${(e.solicitacoes||[]).map(h=>`<div class="sol-item"><img src="${av(h)}" onerror="this.style.display='none'" style="width:40px;height:52px;image-rendering:pixelated;border-radius:4px"><strong style="color:var(--gold)">${esc(h)}</strong><div class="sol-actions"><button class="btn btn-green btn-xs" onclick="aprovarSol(${e.id},'${h}')">✅ Aprovar</button><button class="btn btn-danger btn-xs" onclick="rejeitarSol(${e.id},'${h}')">✕ Rejeitar</button></div></div>`).join('')}</div></div>`).join('');}
   renderEmpregosAdmin();
+  renderRadiosAdm();
 }
 function renderEmpregosAdmin(){
   renderContextosAdmin();
@@ -1970,6 +2106,7 @@ async function delContexto(id){
 
 // ════════════ TAGS VIP ════════════
 let D_tags=[], D_playerTags=[], vipFoundHabbo=null;
+let D_radios=[], radioAtual=null, radioPlaying=false;
 
 async function loadTags(){
   const [tR,ptR]=await Promise.all([
