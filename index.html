@@ -10,6 +10,7 @@
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
 <title id="site-title">City Hub RPG</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--black:#0a0a0f;--dark:#10101a;--card:#16162a;--border:#2a2a4a;--gold:#f5c518;--gold2:#e8a800;--magenta:#e040fb;--magenta2:#c020d8;--white:#f0f0ff;--gray:#888aaa;--green:#00e676;--red:#ff1744;--blue:#40c4ff;--site-bg:#0a0a0f;--site-card:#16162a}
@@ -28,15 +29,26 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .nav-btn{display:flex;align-items:center;gap:6px;padding:16px 14px;color:var(--white);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:.5px;background:none;border:none;cursor:pointer;transition:all .15s;text-transform:uppercase;border-bottom:3px solid transparent;margin-bottom:-3px}
 .nav-btn:hover,.nav-btn.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(245,197,24,.05)}
 .nav-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
-.radio-widget{display:flex;align-items:center;gap:6px;margin-left:10px;flex-shrink:0}
-.radio-play-btn{background:none;border:2px solid var(--gold);color:var(--gold);width:34px;height:34px;border-radius:50%;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
-.radio-play-btn:hover{background:rgba(245,197,24,.1)}
-.radio-play-btn.playing{background:var(--gold);color:#000;box-shadow:0 0 12px rgba(245,197,24,.5)}
-.radio-menu-btn{background:none;border:1px solid var(--border);color:var(--gray);width:30px;height:30px;border-radius:6px;font-size:15px;cursor:pointer;flex-shrink:0}
-.radio-menu-btn:hover{border-color:var(--gold);color:var(--gold)}
-.radio-picker-item{display:block;width:100%;text-align:left;background:none;border:none;padding:9px 10px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--white);font-family:'Rajdhani',sans-serif}
+.radio-widget{display:flex;align-items:center;gap:0;margin-left:10px;flex-shrink:0;background:rgba(245,197,24,.06);border:1px solid var(--border);border-radius:24px;padding:3px;max-width:210px;transition:border-color .15s}
+.radio-widget:has(.radio-play-btn.playing){border-color:rgba(245,197,24,.5)}
+.radio-play-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0a0a0f;width:28px;height:28px;border-radius:50%;border:none;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:box-shadow .2s;flex-shrink:0}
+.radio-play-btn.playing{animation:radioPulse 2s ease-in-out infinite}
+@keyframes radioPulse{0%,100%{box-shadow:0 0 6px rgba(245,197,24,.45)}50%{box-shadow:0 0 16px rgba(245,197,24,.85)}}
+.radio-trigger-wrap{flex:1;min-width:0;display:flex;align-items:center}
+.radio-now{display:flex;align-items:center;gap:6px;padding:0 8px;min-width:0;flex:1;color:var(--gray);font-size:12px;font-family:'Rajdhani',sans-serif;font-weight:700;cursor:pointer;overflow:hidden}
+.radio-now i{color:var(--gold);font-size:13px;flex-shrink:0}
+.radio-now span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.radio-now.playing span{color:var(--gold)}
+.radio-menu-btn{background:none;border:none;color:var(--gray);width:24px;height:24px;border-radius:50%;font-size:11px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-right:2px}
+.radio-menu-btn:hover{color:var(--gold);background:rgba(245,197,24,.12)}
+.radio-picker-item{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:none;padding:9px 10px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--white);font-family:'Rajdhani',sans-serif}
+.radio-picker-item i.bi-broadcast{color:var(--gray);font-size:13px;flex-shrink:0}
+.radio-picker-item .rp-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.radio-picker-item .bi-check2{color:var(--gold);flex-shrink:0}
 .radio-picker-item:hover{background:rgba(245,197,24,.1)}
 .radio-picker-item.on{color:var(--gold);font-weight:700}
+.radio-picker-item.on i.bi-broadcast{color:var(--gold)}
+.radio-picker-empty{padding:10px;color:var(--gray);font-size:12px}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:4px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;cursor:pointer;border:none;transition:all .15s;text-decoration:none;white-space:nowrap}
 .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;box-shadow:0 0 12px rgba(245,197,24,.4)}
 .btn-gold:hover{box-shadow:0 0 22px rgba(245,197,24,.7);transform:translateY(-1px)}
@@ -270,9 +282,10 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
     <li id="nav-adm" style="display:none"><button class="nav-btn" data-p="admin">⚙️ <span>Admin</span></button></li>
   </ul>
   <div id="radio-widget" class="radio-widget" style="display:none">
-    <button class="radio-play-btn" id="radio-play-btn" onclick="toggleRadioPlay()" title="Tocar rádio">▶️</button>
-    <div class="react-wrap">
-      <button class="radio-menu-btn" onclick="toggleRadioMenu()" title="Escolher rádio">☰</button>
+    <button class="radio-play-btn" id="radio-play-btn" onclick="toggleRadioPlay()" title="Tocar rádio"><i class="bi bi-play-fill"></i></button>
+    <div class="react-wrap radio-trigger-wrap">
+      <div class="radio-now" id="radio-now" onclick="toggleRadioMenu()"><i class="bi bi-broadcast"></i><span id="radio-now-text">Rádio</span></div>
+      <button class="radio-menu-btn" onclick="toggleRadioMenu()" title="Escolher rádio"><i class="bi bi-chevron-down"></i></button>
       <div class="react-picker radio-picker" id="radio-picker"></div>
     </div>
   </div>
@@ -791,7 +804,7 @@ function renderRadioWidget(){
   rw.style.display=(ativa&&D_radios.length)?'flex':'none';
   const picker=document.getElementById('radio-picker');
   if(picker){
-    picker.innerHTML=D_radios.length?D_radios.map(r=>`<button class="radio-picker-item ${radioAtual&&radioAtual.id===r.id?'on':''}" onclick="selecionarRadio(${r.id})">📻 ${esc(r.nome)}</button>`).join(''):'<div style="padding:10px;color:var(--gray);font-size:12px">Nenhuma rádio cadastrada.</div>';
+    picker.innerHTML=D_radios.length?D_radios.map(r=>{const on=radioAtual&&radioAtual.id===r.id;return `<button class="radio-picker-item ${on?'on':''}" onclick="selecionarRadio(${r.id})"><i class="bi bi-broadcast"></i><span class="rp-name">${esc(r.nome)}</span>${on?'<i class="bi bi-check2"></i>':''}</button>`;}).join(''):'<div class="radio-picker-empty">Nenhuma rádio cadastrada.</div>';
   }
   updateRadioPlayBtn();
 }
@@ -820,9 +833,12 @@ function toggleRadioPlay(){
 }
 function updateRadioPlayBtn(){
   const btn=document.getElementById('radio-play-btn');if(!btn)return;
-  btn.textContent=radioPlaying?'⏸️':'▶️';
+  btn.innerHTML=radioPlaying?'<i class="bi bi-pause-fill"></i>':'<i class="bi bi-play-fill"></i>';
   btn.classList.toggle('playing',radioPlaying);
   btn.title=radioAtual?(radioPlaying?'Pausar '+radioAtual.nome:'Tocar '+radioAtual.nome):'Tocar rádio';
+  const now=document.getElementById('radio-now'),nowTxt=document.getElementById('radio-now-text');
+  if(nowTxt)nowTxt.textContent=radioAtual?radioAtual.nome:'Rádio';
+  if(now)now.classList.toggle('playing',radioPlaying);
 }
 async function toggleRadioAtiva(){
   const novo=!(D.config&&D.config.radio_ativa);
