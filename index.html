@@ -495,7 +495,7 @@ footer strong{color:var(--gold)}footer .fm{color:var(--magenta)}
     <div class="card-hd"><span style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold)"><i class="bi bi-broadcast"></i>Rádio no Cabeçalho</span></div>
     <div class="card-bd">
       <div class="alert alert-info">Quando ativa, o botão de tocar rádio aparece no cabeçalho pra todo mundo.</div>
-      <button class="btn btn-ol btn-sm" id="radio-toggle-btn" onclick="toggleRadioAtiva()">🔇 Rádio Desativada</button>
+      <button class="btn btn-ol btn-sm" id="radio-toggle-btn" onclick="toggleRadioAtiva()"><i class="bi bi-volume-mute-fill"></i>Rádio Desativada</button>
     </div>
   </div>
   <div class="card" style="margin-bottom:24px">
@@ -852,7 +852,7 @@ async function toggleRadioAtiva(){
 function updateRadioToggleBtn(){
   const btn=document.getElementById('radio-toggle-btn');if(!btn)return;
   const ativa=!!(D.config&&D.config.radio_ativa);
-  btn.textContent=ativa?'🔊 Rádio Ativa':'🔇 Rádio Desativada';
+  btn.innerHTML=ativa?'<i class="bi bi-volume-up-fill"></i>Rádio Ativa':'<i class="bi bi-volume-mute-fill"></i>Rádio Desativada';
   btn.className='btn btn-sm '+(ativa?'btn-green':'btn-ol');
 }
 async function salvarRadio(){
@@ -1127,7 +1127,7 @@ function updateNav(){
   const nr=document.getElementById('nav-right'),np=document.getElementById('nav-post'),na=document.getElementById('nav-adm'),bp=document.getElementById('btn-pub');
   if(sess){
     const cp=true;
-    nr.innerHTML=`<div class="user-sess"><div class="avh" onclick="openPerfil('${sess.habbo}')">${avHeadImg(sess.habbo)}</div><div><div class="uname" onclick="openPerfil('${sess.habbo}')">${esc(sess.habbo)}</div><div class="urole">${sess.role==='admin'?'⭐ Admin':sess.role==='editor'?'✏️ Editor':'👤 Membro'}</div></div><button class="btn btn-ol btn-sm" onclick="logout()">Sair</button></div>`;
+    nr.innerHTML=`<div class="user-sess"><div class="avh" onclick="openPerfil('${sess.habbo}')">${avHeadImg(sess.habbo)}</div><div><div class="uname" onclick="openPerfil('${sess.habbo}')">${esc(sess.habbo)}</div><div class="urole">${sess.role==='admin'?'<i class="bi bi-star-fill"></i>Admin':sess.role==='editor'?'<i class="bi bi-pencil-square"></i>Editor':'<i class="bi bi-person-fill"></i>Membro'}</div></div><button class="btn btn-ol btn-sm" onclick="logout()">Sair</button></div>`;
     np.style.display=cp?'block':'none';if(bp)bp.style.display=cp?'inline-flex':'none';
     na.style.display=sess.role==='admin'?'block':'none';
   }else{
@@ -1183,7 +1183,7 @@ function renderPosts(cEl,max){
   // Fixados primeiro
   posts.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));
   if(max)posts=posts.slice(0,max);
-  if(!posts.length){el.innerHTML='<div class="empty"><div class="empty-icon">📰</div><div class="empty-title">Nenhuma publicação ainda</div></div>';return;}
+  if(!posts.length){el.innerHTML='<div class="empty"><div class="empty-icon"><i class="bi bi-newspaper"></i></div><div class="empty-title">Nenhuma publicação ainda</div></div>';return;}
   el.innerHTML=posts.map(p=>postCard(p)).join('');
 }
 // Reatualiza a listagem de posts na página atualmente visível (Início/Feed/Empresa/Perfil)
@@ -1204,13 +1204,13 @@ function postCard(p){
   const ytHtml=p.yt_id?`<div class="yt-wrap" id="yw-p-${p.id}"><div class="yt-thumb" onclick="playYT('yw-p-${p.id}','${p.yt_id}')"><img src="https://img.youtube.com/vi/${p.yt_id}/hqdefault.jpg" alt=""><div class="yt-play"><div class="yt-icon"></div></div></div></div>`:'';
   const imgHtml=(p.imagem&&!p.yt_id)?`<img class="post-img" src="${esc(p.imagem)}" alt="" onerror="this.style.display='none'">`:'';
   const logo=p.empresa_logo?`<img src="${esc(p.empresa_logo)}" style="width:18px;height:18px;border-radius:3px;object-fit:cover;">`:p.empresa_emoji;
-  const badgeHtml=p.empresa_id?`<span class="emp-badge" onclick="openEmpPage(${p.empresa_id})">${logo} ${esc(p.empresa_nome)}</span>`:`<span class="emp-badge" style="background:linear-gradient(135deg,var(--gold2),var(--gold));color:#000" onclick="openPerfil('${p.autor}')">👤 Perfil Pessoal</span>`;
+  const badgeHtml=p.empresa_id?`<span class="emp-badge" onclick="openEmpPage(${p.empresa_id})">${logo} ${esc(p.empresa_nome)}</span>`:`<span class="emp-badge" style="background:linear-gradient(135deg,var(--gold2),var(--gold));color:#000" onclick="openPerfil('${p.autor}')"><i class="bi bi-person-fill"></i>Perfil Pessoal</span>`;
   // Verificar permissão para fixar/deletar
   const emp=D.empresas.find(e=>e.id==p.empresa_id);
   const canMng=sess&&(sess.role==='admin'||(emp&&(emp.editor_habbo===sess.habbo||emp.editor===sess.habbo||(emp.editores||[]).includes(sess.habbo)||(emp.admins||[]).includes(sess.habbo))));
   const canDel=sess&&(sess.role==='admin'||sess.habbo===p.autor||canMng);
-  const pinBtn=canMng?`<button class="btn btn-xs ${p.pinned?'btn-gold':'btn-ol'}" onclick="togglePin(${p.id})" title="${p.pinned?'Desafixar':'Fixar publicação'}">📌 ${p.pinned?'Desafixar':'Fixar'}</button>`:'';
-  const pinnedBadge=p.pinned?`<span class="pin-badge">📌 Fixado</span>`:'';
+  const pinBtn=canMng?`<button class="btn btn-xs ${p.pinned?'btn-gold':'btn-ol'}" onclick="togglePin(${p.id})" title="${p.pinned?'Desafixar':'Fixar publicação'}"><i class="bi bi-pin-angle-fill"></i>${p.pinned?'Desafixar':'Fixar'}</button>`:'';
+  const pinnedBadge=p.pinned?`<span class="pin-badge"><i class="bi bi-pin-angle-fill"></i>Fixado</span>`:'';
   const previaLinkUrl=!p.yt_id?extrairPrimeiroLink(p.conteudo):null;
   if(previaLinkUrl)setTimeout(()=>carregarPreviaLink('lp-p-'+p.id,previaLinkUrl),0);
   const LIMITE_TXT=300;
@@ -1238,11 +1238,11 @@ function postCard(p){
         <button class="like-btn ${minhaReacao?'liked':''}" onclick="toggleReactPicker(${p.id})">${summaryHtml}</button>
         <div class="react-picker" id="rp-${p.id}">${REACOES.map(r=>`<button class="react-opt" title="${r.label}" onclick="setReacao(${p.id},'${r.emoji}')">${r.emoji}</button>`).join('')}</div>
       </div>
-      <button class="like-btn" onclick="toggleComments(${p.id})">💬 <span class="cmt-count">${nComments}</span></button>
+      <button class="like-btn" onclick="toggleComments(${p.id})"><i class="bi bi-chat-fill"></i><span class="cmt-count">${nComments}</span></button>
       <div style="display:flex;gap:6px;margin-left:auto">
         ${pinBtn}
-        ${canDel?`<button class="btn btn-ol btn-xs" onclick="abrirEditPost(${p.id})" title="Editar publicação">✏️ Editar</button>`:''}
-        ${canDel?`<button class="btn btn-danger btn-xs" onclick="delPost(${p.id})">🗑️</button>`:''}
+        ${canDel?`<button class="btn btn-ol btn-xs" onclick="abrirEditPost(${p.id})" title="Editar publicação"><i class="bi bi-pencil-square"></i>Editar</button>`:''}
+        ${canDel?`<button class="btn btn-danger btn-xs" onclick="delPost(${p.id})" title="Apagar"><i class="bi bi-trash-fill"></i></button>`:''}
       </div>
     </div>
     <div class="post-meta">
@@ -1622,7 +1622,7 @@ function renderEmps(){
   const el=document.getElementById('emps-list');if(!el)return;
   const q=(document.getElementById('search-emp')||{}).value||'';
   let emps=D.empresas;if(q)emps=emps.filter(e=>e.nome.toLowerCase().includes(q.toLowerCase()));
-  if(!emps.length){el.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🏢</div><div class="empty-title">Nenhuma empresa</div></div>';return;}
+  if(!emps.length){el.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon"><i class="bi bi-building"></i></div><div class="empty-title">Nenhuma empresa</div></div>';return;}
   el.innerHTML=emps.map(e=>empCard(e)).join('');
 }
 function empCard(e){
@@ -1630,7 +1630,7 @@ function empCard(e){
   const banner=e.banner?`<img class="emp-banner" src="${esc(e.banner)}" alt="">`:`<div class="emp-banner-ph">${e.emoji}</div>`;
   const logo=e.logo?`<img src="${esc(e.logo)}" style="width:100%;height:100%;object-fit:cover;">`:`<div class="emp-logo-ph">${e.emoji}</div>`;
   const seguBtn=sess?`<button class="follow-btn ${isF?'on':''}" onclick="event.stopPropagation();toggleSeg(${e.id})">${isF?'✓ Seguindo':'+ Seguir'}</button>`:'';
-  return `<div class="emp-card" onclick="openEmpPage(${e.id})">${banner}<div class="emp-info-row"><div class="emp-logo-wrap">${logo}</div><div style="padding-bottom:4px;flex:1;min-width:0"><div class="emp-name">${esc(e.nome)}</div><div style="font-size:13px;color:var(--magenta)">${(e.cargos||[]).length} cargos · ${(e.membros||[]).length} membros</div></div></div><div class="emp-bd"><div class="emp-desc">${esc(e.descricao||'Sem descrição.')}</div></div><div class="emp-ft">${e.privacidade==='private'?`<span class="pub-badge pub-priv">🔒 Privada</span>`:`<span class="pub-badge pub-pub">🌍 Pública</span>`}<span class="tag tg">${D.posts.filter(p=>p.empresa_id==e.id).length} posts</span>${seguBtn}</div></div>`;
+  return `<div class="emp-card" onclick="openEmpPage(${e.id})">${banner}<div class="emp-info-row"><div class="emp-logo-wrap">${logo}</div><div style="padding-bottom:4px;flex:1;min-width:0"><div class="emp-name">${esc(e.nome)}</div><div style="font-size:13px;color:var(--magenta)">${(e.cargos||[]).length} cargos · ${(e.membros||[]).length} membros</div></div></div><div class="emp-bd"><div class="emp-desc">${esc(e.descricao||'Sem descrição.')}</div></div><div class="emp-ft">${e.privacidade==='private'?`<span class="pub-badge pub-priv"><i class="bi bi-lock-fill"></i>Privada</span>`:`<span class="pub-badge pub-pub"><i class="bi bi-globe-americas"></i>Pública</span>`}<span class="tag tg">${D.posts.filter(p=>p.empresa_id==e.id).length} posts</span>${seguBtn}</div></div>`;
 }
 
 // ════════════ EMPRESA PAGE ════════════
@@ -1653,13 +1653,13 @@ function openEmpPage(id,fromHistory){
   const logo=e.logo?`<img src="${esc(e.logo)}" style="width:100%;height:100%;object-fit:cover" alt="">`:`<div style="width:100%;height:100%;background:linear-gradient(135deg,var(--magenta2),var(--magenta));display:flex;align-items:center;justify-content:center;font-size:36px">${e.emoji}</div>`;
   const cargosHtml=buildCargos(e,canMng,isAdm);
   const ps=D.posts.filter(p=>p.empresa_id==id);
-  const postsHtml=ps.length?ps.map(p=>postCard(p)).join(''):'<div class="empty"><div class="empty-icon">📰</div><div>Nenhuma publicação.</div></div>';
+  const postsHtml=ps.length?ps.map(p=>postCard(p)).join(''):'<div class="empty"><div class="empty-icon"><i class="bi bi-newspaper"></i></div><div>Nenhuma publicação.</div></div>';
   let abtns='';
   if(sess&&!isMem){if(e.privacidade==='private'){const jaS=(e.solicitacoes||[]).includes(sess.habbo);abtns=jaS?'<button class="btn btn-gray btn-sm" disabled>⏳ Solicitação enviada</button>':`<button class="btn btn-mag btn-sm" onclick="solicitarEmp(${e.id})">📩 Solicitar Entrada</button>`;}else abtns=`<button class="btn btn-green btn-sm" onclick="entrarEmp(${e.id})">✅ Entrar</button>`;}
   else if(sess&&isMem&&!isEd)abtns=`<button class="btn btn-danger btn-sm" onclick="sairEmp(${e.id})">🚪 Sair</button>`;
   if(sess)abtns+=` <button class="follow-btn ${isF?'on':''}" onclick="toggleSeg(${e.id})" style="display:inline-flex">${isF?'✓ Seguindo':'+ Seguir'}</button>`;
   if(canMng)abtns+=` <button class="btn btn-ol btn-sm" onclick="editEmp(${e.id})">✏️ Editar</button>`;
-  const solHtml=canMng&&(e.solicitacoes||[]).length?`<div class="sec-title" style="margin-top:28px">📩 Solicitações Pendentes</div><div class="card" style="margin-bottom:20px">${(e.solicitacoes||[]).map(h=>`<div class="sol-item"><img src="${av(h)}" onerror="this.style.display='none'" style="width:40px;height:52px;image-rendering:pixelated;border-radius:4px"><div><strong style="color:var(--gold)">${esc(h)}</strong></div><div class="sol-actions"><button class="btn btn-green btn-xs" onclick="aprovarSol(${e.id},'${h}')">✅ Aprovar</button><button class="btn btn-danger btn-xs" onclick="rejeitarSol(${e.id},'${h}')">✕ Rejeitar</button></div></div>`).join('')}</div>`:'';
+  const solHtml=canMng&&(e.solicitacoes||[]).length?`<div class="sec-title" style="margin-top:28px">📩 Solicitações Pendentes</div><div class="card" style="margin-bottom:20px">${(e.solicitacoes||[]).map(h=>`<div class="sol-item"><img src="${av(h)}" onerror="this.style.display='none'" style="width:40px;height:52px;image-rendering:pixelated;border-radius:4px"><div><strong style="color:var(--gold)">${esc(h)}</strong></div><div class="sol-actions"><button class="btn btn-green btn-xs" onclick="aprovarSol(${e.id},'${h}')"><i class="bi bi-check-lg"></i>Aprovar</button><button class="btn btn-danger btn-xs" onclick="rejeitarSol(${e.id},'${h}')"><i class="bi bi-x-lg"></i>Rejeitar</button></div></div>`).join('')}</div>`:'';
   const epBg=e.cor_fundo||'';const epPri=e.cor_primaria||'';const epSec=e.cor_secundaria||'';
   const epStyle=epBg?`style="background:${epBg};min-height:100vh;padding:16px;border-radius:8px;"`:'';
   const botoesHtml=(e.botoes||[]).length?`<div style="display:flex;gap:8px;flex-wrap:wrap;padding:14px 16px 16px">${e.botoes.map(b=>`<a href="${esc(b.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm" style="background:${b.cor||'var(--magenta)'};color:#fff">${esc(b.nome)}</a>`).join('')}</div>`:'';
@@ -1953,7 +1953,7 @@ function openPerfil(habbo,fromHistory){
   const ps=D.posts.filter(p=>p.autor===habbo);
   const likes=ps.reduce((a,p)=>a+(p.reacoes||[]).length,0);
   const badges=emps.map(e=>{const m=(e.membros||[]).find(x=>x.habbo===habbo);return`<span class="tag tm" style="cursor:pointer" onclick="openEmpPage(${e.id})">${e.emoji} ${esc(e.nome)} · ${esc(m?.cargo||'Membro')}</span>`;}).join(' ');
-  const postsHtml=ps.length?ps.map(p=>postCard(p)).join(''):'<div class="empty"><div class="empty-icon">📰</div><div>Nenhuma publicação.</div></div>';
+  const postsHtml=ps.length?ps.map(p=>postCard(p)).join(''):'<div class="empty"><div class="empty-icon"><i class="bi bi-newspaper"></i></div><div>Nenhuma publicação.</div></div>';
   const isOwn=sess&&sess.habbo===habbo;
   const seguidores=(u?.seguidores||[]).length;
   const seguindoCount=(u?.seguindo||[]).length;
@@ -1984,16 +1984,16 @@ function showAdm(id,btn){document.querySelectorAll('.adm-panel').forEach(p=>p.cl
 function renderAdmin(){
   const te=document.getElementById('tb-emps');
   if(te){if(!D.empresas.length)te.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px">Nenhuma empresa.</td></tr>';
-  else te.innerHTML=D.empresas.map(e=>{const l=e.logo?`<img src="${esc(e.logo)}" style="width:32px;height:32px;border-radius:4px;object-fit:cover">`:`<span style="font-size:22px">${e.emoji}</span>`;return`<tr><td>${l}</td><td><strong>${esc(e.nome)}</strong></td><td>${(e.cargos||[]).length}</td><td>${(e.membros||[]).length}</td><td>${e.privacidade==='private'?'<span class="tag tr">🔒 Privada</span>':'<span class="tag tgr">🌍 Pública</span>'}</td><td style="display:flex;gap:5px;flex-wrap:wrap"><button class="btn btn-ol btn-xs" onclick="openEmpPage(${e.id})">👁️</button><button class="btn btn-ol btn-xs" onclick="editEmp(${e.id})">✏️</button><button class="btn btn-danger btn-xs" onclick="delEmp(${e.id})">🗑️</button></td></tr>`;}).join('');}
+  else te.innerHTML=D.empresas.map(e=>{const l=e.logo?`<img src="${esc(e.logo)}" style="width:32px;height:32px;border-radius:4px;object-fit:cover">`:`<span style="font-size:22px">${e.emoji}</span>`;return`<tr><td>${l}</td><td><strong>${esc(e.nome)}</strong></td><td>${(e.cargos||[]).length}</td><td>${(e.membros||[]).length}</td><td>${e.privacidade==='private'?'<span class="tag tr"><i class="bi bi-lock-fill"></i>Privada</span>':'<span class="tag tgr"><i class="bi bi-globe-americas"></i>Pública</span>'}</td><td style="display:flex;gap:5px;flex-wrap:wrap"><button class="btn btn-ol btn-xs" onclick="openEmpPage(${e.id})" title="Ver"><i class="bi bi-eye-fill"></i></button><button class="btn btn-ol btn-xs" onclick="editEmp(${e.id})" title="Editar"><i class="bi bi-pencil-square"></i></button><button class="btn btn-danger btn-xs" onclick="delEmp(${e.id})" title="Apagar"><i class="bi bi-trash-fill"></i></button></td></tr>`;}).join('');}
   const tp=document.getElementById('tb-posts');
   if(tp){if(!D.posts.length)tp.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px">Nenhuma publicação.</td></tr>';
-  else tp.innerHTML=D.posts.map(p=>`<tr><td><strong>${esc(p.titulo)}</strong></td><td style="cursor:pointer;color:var(--gold)" onclick="openPerfil('${p.autor}')">${esc(p.autor)}</td><td>${p.empresa_emoji} ${esc(p.empresa_nome)}</td><td>❤️ ${(p.reacoes||[]).length}</td><td style="font-size:11px;color:var(--gray)">${p.data_post||''}</td><td><button class="btn btn-danger btn-xs" onclick="delPost(${p.id})">🗑️</button></td></tr>`).join('');}
+  else tp.innerHTML=D.posts.map(p=>`<tr><td><strong>${esc(p.titulo)}</strong></td><td style="cursor:pointer;color:var(--gold)" onclick="openPerfil('${p.autor}')">${esc(p.autor)}</td><td>${p.empresa_emoji} ${esc(p.empresa_nome)}</td><td><i class="bi bi-heart-fill" style="color:var(--red);margin-right:4px"></i>${(p.reacoes||[]).length}</td><td style="font-size:11px;color:var(--gray)">${p.data_post||''}</td><td><button class="btn btn-danger btn-xs" onclick="delPost(${p.id})" title="Apagar"><i class="bi bi-trash-fill"></i></button></td></tr>`).join('');}
   const tu=document.getElementById('tb-users');
   if(tu){if(!D.users.length)tu.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--gray);padding:24px">Nenhum membro.</td></tr>';
-  else tu.innerHTML=D.users.map(u=>{const emps=D.empresas.filter(e=>(e.membros||[]).some(m=>m.habbo===u.habbo));return`<tr><td><div class="avh" style="width:34px;height:34px;border-radius:4px">${avHeadImg(u.habbo)}</div></td><td style="cursor:pointer;color:var(--gold);font-weight:700" onclick="openPerfil('${u.habbo}')">${esc(u.habbo)}</td><td style="font-size:12px">${emps.map(e=>e.nome).join(', ')||'—'}</td><td>${u.role==='admin'?'<span class="badge-adm">Admin</span>':u.role==='editor'?'<span class="badge-ed">Editor</span>':'<span style="color:var(--gray)">Membro</span>'}</td><td style="display:flex;gap:4px;flex-wrap:wrap">${u.role!=='admin'?`${u.role!=='editor'?`<button class="btn btn-ol btn-xs" onclick="promover('${u.habbo}')">✏️ Editor</button>`:`<button class="btn btn-ol btn-xs" onclick="rebaixar('${u.habbo}')">👤 Membro</button>`}<button class="btn btn-danger btn-xs" onclick="delUser('${u.habbo}')">🗑️</button>`:'<span style="color:var(--gold)">Admin</span>'}</td></tr>`;}).join('');}
+  else tu.innerHTML=D.users.map(u=>{const emps=D.empresas.filter(e=>(e.membros||[]).some(m=>m.habbo===u.habbo));return`<tr><td><div class="avh" style="width:34px;height:34px;border-radius:4px">${avHeadImg(u.habbo)}</div></td><td style="cursor:pointer;color:var(--gold);font-weight:700" onclick="openPerfil('${u.habbo}')">${esc(u.habbo)}</td><td style="font-size:12px">${emps.map(e=>e.nome).join(', ')||'—'}</td><td>${u.role==='admin'?'<span class="badge-adm">Admin</span>':u.role==='editor'?'<span class="badge-ed">Editor</span>':'<span style="color:var(--gray)">Membro</span>'}</td><td style="display:flex;gap:4px;flex-wrap:wrap">${u.role!=='admin'?`${u.role!=='editor'?`<button class="btn btn-ol btn-xs" onclick="promover('${u.habbo}')"><i class="bi bi-arrow-up-circle-fill"></i>Editor</button>`:`<button class="btn btn-ol btn-xs" onclick="rebaixar('${u.habbo}')"><i class="bi bi-person-fill"></i>Membro</button>`}<button class="btn btn-danger btn-xs" onclick="delUser('${u.habbo}')" title="Remover"><i class="bi bi-trash-fill"></i></button>`:'<span style="color:var(--gold)">Admin</span>'}</td></tr>`;}).join('');}
   const sg=document.getElementById('sol-list');
-  if(sg){const hasS=D.empresas.some(e=>(e.solicitacoes||[]).length>0);if(!hasS)sg.innerHTML='<div class="empty"><div class="empty-icon">📩</div><div class="empty-title">Sem solicitações pendentes</div></div>';
-  else sg.innerHTML=D.empresas.filter(e=>(e.solicitacoes||[]).length).map(e=>`<div style="margin-bottom:20px"><div class="sec-title">${e.emoji} ${esc(e.nome)}</div><div class="card">${(e.solicitacoes||[]).map(h=>`<div class="sol-item"><img src="${av(h)}" onerror="this.style.display='none'" style="width:40px;height:52px;image-rendering:pixelated;border-radius:4px"><strong style="color:var(--gold)">${esc(h)}</strong><div class="sol-actions"><button class="btn btn-green btn-xs" onclick="aprovarSol(${e.id},'${h}')">✅ Aprovar</button><button class="btn btn-danger btn-xs" onclick="rejeitarSol(${e.id},'${h}')">✕ Rejeitar</button></div></div>`).join('')}</div></div>`).join('');}
+  if(sg){const hasS=D.empresas.some(e=>(e.solicitacoes||[]).length>0);if(!hasS)sg.innerHTML='<div class="empty"><div class="empty-icon"><i class="bi bi-envelope-fill"></i></div><div class="empty-title">Sem solicitações pendentes</div></div>';
+  else sg.innerHTML=D.empresas.filter(e=>(e.solicitacoes||[]).length).map(e=>`<div style="margin-bottom:20px"><div class="sec-title">${e.emoji} ${esc(e.nome)}</div><div class="card">${(e.solicitacoes||[]).map(h=>`<div class="sol-item"><img src="${av(h)}" onerror="this.style.display='none'" style="width:40px;height:52px;image-rendering:pixelated;border-radius:4px"><strong style="color:var(--gold)">${esc(h)}</strong><div class="sol-actions"><button class="btn btn-green btn-xs" onclick="aprovarSol(${e.id},'${h}')"><i class="bi bi-check-lg"></i>Aprovar</button><button class="btn btn-danger btn-xs" onclick="rejeitarSol(${e.id},'${h}')"><i class="bi bi-x-lg"></i>Rejeitar</button></div></div>`).join('')}</div></div>`).join('');}
   renderEmpregosAdmin();
   renderRadiosAdm();
 }
@@ -2289,7 +2289,7 @@ function renderVips(){
     }).join('');
   }
   const list=_vipFilterTag?D_playerTags.filter(pt=>pt.tag_id===_vipFilterTag):D_playerTags;
-  if(!list.length){el.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">⭐</div><div class="empty-title">Nenhum VIP/Patrocinador</div></div>';return;}
+  if(!list.length){el.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon"><i class="bi bi-star-fill"></i></div><div class="empty-title">Nenhum VIP/Patrocinador</div></div>';return;}
   el.innerHTML=list.map(pt=>{
     const tag=D_tags.find(t=>t.id===pt.tag_id);
     return`<div class="card" style="text-align:center;padding:20px;cursor:pointer" onclick="openPerfil('${pt.habbo}')">
